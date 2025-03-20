@@ -59,7 +59,9 @@ let project = Project(
                 deploymentTargets: .iOS("16.0"),
                 infoPlist: .default,
                 sources: ["Modules/Core/**"],
-                dependencies: []
+                dependencies: [
+                    .target(name: "Shared")
+                ]
             ),
         
             .target(
@@ -71,7 +73,10 @@ let project = Project(
                 infoPlist: .default,
                 sources: ["Modules/Features/**"],
                 resources: ["Modules/Features/**/*.xcassets"],
-                dependencies: []
+                dependencies: [
+                    .target(name: "Core"),
+                    .target(name: "Shared")
+                ]
             ),
         
             .target(
