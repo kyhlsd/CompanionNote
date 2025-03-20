@@ -16,6 +16,12 @@ public class PrayRequestViewController: UIViewController {
         return prayListBackgroundView
     }()
     
+    private lazy var prayRequestTableView = {
+        let prayRequestTableView = PrayRequestTableView(prayRequests: PrayRequest.dummyDatas)
+        prayRequestTableView.translatesAutoresizingMaskIntoConstraints = false
+        return prayRequestTableView
+    }()
+    
     public override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -26,12 +32,19 @@ public class PrayRequestViewController: UIViewController {
     
     private func setupUI() {
         view.addSubview(prayListBackgroundView)
+        prayListBackgroundView.addSubview(prayRequestTableView)
+        
         let safeArea = view.safeAreaLayoutGuide
         NSLayoutConstraint.activate([
             prayListBackgroundView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: 24),
             prayListBackgroundView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -24),
             prayListBackgroundView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 200),
             prayListBackgroundView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor),
+            
+            prayRequestTableView.leadingAnchor.constraint(equalTo: prayListBackgroundView.leadingAnchor, constant: 24),
+            prayRequestTableView.trailingAnchor.constraint(equalTo: prayListBackgroundView.trailingAnchor, constant: -24),
+            prayRequestTableView.topAnchor.constraint(equalTo: prayListBackgroundView.topAnchor, constant: 24),
+            prayRequestTableView.bottomAnchor.constraint(equalTo: prayListBackgroundView.bottomAnchor, constant: -24),
         ])
     }
     
