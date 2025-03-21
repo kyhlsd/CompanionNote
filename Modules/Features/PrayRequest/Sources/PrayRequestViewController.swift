@@ -41,10 +41,11 @@ public class PrayRequestViewController: UIViewController {
             prayListBackgroundView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 200),
             prayListBackgroundView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor),
             
-            prayRequestTableView.leadingAnchor.constraint(equalTo: prayListBackgroundView.leadingAnchor, constant: 24),
-            prayRequestTableView.trailingAnchor.constraint(equalTo: prayListBackgroundView.trailingAnchor, constant: -24),
-            prayRequestTableView.topAnchor.constraint(equalTo: prayListBackgroundView.topAnchor, constant: 24),
-            prayRequestTableView.bottomAnchor.constraint(equalTo: prayListBackgroundView.bottomAnchor, constant: -24),
+            // TableViewCell에 좌우 여백 8 존재 (그림자 공간)
+            prayRequestTableView.leadingAnchor.constraint(equalTo: prayListBackgroundView.leadingAnchor, constant: 12),
+            prayRequestTableView.trailingAnchor.constraint(equalTo: prayListBackgroundView.trailingAnchor, constant: -12),
+            prayRequestTableView.topAnchor.constraint(equalTo: prayListBackgroundView.topAnchor, constant: 20),
+            prayRequestTableView.bottomAnchor.constraint(equalTo: prayListBackgroundView.bottomAnchor, constant: -20),
         ])
     }
     

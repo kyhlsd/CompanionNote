@@ -51,4 +51,8 @@ public class PrayRequestTableView: UITableView, UITableViewDataSource, UITableVi
         let selectedPrayRequest = prayRequests[indexPath.row]
         print(selectedPrayRequest)
     }
+    
+    public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        150
+    }
 }

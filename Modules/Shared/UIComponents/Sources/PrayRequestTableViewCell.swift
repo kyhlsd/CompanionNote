@@ -32,6 +32,57 @@ class PrayRequestTableViewCell: UITableViewCell {
         return label
     }()
     
+    private let circleView: UIView = {
+        let view = UIView()
+        
+        view.layer.cornerRadius = 12
+        view.layer.masksToBounds = false
+        
+        view.layer.shadowColor = UIColor.black.cgColor
+        view.layer.shadowOpacity = 0.6
+        view.layer.shadowOffset = CGSize(width: 4, height: 4)
+        view.layer.shadowRadius = 6
+        
+        let gradientLayer = CAGradientLayer()
+        let circleLightPink = UIColor(named: "CircleLightPink", in: Bundle.module, compatibleWith: nil) ?? UIColor.systemBlue
+        let circleDeepPink = UIColor(named: "CircleDeepPink", in: Bundle.module, compatibleWith: nil) ?? UIColor.systemGray
+        
+        gradientLayer.colors = [
+            UIColor.white.cgColor,
+            circleLightPink.cgColor,
+            circleDeepPink.cgColor
+        ]
+        gradientLayer.startPoint = CGPoint(x: 0, y: 0)
+        gradientLayer.endPoint = CGPoint(x: 1, y: 1)
+        gradientLayer.frame = CGRect(x: 0, y: 0, width: 24, height: 24)
+        gradientLayer.cornerRadius = 12
+        
+        view.layer.insertSublayer(gradientLayer, at: 0)
+        
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+
+    
+    private let rectangleView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .systemBlue
+        view.layer.cornerRadius = 8
+        view.layer.masksToBounds = true
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    private let shadowView: UIView = {
+        let view = UIView()
+        view.layer.shadowColor = UIColor.black.cgColor
+        view.layer.shadowOpacity = 0.8
+        view.layer.shadowOffset = CGSize(width: 4, height: 4)
+        view.layer.shadowRadius = 6
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupUI()
@@ -46,23 +97,40 @@ class PrayRequestTableViewCell: UITableViewCell {
         
         selectionStyle = .none
         
+        contentView.addSubview(shadowView)
+        shadowView.addSubview(rectangleView)
+        shadowView.addSubview(circleView)
         contentView.addSubview(titleLabel)
         contentView.addSubview(detailLabel)
         contentView.addSubview(dateLabel)
         
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
-            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 15),
-            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -15),
+            shadowView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            shadowView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 8),
+            shadowView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
+            shadowView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16),
+            
+            circleView.centerXAnchor.constraint(equalTo: shadowView.centerXAnchor),
+            circleView.widthAnchor.constraint(equalToConstant: 24),
+            circleView.heightAnchor.constraint(equalToConstant: 24),
+            circleView.topAnchor.constraint(equalTo: shadowView.topAnchor),
+            
+            rectangleView.topAnchor.constraint(equalTo: circleView.centerYAnchor),
+            rectangleView.leadingAnchor.constraint(equalTo: shadowView.leadingAnchor),
+            rectangleView.trailingAnchor.constraint(equalTo: shadowView.trailingAnchor),
+            rectangleView.bottomAnchor.constraint(equalTo: shadowView.bottomAnchor),
+            
+            titleLabel.topAnchor.constraint(equalTo: rectangleView.topAnchor, constant: 10),
+            titleLabel.leadingAnchor.constraint(equalTo: rectangleView.leadingAnchor, constant: 15),
+            titleLabel.trailingAnchor.constraint(equalTo: rectangleView.trailingAnchor, constant: -15),
             
             detailLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 5),
-            detailLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 15),
-            detailLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -15),
+            detailLabel.leadingAnchor.constraint(equalTo: rectangleView.leadingAnchor, constant: 15),
+            detailLabel.trailingAnchor.constraint(equalTo: rectangleView.trailingAnchor, constant: -15),
             
             dateLabel.topAnchor.constraint(equalTo: detailLabel.bottomAnchor, constant: 5),
-            dateLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 15),
-            dateLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -15),
-            dateLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10)
+            dateLabel.leadingAnchor.constraint(equalTo: rectangleView.leadingAnchor, constant: 15),
+            dateLabel.trailingAnchor.constraint(equalTo: rectangleView.trailingAnchor, constant: -15),
         ])
     }
     
