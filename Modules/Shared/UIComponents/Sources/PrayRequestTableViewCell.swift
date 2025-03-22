@@ -35,7 +35,7 @@ class PrayRequestTableViewCell: UITableViewCell {
     private let circleView: UIView = {
         let view = UIView()
         
-        view.layer.cornerRadius = 12
+        view.layer.cornerRadius = 10
         view.layer.masksToBounds = false
         
         view.layer.shadowColor = UIColor.black.cgColor
@@ -54,8 +54,8 @@ class PrayRequestTableViewCell: UITableViewCell {
         ]
         gradientLayer.startPoint = CGPoint(x: 0, y: 0)
         gradientLayer.endPoint = CGPoint(x: 1, y: 1)
-        gradientLayer.frame = CGRect(x: 0, y: 0, width: 24, height: 24)
-        gradientLayer.cornerRadius = 12
+        gradientLayer.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
+        gradientLayer.cornerRadius = 10
         
         view.layer.insertSublayer(gradientLayer, at: 0)
         
@@ -64,10 +64,21 @@ class PrayRequestTableViewCell: UITableViewCell {
     }()
 
     
-    private let rectangleView: UIView = {
+    private let noteHeaderView: UIView = {
         let view = UIView()
-        view.backgroundColor = .systemBlue
+        view.backgroundColor = UIColor(named: "PrayRequestDark", in: Bundle.module, compatibleWith: nil)
         view.layer.cornerRadius = 8
+        view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        view.layer.masksToBounds = true
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    private let noteFooterView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor(named: "PrayRequestLight", in: Bundle.module, compatibleWith: nil)
+        view.layer.cornerRadius = 8
+        view.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
         view.layer.masksToBounds = true
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
@@ -98,7 +109,8 @@ class PrayRequestTableViewCell: UITableViewCell {
         selectionStyle = .none
         
         contentView.addSubview(shadowView)
-        shadowView.addSubview(rectangleView)
+        shadowView.addSubview(noteHeaderView)
+        shadowView.addSubview(noteFooterView)
         shadowView.addSubview(circleView)
         contentView.addSubview(titleLabel)
         contentView.addSubview(detailLabel)
@@ -111,26 +123,31 @@ class PrayRequestTableViewCell: UITableViewCell {
             shadowView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16),
             
             circleView.centerXAnchor.constraint(equalTo: shadowView.centerXAnchor),
-            circleView.widthAnchor.constraint(equalToConstant: 24),
-            circleView.heightAnchor.constraint(equalToConstant: 24),
+            circleView.widthAnchor.constraint(equalToConstant: 20),
+            circleView.heightAnchor.constraint(equalToConstant: 20),
             circleView.topAnchor.constraint(equalTo: shadowView.topAnchor),
             
-            rectangleView.topAnchor.constraint(equalTo: circleView.centerYAnchor),
-            rectangleView.leadingAnchor.constraint(equalTo: shadowView.leadingAnchor),
-            rectangleView.trailingAnchor.constraint(equalTo: shadowView.trailingAnchor),
-            rectangleView.bottomAnchor.constraint(equalTo: shadowView.bottomAnchor),
+            noteHeaderView.topAnchor.constraint(equalTo: circleView.centerYAnchor),
+            noteHeaderView.leadingAnchor.constraint(equalTo: shadowView.leadingAnchor),
+            noteHeaderView.trailingAnchor.constraint(equalTo: shadowView.trailingAnchor),
+            noteHeaderView.heightAnchor.constraint(equalToConstant: 32),
             
-            titleLabel.topAnchor.constraint(equalTo: rectangleView.topAnchor, constant: 10),
-            titleLabel.leadingAnchor.constraint(equalTo: rectangleView.leadingAnchor, constant: 15),
-            titleLabel.trailingAnchor.constraint(equalTo: rectangleView.trailingAnchor, constant: -15),
+            noteFooterView.topAnchor.constraint(equalTo: noteHeaderView.bottomAnchor),
+            noteFooterView.leadingAnchor.constraint(equalTo: shadowView.leadingAnchor),
+            noteFooterView.trailingAnchor.constraint(equalTo: shadowView.trailingAnchor),
+            noteFooterView.bottomAnchor.constraint(equalTo: shadowView.bottomAnchor),
             
-            detailLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 5),
-            detailLabel.leadingAnchor.constraint(equalTo: rectangleView.leadingAnchor, constant: 15),
-            detailLabel.trailingAnchor.constraint(equalTo: rectangleView.trailingAnchor, constant: -15),
+            titleLabel.centerYAnchor.constraint(equalTo: noteHeaderView.centerYAnchor),
+            titleLabel.leadingAnchor.constraint(equalTo: noteHeaderView.leadingAnchor, constant: 12),
+            titleLabel.trailingAnchor.constraint(equalTo: noteHeaderView.trailingAnchor, constant: -12),
+            
+            detailLabel.topAnchor.constraint(equalTo: noteFooterView.topAnchor, constant: 5),
+            detailLabel.leadingAnchor.constraint(equalTo: noteFooterView.leadingAnchor, constant: 12),
+            detailLabel.trailingAnchor.constraint(equalTo: noteFooterView.trailingAnchor, constant: -12),
             
             dateLabel.topAnchor.constraint(equalTo: detailLabel.bottomAnchor, constant: 5),
-            dateLabel.leadingAnchor.constraint(equalTo: rectangleView.leadingAnchor, constant: 15),
-            dateLabel.trailingAnchor.constraint(equalTo: rectangleView.trailingAnchor, constant: -15),
+            dateLabel.leadingAnchor.constraint(equalTo: noteFooterView.leadingAnchor, constant: 12),
+            dateLabel.trailingAnchor.constraint(equalTo: noteFooterView.trailingAnchor, constant: -12),
         ])
     }
     
