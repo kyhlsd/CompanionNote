@@ -17,7 +17,7 @@ public class PrayRequestViewController: UIViewController {
     }()
     
     private lazy var prayRequestTableView = {
-        let prayRequestTableView = PrayRequestTableView(prayRequests: PrayRequest.dummyDatas)
+        let prayRequestTableView = PrayRequestCollectionView(prayRequests: PrayRequest.dummyDatas)
         prayRequestTableView.translatesAutoresizingMaskIntoConstraints = false
         return prayRequestTableView
     }()

@@ -7,7 +7,7 @@
 
 import UIKit
 
-class PrayRequestTableViewCell: UITableViewCell {
+class PrayRequestCollectionViewCell: UICollectionViewCell {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -94,8 +94,8 @@ class PrayRequestTableViewCell: UITableViewCell {
         return view
     }()
     
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
+    override init(frame: CGRect = .zero) {
+        super.init(frame: frame)
         setupUI()
     }
     
@@ -106,7 +106,7 @@ class PrayRequestTableViewCell: UITableViewCell {
     private func setupUI() {
         backgroundColor = .clear
         
-        selectionStyle = .none
+        selectedBackgroundView = UIView()
         
         contentView.addSubview(shadowView)
         shadowView.addSubview(noteHeaderView)
@@ -120,7 +120,7 @@ class PrayRequestTableViewCell: UITableViewCell {
             shadowView.topAnchor.constraint(equalTo: contentView.topAnchor),
             shadowView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 8),
             shadowView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
-            shadowView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16),
+            shadowView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
             
             circleView.centerXAnchor.constraint(equalTo: shadowView.centerXAnchor),
             circleView.widthAnchor.constraint(equalToConstant: 20),
