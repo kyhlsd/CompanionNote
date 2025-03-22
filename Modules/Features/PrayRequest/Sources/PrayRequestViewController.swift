@@ -10,6 +10,12 @@ import Shared
 
 public class PrayRequestViewController: UIViewController {
     
+    private lazy var praySearchBar = {
+        let praySearchBar = PraySearchBar()
+        praySearchBar.translatesAutoresizingMaskIntoConstraints = false
+        return praySearchBar
+    }()
+    
     private lazy var prayListBackgroundView = {
         let prayListBackgroundView = PrayListBackgroundView()
         prayListBackgroundView.translatesAutoresizingMaskIntoConstraints = false
@@ -31,14 +37,19 @@ public class PrayRequestViewController: UIViewController {
     }
     
     private func setupUI() {
+        view.addSubview(praySearchBar)
         view.addSubview(prayListBackgroundView)
         prayListBackgroundView.addSubview(prayRequestTableView)
         
         let safeArea = view.safeAreaLayoutGuide
         NSLayoutConstraint.activate([
+            praySearchBar.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 100),
+            praySearchBar.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: 24),
+            praySearchBar.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -24),
+            
             prayListBackgroundView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: 24),
             prayListBackgroundView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -24),
-            prayListBackgroundView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 200),
+            prayListBackgroundView.topAnchor.constraint(equalTo: praySearchBar.bottomAnchor, constant: 24),
             prayListBackgroundView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor),
             
             // TableViewCell에 좌우 여백 8 존재 (그림자 공간)
