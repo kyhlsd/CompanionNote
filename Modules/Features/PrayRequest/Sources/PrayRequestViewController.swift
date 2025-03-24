@@ -37,7 +37,34 @@ public class PrayRequestViewController: UIViewController {
         tapGesture.cancelsTouchesInView = false
         view.addGestureRecognizer(tapGesture)
         
+        setupNavigationTitle()
         setupUI()
+    }
+    
+    private func setupNavigationTitle() {
+        let titleLabel = UILabel()
+        let strokeTextAttributes: [NSAttributedString.Key: Any] = [
+            .strokeColor: UIColor.black,
+            .foregroundColor: UIColor.black,
+            .strokeWidth: -2.0
+        ]
+        titleLabel.attributedText = NSAttributedString(
+            string: "기도 제목",
+            attributes: strokeTextAttributes
+        )
+        titleLabel.font = UIFont(name: "NanumDongHwaDdoBag", size: 28)
+        titleLabel.sizeToFit()
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        let containerView = UIView()
+        containerView.addSubview(titleLabel)
+        
+        NSLayoutConstraint.activate([
+            titleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 24),
+            titleLabel.centerYAnchor.constraint(equalTo: containerView.centerYAnchor)
+        ])
+        
+        navigationItem.titleView = containerView
     }
     
     private func setupUI() {
@@ -49,7 +76,7 @@ public class PrayRequestViewController: UIViewController {
         NSLayoutConstraint.activate([
             prayListBackgroundView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: 24),
             prayListBackgroundView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -24),
-            prayListBackgroundView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 100),
+            prayListBackgroundView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 20),
             prayListBackgroundView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor),
             
             praySearchBar.topAnchor.constraint(equalTo: prayListBackgroundView.topAnchor, constant: 20),
