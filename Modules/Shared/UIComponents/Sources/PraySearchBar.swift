@@ -11,12 +11,15 @@ public class PraySearchBar: UIView {
     
     override public init(frame: CGRect = .zero) {
         super.init(frame: frame)
-        backgroundColor = .systemGreen
         layer.cornerRadius = 12
         
         let searchBar = UISearchBar()
         searchBar.placeholder = "검색어를 입력하세요"
         searchBar.searchBarStyle = .minimal
+        searchBar.backgroundColor = UIColor(named: "SearchBarColor", in: Bundle.module, compatibleWith: nil)
+        searchBar.layer.cornerRadius = 8
+        searchBar.layer.borderColor = UIColor.systemGray.cgColor
+        searchBar.layer.borderWidth = 0.5
         searchBar.translatesAutoresizingMaskIntoConstraints = false
         
         let textField = searchBar.searchTextField
@@ -30,25 +33,27 @@ public class PraySearchBar: UIView {
         
         let searchButton = UIButton(type: .system)
         searchButton.setTitle("검색", for: .normal)
-        searchButton.setTitleColor(.systemGray, for: .normal)
+        searchButton.setTitleColor(.white, for: .normal)
         searchButton.titleLabel?.font = .systemFont(ofSize: 14, weight: .medium)
-        searchButton.backgroundColor = .blue
+        searchButton.backgroundColor = UIColor(named: "SearchButtonColor", in: Bundle.module, compatibleWith: nil)
         searchButton.layer.cornerRadius = 8
+        searchButton.layer.borderColor = UIColor.systemGray.cgColor
+        searchButton.layer.borderWidth = 0.5
         searchButton.translatesAutoresizingMaskIntoConstraints = false
         
         addSubview(searchBar)
         addSubview(searchButton)
         
         NSLayoutConstraint.activate([
-            searchBar.topAnchor.constraint(equalTo: topAnchor, constant: 12),
-            searchBar.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -12),
-            searchBar.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+            searchBar.topAnchor.constraint(equalTo: topAnchor),
+            searchBar.bottomAnchor.constraint(equalTo: bottomAnchor),
+            searchBar.leadingAnchor.constraint(equalTo: leadingAnchor),
             searchBar.trailingAnchor.constraint(equalTo: searchButton.leadingAnchor),
             searchBar.heightAnchor.constraint(equalToConstant: 32),
             
             searchButton.topAnchor.constraint(equalTo: searchBar.topAnchor),
             searchButton.bottomAnchor.constraint(equalTo: searchBar.bottomAnchor),
-            searchButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
+            searchButton.trailingAnchor.constraint(equalTo: trailingAnchor),
             searchButton.widthAnchor.constraint(equalToConstant: 60)
         ])
     }
