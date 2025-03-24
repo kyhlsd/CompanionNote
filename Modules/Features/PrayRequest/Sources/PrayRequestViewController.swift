@@ -37,11 +37,11 @@ public class PrayRequestViewController: UIViewController {
         tapGesture.cancelsTouchesInView = false
         view.addGestureRecognizer(tapGesture)
         
-        setupNavigationTitle()
+        setupNavigationBar()
         setupUI()
     }
     
-    private func setupNavigationTitle() {
+    private func setupNavigationBar() {
         let titleLabel = UILabel()
         let strokeTextAttributes: [NSAttributedString.Key: Any] = [
             .strokeColor: UIColor.black,
@@ -55,17 +55,43 @@ public class PrayRequestViewController: UIViewController {
         titleLabel.font = UIFont(name: "NanumDongHwaDdoBag", size: 28)
         titleLabel.sizeToFit()
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        
+
+        let plusButton = UIButton()
+        let plusImage = UIImage(systemName: "plus")?
+            .withConfiguration(UIImage.SymbolConfiguration(weight: .heavy))
+        plusButton.setImage(plusImage, for: .normal)
+        plusButton.tintColor = .systemBrown
+        plusButton.translatesAutoresizingMaskIntoConstraints = false
+
+        let deleteButton = UIButton()
+        let deleteImage = UIImage(systemName: "trash")?
+            .withConfiguration(UIImage.SymbolConfiguration(weight: .heavy))
+        deleteButton.setImage(deleteImage, for: .normal)
+        deleteButton.tintColor = .systemBrown
+        deleteButton.translatesAutoresizingMaskIntoConstraints = false
+
         let containerView = UIView()
+        containerView.translatesAutoresizingMaskIntoConstraints = false
         containerView.addSubview(titleLabel)
-        
+        containerView.addSubview(plusButton)
+        containerView.addSubview(deleteButton)
+
         NSLayoutConstraint.activate([
-            titleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 24),
-            titleLabel.centerYAnchor.constraint(equalTo: containerView.centerYAnchor)
+            containerView.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width - 60),
+            
+            titleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+            titleLabel.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
+
+            deleteButton.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
+            deleteButton.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
+
+            plusButton.trailingAnchor.constraint(equalTo: deleteButton.leadingAnchor, constant: -12),
+            plusButton.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor)
         ])
-        
+
         navigationItem.titleView = containerView
     }
+
     
     private func setupUI() {
         view.addSubview(prayListBackgroundView)
@@ -76,7 +102,7 @@ public class PrayRequestViewController: UIViewController {
         NSLayoutConstraint.activate([
             prayListBackgroundView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: 24),
             prayListBackgroundView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -24),
-            prayListBackgroundView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 20),
+            prayListBackgroundView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 12),
             prayListBackgroundView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor),
             
             praySearchBar.topAnchor.constraint(equalTo: prayListBackgroundView.topAnchor, constant: 20),
