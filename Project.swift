@@ -28,6 +28,9 @@ let project = Project(
                                 ],
                             ]
                         ]
+                    ],
+                    "UIAppFonts": [
+                        "NanumDongHwaDdoBag.ttf"
                     ]
                 ]
             ),
