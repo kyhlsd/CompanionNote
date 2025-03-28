@@ -16,12 +16,11 @@ class PrayRequestCollectionViewCell: UICollectionViewCell {
         return label
     }()
     
-    private let detailLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 14)
-        label.numberOfLines = 0
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
+    private lazy var prayRequestContentTableView: PrayRequestContentTableView = {
+        let tableView = PrayRequestContentTableView()
+        tableView.isScrollEnabled = false
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        return tableView
     }()
     
     private let dateLabel: UILabel = {
@@ -113,8 +112,8 @@ class PrayRequestCollectionViewCell: UICollectionViewCell {
         shadowView.addSubview(noteFooterView)
         shadowView.addSubview(circleView)
         contentView.addSubview(titleLabel)
-        contentView.addSubview(detailLabel)
         contentView.addSubview(dateLabel)
+        contentView.addSubview(prayRequestContentTableView)
         
         NSLayoutConstraint.activate([
             shadowView.topAnchor.constraint(equalTo: contentView.topAnchor),
@@ -141,21 +140,24 @@ class PrayRequestCollectionViewCell: UICollectionViewCell {
             titleLabel.leadingAnchor.constraint(equalTo: noteHeaderView.leadingAnchor, constant: 12),
             titleLabel.trailingAnchor.constraint(equalTo: noteHeaderView.trailingAnchor, constant: -12),
             
-            detailLabel.topAnchor.constraint(equalTo: noteFooterView.topAnchor, constant: 5),
-            detailLabel.leadingAnchor.constraint(equalTo: noteFooterView.leadingAnchor, constant: 12),
-            detailLabel.trailingAnchor.constraint(equalTo: noteFooterView.trailingAnchor, constant: -12),
-            
-            dateLabel.topAnchor.constraint(equalTo: detailLabel.bottomAnchor, constant: 5),
-            dateLabel.leadingAnchor.constraint(equalTo: noteFooterView.leadingAnchor, constant: 12),
+            dateLabel.topAnchor.constraint(equalTo: noteFooterView.topAnchor, constant: 5),
             dateLabel.trailingAnchor.constraint(equalTo: noteFooterView.trailingAnchor, constant: -12),
+            
+            prayRequestContentTableView.topAnchor.constraint(equalTo: dateLabel.bottomAnchor),
+            prayRequestContentTableView.leadingAnchor.constraint(equalTo: noteFooterView.leadingAnchor, constant: 12),
+            prayRequestContentTableView.trailingAnchor.constraint(equalTo: noteFooterView.trailingAnchor, constant: -12),
+            prayRequestContentTableView.bottomAnchor.constraint(equalTo: noteFooterView.bottomAnchor, constant: -5)
         ])
     }
     
     func configure(with prayRequest: PrayRequest) {
         titleLabel.text = prayRequest.title
-        detailLabel.text = prayRequest.text
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .short
         dateLabel.text = dateFormatter.string(from: prayRequest.date)
+        prayRequestContentTableView.prayRequestContents = prayRequest.contents
+        DispatchQueue.main.async {
+            self.prayRequestContentTableView.reloadData()
+        }
     }
 }

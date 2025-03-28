@@ -10,13 +10,30 @@ import UIKit
 public struct PrayRequest {
     let date: Date
     let title: String
-    let text: String
+    let contents: [PrayRequestContent]
     
     public static let dummyDatas = [
-            PrayRequest(date: Date(), title: "Title1", text: "Text1"),
-            PrayRequest(date: Date(), title: "Title2", text: "Text2"),
-            PrayRequest(date: Date(), title: "Title3", text: "Text3"),
+        PrayRequest(date: Date(), title: "조 모임", contents: [
+            PrayRequestContent(subject: "지수", description: "이번 한 주도 하나님 안에서 평안을 누리며 살 수 있도록"),
+            PrayRequestContent(subject: "영훈", description: "시간을 지혜롭게 사용하기\n이번주 목표한 것들 성공/실패가 아니라 모두가 기쁜 마음으로 임할 수 있기를"),
+            PrayRequestContent(subject: "하진", description: "기도 많이 하기, 말씀 많이 읽기, 찬양 많이 듣기"),
+        ]),
+        PrayRequest(date: Date(), title: "조 모임", contents: [
+            PrayRequestContent(subject: "지수", description: "이번 한 주도 하나님 안에서 평안을 누리며 살 수 있도록"),
+            PrayRequestContent(subject: "영훈", description: "시간을 지혜롭게 사용하기\n이번주 목표한 것들 성공/실패가 아니라 모두가 기쁜 마음으로 임할 수 있기를"),
+            PrayRequestContent(subject: "하진", description: "기도 많이 하기, 말씀 많이 읽기, 찬양 많이 듣기"),
+        ]),
+        PrayRequest(date: Date(), title: "조 모임", contents: [
+            PrayRequestContent(subject: "지수", description: "이번 한 주도 하나님 안에서 평안을 누리며 살 수 있도록"),
+            PrayRequestContent(subject: "영훈", description: "시간을 지혜롭게 사용하기\n이번주 목표한 것들 성공/실패가 아니라 모두가 기쁜 마음으로 임할 수 있기를"),
+            PrayRequestContent(subject: "하진", description: "기도 많이 하기, 말씀 많이 읽기, 찬양 많이 듣기"),
+        ]),
     ]
+}
+
+public struct PrayRequestContent {
+    let subject: String
+    let description: String
 }
 
 public class PrayRequestCollectionView: UICollectionView, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout  {
