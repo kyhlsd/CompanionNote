@@ -25,7 +25,7 @@ class PrayRequestCollectionViewCell: UICollectionViewCell {
     
     private let dateLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 12)
+        label.font = .systemFont(ofSize: 14)
         label.textColor = .gray
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -138,12 +138,12 @@ class PrayRequestCollectionViewCell: UICollectionViewCell {
             
             titleLabel.centerYAnchor.constraint(equalTo: noteHeaderView.centerYAnchor),
             titleLabel.leadingAnchor.constraint(equalTo: noteHeaderView.leadingAnchor, constant: 12),
-            titleLabel.trailingAnchor.constraint(equalTo: noteHeaderView.trailingAnchor, constant: -12),
-            
-            dateLabel.topAnchor.constraint(equalTo: noteFooterView.topAnchor, constant: 5),
-            dateLabel.trailingAnchor.constraint(equalTo: noteFooterView.trailingAnchor, constant: -12),
-            
-            prayRequestContentTableView.topAnchor.constraint(equalTo: dateLabel.bottomAnchor),
+            titleLabel.trailingAnchor.constraint(equalTo: dateLabel.leadingAnchor, constant: -12),
+
+            dateLabel.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
+            dateLabel.trailingAnchor.constraint(equalTo: noteHeaderView.trailingAnchor, constant: -12),
+
+            prayRequestContentTableView.topAnchor.constraint(equalTo: noteFooterView.topAnchor, constant: 5),
             prayRequestContentTableView.leadingAnchor.constraint(equalTo: noteFooterView.leadingAnchor, constant: 12),
             prayRequestContentTableView.trailingAnchor.constraint(equalTo: noteFooterView.trailingAnchor, constant: -12),
             prayRequestContentTableView.bottomAnchor.constraint(equalTo: noteFooterView.bottomAnchor, constant: -5)

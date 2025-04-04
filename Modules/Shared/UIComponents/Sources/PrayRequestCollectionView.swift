@@ -73,8 +73,9 @@ public class PrayRequestCollectionView: UICollectionView, UICollectionViewDataSo
     }
     
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let size = collectionView.frame.width / 2
-        return CGSize(width: size, height: size)
+        let frameWidth = collectionView.frame.width
+        let width = frameWidth < 600 ? frameWidth : frameWidth / 2
+        return CGSize(width: width, height: 165)
     }
     
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {

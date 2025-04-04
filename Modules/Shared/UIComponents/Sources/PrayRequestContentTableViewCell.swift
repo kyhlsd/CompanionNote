@@ -11,7 +11,7 @@ class PrayRequestContentTableViewCell: UITableViewCell {
 
     private let subjectLabel: UILabel = {
         let label = UILabel()
-        label.font = .boldSystemFont(ofSize: 12)
+        label.font = .boldSystemFont(ofSize: 14)
         label.textColor = .systemBlue
         label.numberOfLines = 1
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -20,9 +20,11 @@ class PrayRequestContentTableViewCell: UITableViewCell {
     
     private let descriptionLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 12)
+        label.font = .systemFont(ofSize: 14)
         label.numberOfLines = 2
         label.lineBreakMode = .byTruncatingTail
+        label.setContentHuggingPriority(.required, for: .vertical)
+        label.setContentCompressionResistancePriority(.required, for: .vertical)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -52,6 +54,7 @@ class PrayRequestContentTableViewCell: UITableViewCell {
             descriptionLabel.topAnchor.constraint(equalTo: subjectLabel.bottomAnchor),
             descriptionLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             descriptionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            descriptionLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4)
         ])
     }
     

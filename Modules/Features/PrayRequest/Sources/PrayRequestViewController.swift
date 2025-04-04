@@ -109,7 +109,7 @@ public class PrayRequestViewController: UIViewController {
             praySearchBar.leadingAnchor.constraint(equalTo: prayListBackgroundView.leadingAnchor, constant: 20),
             praySearchBar.trailingAnchor.constraint(equalTo: prayListBackgroundView.trailingAnchor, constant: -20),
             
-            // TableViewCell에 좌우 여백 8 존재 (그림자 공간)
+            // CollectionViewCell에 좌우 여백 8 존재 (그림자 공간)
             prayRequestCollectionView.leadingAnchor.constraint(equalTo: prayListBackgroundView.leadingAnchor, constant: 12),
             prayRequestCollectionView.trailingAnchor.constraint(equalTo: prayListBackgroundView.trailingAnchor, constant: -12),
             prayRequestCollectionView.topAnchor.constraint(equalTo: praySearchBar.bottomAnchor, constant: 20),
