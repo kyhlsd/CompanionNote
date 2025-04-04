@@ -15,6 +15,7 @@ public class PrayRequestContentTableView: UITableView, UITableViewDataSource, UI
         self.prayRequestContents = prayRequestContents
         super.init(frame: .zero, style: .plain)
         self.backgroundColor = .clear
+        self.separatorStyle = .none
         self.dataSource = self
         self.delegate = self
         self.register(PrayRequestContentTableViewCell.self, forCellReuseIdentifier: "PrayRequestContentCell")
@@ -35,4 +36,14 @@ public class PrayRequestContentTableView: UITableView, UITableViewDataSource, UI
         return cell
     }
     
+    // 상위 CollectionView의 TouchEvent를 가로채는 것을 방지
+    override public func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        let hitView = super.hitTest(point, with: event)
+        
+        if self.isScrollEnabled {
+            return hitView
+        }
+        
+        return nil
+    }
 }

@@ -22,10 +22,10 @@ public class PrayRequestViewController: UIViewController {
         return prayListBackgroundView
     }()
     
-    private lazy var prayRequestTableView = {
-        let prayRequestTableView = PrayRequestCollectionView(prayRequests: PrayRequest.dummyDatas)
-        prayRequestTableView.translatesAutoresizingMaskIntoConstraints = false
-        return prayRequestTableView
+    private lazy var prayRequestCollectionView = {
+        let prayRequestCollectionView = PrayRequestCollectionView(prayRequests: PrayRequest.dummyDatas)
+        prayRequestCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        return prayRequestCollectionView
     }()
     
     public override func viewDidLoad() {
@@ -96,7 +96,7 @@ public class PrayRequestViewController: UIViewController {
     private func setupUI() {
         view.addSubview(prayListBackgroundView)
         prayListBackgroundView.addSubview(praySearchBar)
-        prayListBackgroundView.addSubview(prayRequestTableView)
+        prayListBackgroundView.addSubview(prayRequestCollectionView)
         
         let safeArea = view.safeAreaLayoutGuide
         NSLayoutConstraint.activate([
@@ -110,11 +110,15 @@ public class PrayRequestViewController: UIViewController {
             praySearchBar.trailingAnchor.constraint(equalTo: prayListBackgroundView.trailingAnchor, constant: -20),
             
             // TableViewCell에 좌우 여백 8 존재 (그림자 공간)
-            prayRequestTableView.leadingAnchor.constraint(equalTo: prayListBackgroundView.leadingAnchor, constant: 12),
-            prayRequestTableView.trailingAnchor.constraint(equalTo: prayListBackgroundView.trailingAnchor, constant: -12),
-            prayRequestTableView.topAnchor.constraint(equalTo: praySearchBar.bottomAnchor, constant: 20),
-            prayRequestTableView.bottomAnchor.constraint(equalTo: prayListBackgroundView.bottomAnchor, constant: -20),
+            prayRequestCollectionView.leadingAnchor.constraint(equalTo: prayListBackgroundView.leadingAnchor, constant: 12),
+            prayRequestCollectionView.trailingAnchor.constraint(equalTo: prayListBackgroundView.trailingAnchor, constant: -12),
+            prayRequestCollectionView.topAnchor.constraint(equalTo: praySearchBar.bottomAnchor, constant: 20),
+            prayRequestCollectionView.bottomAnchor.constraint(equalTo: prayListBackgroundView.bottomAnchor, constant: -20),
         ])
+    }
+    
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true // 터치 이벤트를 동시에 처리하도록 허용
     }
     
     @objc private func dismissKeyboard() {
