@@ -11,7 +11,7 @@ class PrayRequestCollectionViewCell: UICollectionViewCell {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .boldSystemFont(ofSize: 16)
+        label.font = UIFont(name: "IropkeBatangM", size: 16)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -25,7 +25,7 @@ class PrayRequestCollectionViewCell: UICollectionViewCell {
     
     private let dateLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 14)
+        label.font = UIFont(name: "IropkeBatangM", size: 14)
         label.textColor = .gray
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -151,7 +151,15 @@ class PrayRequestCollectionViewCell: UICollectionViewCell {
     }
     
     func configure(with prayRequest: PrayRequest) {
-        titleLabel.text = prayRequest.title
+        let subjectStrokeTextAttributes: [NSAttributedString.Key: Any] = [
+            .strokeColor: UIColor.black,
+            .foregroundColor: UIColor.black,
+            .strokeWidth: -0.5
+        ]
+        titleLabel.attributedText = NSAttributedString(
+            string: prayRequest.title,
+            attributes: subjectStrokeTextAttributes
+        )
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .short
         dateLabel.text = dateFormatter.string(from: prayRequest.date)

@@ -11,7 +11,7 @@ class PrayRequestContentTableViewCell: UITableViewCell {
 
     private let subjectLabel: UILabel = {
         let label = UILabel()
-        label.font = .boldSystemFont(ofSize: 14)
+        label.font = UIFont(name: "IropkeBatangM", size: 12)
         label.textColor = .systemBlue
         label.numberOfLines = 1
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -20,7 +20,7 @@ class PrayRequestContentTableViewCell: UITableViewCell {
     
     private let descriptionLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 14)
+        label.font = UIFont(name: "IropkeBatangM", size: 12)
         label.numberOfLines = 2
         label.lineBreakMode = .byTruncatingTail
         label.lineBreakStrategy = .pushOut
@@ -50,7 +50,7 @@ class PrayRequestContentTableViewCell: UITableViewCell {
             subjectLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             subjectLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             
-            descriptionLabel.topAnchor.constraint(equalTo: subjectLabel.bottomAnchor),
+            descriptionLabel.topAnchor.constraint(equalTo: subjectLabel.bottomAnchor, constant: 2),
             descriptionLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             descriptionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             descriptionLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4)
@@ -58,7 +58,15 @@ class PrayRequestContentTableViewCell: UITableViewCell {
     }
     
     func configure(with prayRequestContent: PrayRequestContent) {
-        subjectLabel.text = prayRequestContent.subject
+        let subjectStrokeTextAttributes: [NSAttributedString.Key: Any] = [
+            .strokeColor: UIColor.systemBlue,
+            .foregroundColor: UIColor.systemBlue,
+            .strokeWidth: -4.0
+        ]
+        subjectLabel.attributedText = NSAttributedString(
+            string: prayRequestContent.subject,
+            attributes: subjectStrokeTextAttributes
+        )
         descriptionLabel.text = prayRequestContent.description
     }
 }
