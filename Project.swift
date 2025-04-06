@@ -30,7 +30,8 @@ let project = Project(
                         ]
                     ],
                     "UIAppFonts": [
-                        "NanumDongHwaDdoBag.ttf"
+                        "NanumDongHwaDdoBag.ttf",
+                        "IropkeBatangM.ttf"
                     ]
                 ]
             ),
