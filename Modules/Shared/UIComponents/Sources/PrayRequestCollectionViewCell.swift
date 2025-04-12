@@ -72,7 +72,7 @@ class PrayRequestCollectionViewCell: UICollectionViewCell {
         let subjectStrokeTextAttributes: [NSAttributedString.Key: Any] = [
             .strokeColor: UIColor.systemBlue,
             .foregroundColor: UIColor.systemBlue,
-            .strokeWidth: 4.5
+            .strokeWidth: -4.0
         ]
         titleLabel.attributedText = NSAttributedString(
             string: prayRequest.title,

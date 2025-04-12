@@ -40,7 +40,7 @@ public class PrayRequestViewController: UIViewController {
         let strokeTextAttributes: [NSAttributedString.Key: Any] = [
             .strokeColor: UIColor.white,
             .foregroundColor: UIColor.white,
-            .strokeWidth: -2.0
+            .strokeWidth: -3.5
         ]
         titleLabel.attributedText = NSAttributedString(
             string: "기도 제목",
