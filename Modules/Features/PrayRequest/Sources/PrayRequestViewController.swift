@@ -16,12 +16,6 @@ public class PrayRequestViewController: UIViewController {
         return praySearchBar
     }()
     
-    private lazy var prayListBackgroundView = {
-        let prayListBackgroundView = PrayListBackgroundView()
-        prayListBackgroundView.translatesAutoresizingMaskIntoConstraints = false
-        return prayListBackgroundView
-    }()
-    
     private lazy var prayRequestCollectionView = {
         let prayRequestCollectionView = PrayRequestCollectionView(prayRequests: PrayRequest.dummyDatas)
         prayRequestCollectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -44,8 +38,8 @@ public class PrayRequestViewController: UIViewController {
     private func setupNavigationBar() {
         let titleLabel = UILabel()
         let strokeTextAttributes: [NSAttributedString.Key: Any] = [
-            .strokeColor: UIColor.black,
-            .foregroundColor: UIColor.black,
+            .strokeColor: UIColor.white,
+            .foregroundColor: UIColor.white,
             .strokeWidth: -2.0
         ]
         titleLabel.attributedText = NSAttributedString(
@@ -53,21 +47,22 @@ public class PrayRequestViewController: UIViewController {
             attributes: strokeTextAttributes
         )
         titleLabel.font = UIFont(name: "NanumDongHwaDdoBag", size: 28)
+        titleLabel.textColor = .white
         titleLabel.sizeToFit()
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
-
+        
         let plusButton = UIButton()
         let plusImage = UIImage(systemName: "plus")?
-            .withConfiguration(UIImage.SymbolConfiguration(weight: .heavy))
+            .withConfiguration(UIImage.SymbolConfiguration(weight: .semibold))
         plusButton.setImage(plusImage, for: .normal)
-        plusButton.tintColor = .systemBrown
+        plusButton.tintColor = .white
         plusButton.translatesAutoresizingMaskIntoConstraints = false
 
         let deleteButton = UIButton()
         let deleteImage = UIImage(systemName: "trash")?
-            .withConfiguration(UIImage.SymbolConfiguration(weight: .heavy))
+            .withConfiguration(UIImage.SymbolConfiguration(weight: .regular))
         deleteButton.setImage(deleteImage, for: .normal)
-        deleteButton.tintColor = .systemBrown
+        deleteButton.tintColor = .white
         deleteButton.translatesAutoresizingMaskIntoConstraints = false
 
         let containerView = UIView()
@@ -75,7 +70,7 @@ public class PrayRequestViewController: UIViewController {
         containerView.addSubview(titleLabel)
         containerView.addSubview(plusButton)
         containerView.addSubview(deleteButton)
-
+        
         NSLayoutConstraint.activate([
             containerView.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width - 60),
             
@@ -94,26 +89,22 @@ public class PrayRequestViewController: UIViewController {
 
     
     private func setupUI() {
-        view.addSubview(prayListBackgroundView)
-        prayListBackgroundView.addSubview(praySearchBar)
-        prayListBackgroundView.addSubview(prayRequestCollectionView)
+        view.addSubview(praySearchBar)
+        view.addSubview(prayRequestCollectionView)
+        
+        let sidePadding = UIScreen.main.bounds.width * (1 - 0.88) / 2
         
         let safeArea = view.safeAreaLayoutGuide
         NSLayoutConstraint.activate([
-            prayListBackgroundView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: 24),
-            prayListBackgroundView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -24),
-            prayListBackgroundView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 12),
-            prayListBackgroundView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor),
             
-            praySearchBar.topAnchor.constraint(equalTo: prayListBackgroundView.topAnchor, constant: 20),
-            praySearchBar.leadingAnchor.constraint(equalTo: prayListBackgroundView.leadingAnchor, constant: 20),
-            praySearchBar.trailingAnchor.constraint(equalTo: prayListBackgroundView.trailingAnchor, constant: -20),
+            praySearchBar.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 12),
+            praySearchBar.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: sidePadding),
+            praySearchBar.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -sidePadding),
             
-            // CollectionViewCell에 좌우 여백 8 존재 (그림자 공간)
-            prayRequestCollectionView.leadingAnchor.constraint(equalTo: prayListBackgroundView.leadingAnchor, constant: 12),
-            prayRequestCollectionView.trailingAnchor.constraint(equalTo: prayListBackgroundView.trailingAnchor, constant: -12),
+            prayRequestCollectionView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: sidePadding),
+            prayRequestCollectionView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -sidePadding),
             prayRequestCollectionView.topAnchor.constraint(equalTo: praySearchBar.bottomAnchor, constant: 20),
-            prayRequestCollectionView.bottomAnchor.constraint(equalTo: prayListBackgroundView.bottomAnchor, constant: -20),
+            prayRequestCollectionView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor),
         ])
     }
     
