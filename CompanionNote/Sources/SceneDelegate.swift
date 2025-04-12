@@ -33,13 +33,22 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let tabBarController = UITabBarController()
         tabBarController.viewControllers = viewControllers
         
-        tabBarController.tabBar.backgroundColor = UIColor(named: "BackgroundColor")
         tabBarController.tabBar.isTranslucent = false
         
         if #available(iOS 15.0, *) {
             let appearance = UITabBarAppearance()
             appearance.configureWithOpaqueBackground()
             appearance.shadowColor = UIColor.lightGray
+            
+            // 선택된 탭 색상
+            appearance.stackedLayoutAppearance.selected.iconColor = UIColor.white
+            appearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: UIColor.white]
+            
+            // 선택되지 않은 탭 색상
+            appearance.stackedLayoutAppearance.normal.iconColor = UIColor(named: "UnselectedTabColor")
+            appearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor(named: "UnselectedTabColor") ?? UIColor.systemGray]
+            
+            appearance.backgroundColor = UIColor(named: "TabBarColor")
             tabBarController.tabBar.standardAppearance = appearance
             tabBarController.tabBar.scrollEdgeAppearance = appearance
         }

@@ -11,6 +11,9 @@ public class PraySearchBar: UIView {
     
     override public init(frame: CGRect = .zero) {
         super.init(frame: frame)
+        
+        overrideUserInterfaceStyle = .light
+        
         layer.cornerRadius = 12
         
         let searchBar = UISearchBar()
