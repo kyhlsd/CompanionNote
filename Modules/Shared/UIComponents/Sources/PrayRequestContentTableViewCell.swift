@@ -12,7 +12,6 @@ class PrayRequestContentTableViewCell: UITableViewCell {
     private let subjectLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont(name: "IropkeBatangM", size: 12)
-        label.textColor = .black
         label.numberOfLines = 1
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -21,7 +20,6 @@ class PrayRequestContentTableViewCell: UITableViewCell {
     private let descriptionLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont(name: "IropkeBatangM", size: 12)
-        label.textColor = .black
         label.numberOfLines = 2
         label.lineBreakMode = .byTruncatingTail
         label.lineBreakStrategy = .pushOut
@@ -60,8 +58,6 @@ class PrayRequestContentTableViewCell: UITableViewCell {
     
     func configure(with prayRequestContent: PrayRequestContent) {
         let subjectStrokeTextAttributes: [NSAttributedString.Key: Any] = [
-            .strokeColor: UIColor.black,
-            .foregroundColor: UIColor.black,
             .strokeWidth: -2.0
         ]
         subjectLabel.attributedText = NSAttributedString(

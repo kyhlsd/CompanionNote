@@ -38,16 +38,13 @@ public class PrayRequestViewController: UIViewController {
     private func setupNavigationBar() {
         let titleLabel = UILabel()
         let strokeTextAttributes: [NSAttributedString.Key: Any] = [
-            .strokeColor: UIColor.white,
-            .foregroundColor: UIColor.white,
-            .strokeWidth: -3.5
+            .strokeWidth: -2.5
         ]
         titleLabel.attributedText = NSAttributedString(
             string: "기도 제목",
             attributes: strokeTextAttributes
         )
         titleLabel.font = UIFont(name: "NanumDongHwaDdoBag", size: 28)
-        titleLabel.textColor = .white
         titleLabel.sizeToFit()
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         
@@ -55,7 +52,6 @@ public class PrayRequestViewController: UIViewController {
         let plusImage = UIImage(systemName: "plus")?
             .withConfiguration(UIImage.SymbolConfiguration(weight: .semibold))
         plusButton.setImage(plusImage, for: .normal)
-        plusButton.tintColor = .white
         plusButton.translatesAutoresizingMaskIntoConstraints = false
         plusButton.addAction(UIAction{ [weak self] _ in
             print("plus button tapped")
@@ -66,7 +62,6 @@ public class PrayRequestViewController: UIViewController {
         let deleteImage = UIImage(systemName: "trash")?
             .withConfiguration(UIImage.SymbolConfiguration(weight: .regular))
         deleteButton.setImage(deleteImage, for: .normal)
-        deleteButton.tintColor = .white
         deleteButton.translatesAutoresizingMaskIntoConstraints = false
 
         let containerView = UIView()

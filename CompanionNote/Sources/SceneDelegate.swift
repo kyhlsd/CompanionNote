@@ -41,8 +41,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             appearance.shadowColor = UIColor.lightGray
             
             // 선택된 탭 색상
-            appearance.stackedLayoutAppearance.selected.iconColor = UIColor.white
-            appearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: UIColor.white]
+            appearance.stackedLayoutAppearance.selected.iconColor = UIColor(named: "SelectedTabColor")
+            appearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: UIColor(named: "SelectedTabColor") ?? UIColor.black]
             
             // 선택되지 않은 탭 색상
             appearance.stackedLayoutAppearance.normal.iconColor = UIColor(named: "UnselectedTabColor")
