@@ -57,6 +57,10 @@ public class PrayRequestViewController: UIViewController {
         plusButton.setImage(plusImage, for: .normal)
         plusButton.tintColor = .white
         plusButton.translatesAutoresizingMaskIntoConstraints = false
+        plusButton.addAction(UIAction{ [weak self] _ in
+            print("plus button tapped")
+            self?.plusButtonTapped()
+        }, for: .touchUpInside)
 
         let deleteButton = UIButton()
         let deleteImage = UIImage(systemName: "trash")?
@@ -66,13 +70,20 @@ public class PrayRequestViewController: UIViewController {
         deleteButton.translatesAutoresizingMaskIntoConstraints = false
 
         let containerView = UIView()
+        containerView.isUserInteractionEnabled = true
         containerView.translatesAutoresizingMaskIntoConstraints = false
         containerView.addSubview(titleLabel)
         containerView.addSubview(plusButton)
         containerView.addSubview(deleteButton)
         
+        var height: CGFloat = 44
+        if let navigationController = self.navigationController {
+            height = navigationController.navigationBar.frame.height + view.safeAreaInsets.top
+        }
+        
         NSLayoutConstraint.activate([
             containerView.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width - 60),
+            containerView.heightAnchor.constraint(equalToConstant: height),
             
             titleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
             titleLabel.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
@@ -108,11 +119,20 @@ public class PrayRequestViewController: UIViewController {
         ])
     }
     
+    private func setupButtonActions() {
+        
+    }
+    
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true // 터치 이벤트를 동시에 처리하도록 허용
     }
     
     @objc private func dismissKeyboard() {
         view.endEditing(true)
+    }
+    
+    private func plusButtonTapped() {
+        let addPrayRequestViewController = AddPrayRequestViewController()
+        self.navigationController?.pushViewController(addPrayRequestViewController, animated: true)
     }
 }
