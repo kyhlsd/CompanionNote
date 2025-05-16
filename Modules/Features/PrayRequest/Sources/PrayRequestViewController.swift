@@ -73,9 +73,10 @@ public class PrayRequestViewController: UIViewController {
         if let navigationController = self.navigationController {
             height = navigationController.navigationBar.frame.height + view.safeAreaInsets.top
         }
+        let sidePadding = UIScreen.main.bounds.width * (1 - 0.88) / 2
         
         NSLayoutConstraint.activate([
-            containerView.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width - 60),
+            containerView.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width - sidePadding * 2),
             containerView.heightAnchor.constraint(equalToConstant: height),
             
             titleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
