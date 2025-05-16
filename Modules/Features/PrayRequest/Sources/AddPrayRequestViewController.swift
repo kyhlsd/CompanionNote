@@ -6,9 +6,16 @@
 //
 
 import UIKit
+import Shared
 
 class AddPrayRequestViewController: UIViewController {
 
+    private lazy var prayContainerView = {
+        let prayContainerView = PrayContainerView()
+        prayContainerView.translatesAutoresizingMaskIntoConstraints = false
+        return prayContainerView
+    }()
+    
     public override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -46,7 +53,18 @@ class AddPrayRequestViewController: UIViewController {
     }
     
     private func setupUI() {
+        view.addSubview(prayContainerView)
         
+        let sidePadding = Constants.sidePadding
+        
+        let safeArea = view.safeAreaLayoutGuide
+        NSLayoutConstraint.activate([
+            
+            prayContainerView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 4),
+            prayContainerView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -12),
+            prayContainerView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: sidePadding),
+            prayContainerView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -sidePadding),
+        ])
     }
     
     @objc private func dismissKeyboard() {

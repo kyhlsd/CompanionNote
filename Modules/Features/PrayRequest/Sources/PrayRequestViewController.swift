@@ -61,39 +61,20 @@ public class PrayRequestViewController: UIViewController {
             .withConfiguration(UIImage.SymbolConfiguration(weight: .regular))
         deleteButton.setImage(deleteImage, for: .normal)
         deleteButton.translatesAutoresizingMaskIntoConstraints = false
-
-        let containerView = UIView()
-        containerView.isUserInteractionEnabled = true
-        containerView.translatesAutoresizingMaskIntoConstraints = false
-        containerView.addSubview(titleLabel)
-        containerView.addSubview(plusButton)
-        containerView.addSubview(deleteButton)
-        
-        var height: CGFloat = 44
-        if let navigationController = self.navigationController {
-            height = navigationController.navigationBar.frame.height + view.safeAreaInsets.top
-        }
-        let sidePadding = UIScreen.main.bounds.width * (1 - 0.88) / 2
         
         NSLayoutConstraint.activate([
-            containerView.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width - sidePadding * 2),
-            containerView.heightAnchor.constraint(equalToConstant: height),
-            
-            titleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
-            titleLabel.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
-
-            deleteButton.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
-            deleteButton.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
             deleteButton.widthAnchor.constraint(equalToConstant: 28),
             deleteButton.heightAnchor.constraint(equalToConstant: 28),
 
-            plusButton.trailingAnchor.constraint(equalTo: deleteButton.leadingAnchor, constant: -4),
-            plusButton.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
             plusButton.widthAnchor.constraint(equalToConstant: 28),
             plusButton.heightAnchor.constraint(equalToConstant: 28)
         ])
 
-        navigationItem.titleView = containerView
+        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: titleLabel)
+        navigationItem.rightBarButtonItems = [
+            UIBarButtonItem(customView: deleteButton),
+            UIBarButtonItem(customView: plusButton)
+        ]
     }
 
     
@@ -101,7 +82,7 @@ public class PrayRequestViewController: UIViewController {
         view.addSubview(praySearchBar)
         view.addSubview(prayRequestCollectionView)
         
-        let sidePadding = UIScreen.main.bounds.width * (1 - 0.88) / 2
+        let sidePadding = Constants.sidePadding
         
         let safeArea = view.safeAreaLayoutGuide
         NSLayoutConstraint.activate([

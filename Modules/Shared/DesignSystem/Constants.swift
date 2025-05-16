@@ -6,3 +6,7 @@
 //
 
 import Foundation
+
+public enum Constants {
+    public static let sidePadding: CGFloat = 16
+}
