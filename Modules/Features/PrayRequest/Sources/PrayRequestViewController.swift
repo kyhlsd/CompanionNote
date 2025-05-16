@@ -30,6 +30,9 @@ public class PrayRequestViewController: UIViewController {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tapGesture.cancelsTouchesInView = false
         view.addGestureRecognizer(tapGesture)
+        let navBarTapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        navBarTapGesture.cancelsTouchesInView = false
+        navigationController?.navigationBar.addGestureRecognizer(navBarTapGesture)
         
         setupNavigationBar()
         setupUI()
