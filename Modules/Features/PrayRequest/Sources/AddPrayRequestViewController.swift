@@ -25,28 +25,24 @@ class AddPrayRequestViewController: UIViewController {
     private func setupNavigationBar() {
         let titleLabel = UILabel()
         let strokeTextAttributes: [NSAttributedString.Key: Any] = [
-            .strokeColor: UIColor.white,
-            .foregroundColor: UIColor.white,
-            .strokeWidth: -3.5
+            .strokeWidth: -2.5
         ]
         titleLabel.attributedText = NSAttributedString(
             string: "새로운 기도 제목",
             attributes: strokeTextAttributes
         )
-        titleLabel.font = UIFont(name: "NanumDongHwaDdoBag", size: 28)
-        titleLabel.textColor = .white
-        titleLabel.sizeToFit()
+        
+        titleLabel.font = UIFont(name: "IropkeBatangM", size: 22)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         
         let saveButton = UIButton()
         saveButton.setTitle("저장", for: .normal)
-        saveButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
-        saveButton.tintColor = .white
+        saveButton.setTitleColor(UIColor.systemBlue, for: .normal)
+        saveButton.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
         saveButton.translatesAutoresizingMaskIntoConstraints = false
         
         navigationItem.titleView = titleLabel
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: saveButton)
-        navigationController?.navigationBar.tintColor = .white
     }
     
     private func setupUI() {

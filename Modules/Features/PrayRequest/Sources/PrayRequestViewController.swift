@@ -44,8 +44,7 @@ public class PrayRequestViewController: UIViewController {
             string: "기도 제목",
             attributes: strokeTextAttributes
         )
-        titleLabel.font = UIFont(name: "NanumDongHwaDdoBag", size: 28)
-        titleLabel.sizeToFit()
+        titleLabel.font = UIFont(name: "IropkeBatangM", size: 22)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         
         let plusButton = UIButton()
@@ -54,7 +53,6 @@ public class PrayRequestViewController: UIViewController {
         plusButton.setImage(plusImage, for: .normal)
         plusButton.translatesAutoresizingMaskIntoConstraints = false
         plusButton.addAction(UIAction{ [weak self] _ in
-            print("plus button tapped")
             self?.plusButtonTapped()
         }, for: .touchUpInside)
 
@@ -85,9 +83,13 @@ public class PrayRequestViewController: UIViewController {
 
             deleteButton.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
             deleteButton.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
+            deleteButton.widthAnchor.constraint(equalToConstant: 28),
+            deleteButton.heightAnchor.constraint(equalToConstant: 28),
 
-            plusButton.trailingAnchor.constraint(equalTo: deleteButton.leadingAnchor, constant: -12),
-            plusButton.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor)
+            plusButton.trailingAnchor.constraint(equalTo: deleteButton.leadingAnchor, constant: -4),
+            plusButton.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
+            plusButton.widthAnchor.constraint(equalToConstant: 28),
+            plusButton.heightAnchor.constraint(equalToConstant: 28)
         ])
 
         navigationItem.titleView = containerView
@@ -103,13 +105,13 @@ public class PrayRequestViewController: UIViewController {
         let safeArea = view.safeAreaLayoutGuide
         NSLayoutConstraint.activate([
             
-            praySearchBar.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 12),
+            praySearchBar.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 4),
             praySearchBar.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: sidePadding),
             praySearchBar.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -sidePadding),
             
             prayRequestCollectionView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: sidePadding),
             prayRequestCollectionView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -sidePadding),
-            prayRequestCollectionView.topAnchor.constraint(equalTo: praySearchBar.bottomAnchor, constant: 20),
+            prayRequestCollectionView.topAnchor.constraint(equalTo: praySearchBar.bottomAnchor, constant: 12),
             prayRequestCollectionView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor),
         ])
     }
