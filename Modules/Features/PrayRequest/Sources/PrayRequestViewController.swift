@@ -28,6 +28,7 @@ public class PrayRequestViewController: UIViewController {
         view.backgroundColor = UIColor(named: "BackgroundColor")
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.delegate = self
         tapGesture.cancelsTouchesInView = false
         view.addGestureRecognizer(tapGesture)
         let navBarTapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
@@ -116,5 +117,15 @@ public class PrayRequestViewController: UIViewController {
     private func plusButtonTapped() {
         let addPrayRequestViewController = AddPrayRequestViewController()
         self.navigationController?.pushViewController(addPrayRequestViewController, animated: true)
+    }
+}
+
+extension PrayRequestViewController: UIGestureRecognizerDelegate {
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        // 터치된 뷰가 UISearchBar 또는 내부 구성 요소라면 동작하지 않도록
+        if let touchedView = touch.view, touchedView.isDescendant(of: praySearchBar) {
+            return false
+        }
+        return true
     }
 }
