@@ -69,14 +69,14 @@ class PrayRequestCollectionViewCell: UICollectionViewCell {
     }
     
     func configure(with prayRequest: PrayRequest) {
-        let subjectStrokeTextAttributes: [NSAttributedString.Key: Any] = [
+        let titleStrokeTextAttributes: [NSAttributedString.Key: Any] = [
             .strokeColor: UIColor.systemBlue,
             .foregroundColor: UIColor.systemBlue,
             .strokeWidth: -4.0
         ]
         titleLabel.attributedText = NSAttributedString(
             string: prayRequest.title,
-            attributes: subjectStrokeTextAttributes
+            attributes: titleStrokeTextAttributes
         )
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .short
