@@ -39,6 +39,11 @@ public struct PrayRequest {
 public struct PrayRequestContent {
     let subject: String
     let description: String
+    
+    public init(subject: String, description: String) {
+        self.subject = subject
+        self.description = description
+    }
 }
 
 public class PrayRequestCollectionView: UICollectionView, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout  {
