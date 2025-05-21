@@ -53,6 +53,7 @@ class AddPrayRequestViewController: UIViewController {
     private lazy var newPrayContentTableView = {
         let newPrayContentTableView = NewPrayContentTableView(prayRequestContents: [
             PrayRequestContent(subject: "", description: ""),
+            PrayRequestContent(subject: "", description: ""),
             ])
         newPrayContentTableView.translatesAutoresizingMaskIntoConstraints = false
         return newPrayContentTableView
@@ -123,7 +124,7 @@ class AddPrayRequestViewController: UIViewController {
             newPrayContentTableView.leadingAnchor.constraint(equalTo: prayContainerView.leadingAnchor, constant: 12),
             newPrayContentTableView.trailingAnchor.constraint(equalTo: prayContainerView.trailingAnchor, constant: -12),
             newPrayContentTableView.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 16),
-            newPrayContentTableView.bottomAnchor.constraint(equalTo: prayContainerView.bottomAnchor, constant: -5),
+            newPrayContentTableView.bottomAnchor.constraint(equalTo: prayContainerView.bottomAnchor, constant: -12),
         ])
     }
     

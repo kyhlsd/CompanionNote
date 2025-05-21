@@ -74,7 +74,7 @@ class NewPrayContentTableViewCell: UITableViewCell {
         return textView
     }()
     
-    weak var delegate: TextViewHeightChangeDelegate?
+    weak var delegate: ViewHeightChangeDelegate?
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -130,7 +130,7 @@ class NewPrayContentTableViewCell: UITableViewCell {
 
 extension NewPrayContentTableViewCell: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
-        delegate?.onTextViewHeightChange()
+        delegate?.onViewHeightChange()
     }
     
     func textViewDidBeginEditing(_ textView: UITextView) {

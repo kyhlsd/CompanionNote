@@ -21,31 +21,50 @@ public class NewPrayContentTableView: UITableView, UITableViewDataSource, UITabl
         self.dataSource = self
         self.delegate = self
         self.register(NewPrayContentTableViewCell.self, forCellReuseIdentifier: "NewPrayContentCell")
+        self.register(AddPrayContentButtonCell.self, forCellReuseIdentifier: "AddPrayContentButtonCell")
     }
     
     public required init?(coder: NSCoder) {
              fatalError("init(coder:) has not been implemented")
          }
          
-    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    public func numberOfSections(in tableView: UITableView) -> Int {
         return prayRequestContents.count
     }
     
+    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        1
+    }
+    
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        if indexPath.section == prayRequestContents.count - 1 {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "AddPrayContentButtonCell") as! AddPrayContentButtonCell
+            return cell
+        }
+        
         let cell = tableView.dequeueReusableCell(withIdentifier: "NewPrayContentCell") as! NewPrayContentTableViewCell
         cell.delegate = self
-        cell.configure(index: indexPath.row + 1)
+        cell.configure(index: indexPath.section + 1)
         return cell
     }
-
+    
+    public func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        return 12
+    }
+    
+    public func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        let spacer = UIView()
+        spacer.backgroundColor = .clear
+        return spacer
+    }
 }
 
-protocol TextViewHeightChangeDelegate: AnyObject {
-    func onTextViewHeightChange()
+public protocol ViewHeightChangeDelegate: AnyObject {
+    func onViewHeightChange()
 }
 
-extension NewPrayContentTableView: TextViewHeightChangeDelegate {
-    func onTextViewHeightChange() {
+extension NewPrayContentTableView: ViewHeightChangeDelegate {
+    public func onViewHeightChange() {
         UIView.setAnimationsEnabled(false)
         self.beginUpdates()
         self.endUpdates()
