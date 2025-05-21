@@ -18,7 +18,7 @@ class AddPrayRequestViewController: UIViewController {
     
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont(name: "IropkeBatangM", size: 12)
+        label.font = UIFont(name: "IropkeBatangM", size: 14)
         let subjectStrokeTextAttributes: [NSAttributedString.Key: Any] = [
             .strokeWidth: -2.0
         ]
@@ -33,7 +33,7 @@ class AddPrayRequestViewController: UIViewController {
     
     private lazy var titleTextField: PaddedTextField = {
         let textField = PaddedTextField()
-        textField.font = UIFont(name: "IropkeBatangM", size: 14)
+        textField.font = UIFont(name: "IropkeBatangM", size: 16)
         let placeHolderStrokeTextAttributes: [NSAttributedString.Key: Any] = [
             .strokeColor: UIColor.lightGray,
             .foregroundColor: UIColor.lightGray,
@@ -50,29 +50,53 @@ class AddPrayRequestViewController: UIViewController {
         return textField
     }()
     
-    private lazy var newPrayContentTableView = {
-        let newPrayContentTableView = NewPrayContentTableView(prayRequestContents: [
-            PrayRequestContent(subject: "", description: ""),
-            PrayRequestContent(subject: "", description: ""),
-            ])
-        newPrayContentTableView.translatesAutoresizingMaskIntoConstraints = false
-        return newPrayContentTableView
+    private let prayContentLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont(name: "IropkeBatangM", size: 14)
+        let subjectStrokeTextAttributes: [NSAttributedString.Key: Any] = [
+            .strokeWidth: -2.0
+        ]
+        label.attributedText = NSAttributedString(
+            string: "내용",
+            attributes: subjectStrokeTextAttributes
+        )
+        label.numberOfLines = 1
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
     }()
+    
+    private let prayContentTextView: UITextView = {
+        let textView = UITextView()
+        textView.text = "ex) 매일 묵상하고 기도하기"
+        textView.textColor = .lightGray
+        textView.font = UIFont(name: "IropkeBatangM", size: 16)
+        textView.textContainerInset = .init(top: 8, left: 8, bottom: 8, right: 8)
+        textView.textContainer.lineFragmentPadding = 0
+        textView.layer.borderColor = UIColor.lightGray.cgColor
+        textView.layer.borderWidth = 1
+        textView.layer.cornerRadius = 8
+        
+        textView.translatesAutoresizingMaskIntoConstraints = false
+        return textView
+    }()
+    
+    private var prayContentTextViewBottomConstraint: NSLayoutConstraint!
     
     public override func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = UIColor(named: "BackgroundColor")
         
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        tapGesture.cancelsTouchesInView = false
-        view.addGestureRecognizer(tapGesture)
-        let navBarTapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        navBarTapGesture.cancelsTouchesInView = false
-        navigationController?.navigationBar.addGestureRecognizer(navBarTapGesture)
-        
         setupNavigationBar()
+        setupTapGesture()
         setupUI()
+        setupNotificationCenter()
+        
+        prayContentTextView.delegate = self
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     private func setupNavigationBar() {
@@ -98,11 +122,22 @@ class AddPrayRequestViewController: UIViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: saveButton)
     }
     
+    private func setupTapGesture() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+        
+        let navBarTapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        navBarTapGesture.cancelsTouchesInView = false
+        navigationController?.navigationBar.addGestureRecognizer(navBarTapGesture)
+    }
+    
     private func setupUI() {
         view.addSubview(prayContainerView)
         prayContainerView.addSubview(titleLabel)
         prayContainerView.addSubview(titleTextField)
-        prayContainerView.addSubview(newPrayContentTableView)
+        prayContainerView.addSubview(prayContentLabel)
+        prayContainerView.addSubview(prayContentTextView)
         
         let sidePadding = Constants.sidePadding
         
@@ -121,14 +156,70 @@ class AddPrayRequestViewController: UIViewController {
             titleTextField.trailingAnchor.constraint(equalTo: prayContainerView.trailingAnchor, constant: -12),
             titleTextField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 4),
             
-            newPrayContentTableView.leadingAnchor.constraint(equalTo: prayContainerView.leadingAnchor, constant: 12),
-            newPrayContentTableView.trailingAnchor.constraint(equalTo: prayContainerView.trailingAnchor, constant: -12),
-            newPrayContentTableView.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 16),
-            newPrayContentTableView.bottomAnchor.constraint(equalTo: prayContainerView.bottomAnchor, constant: -12),
+            prayContentLabel.leadingAnchor.constraint(equalTo: prayContainerView.leadingAnchor, constant: 12),
+            prayContentLabel.trailingAnchor.constraint(equalTo: prayContainerView.trailingAnchor, constant: -12),
+            prayContentLabel.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 16),
+            
+            prayContentTextView.leadingAnchor.constraint(equalTo: prayContainerView.leadingAnchor, constant: 12),
+            prayContentTextView.trailingAnchor.constraint(equalTo: prayContainerView.trailingAnchor, constant: -12),
+            prayContentTextView.topAnchor.constraint(equalTo: prayContentLabel.bottomAnchor, constant: 4),
         ])
+        
+        prayContentTextViewBottomConstraint = prayContentTextView.bottomAnchor.constraint(equalTo: prayContainerView.bottomAnchor, constant: -12)
+        prayContentTextViewBottomConstraint.isActive = true
+    }
+    
+    private func setupNotificationCenter() {
+        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
     @objc private func dismissKeyboard() {
         view.endEditing(true)
+    }
+    
+    @objc private func handleKeyboardWillShow(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
+              let animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else { return }
+
+        let keyboardHeight = keyboardFrame.height
+        let tabBarHeight = tabBarController?.tabBar.frame.height ?? 0
+        let safeOffset = keyboardHeight - tabBarHeight
+        
+        prayContentTextViewBottomConstraint.constant = -12 - safeOffset
+
+        UIView.animate(withDuration: animationDuration) {
+            self.view.layoutIfNeeded()
+        }
+    }
+
+    @objc private func handleKeyboardWillHide(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else { return }
+
+        prayContentTextViewBottomConstraint.constant = -12
+
+        UIView.animate(withDuration: animationDuration) {
+            self.view.layoutIfNeeded()
+        }
+    }
+
+}
+
+extension AddPrayRequestViewController: UITextViewDelegate {
+    
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if textView.text == "ex) 매일 묵상하고 기도하기" {
+            textView.text = ""
+            textView.textColor = .black
+        }
+    }
+    
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            textView.text = "ex) 매일 묵상하고 기도하기"
+            textView.textColor = .lightGray
+        }
     }
 }
