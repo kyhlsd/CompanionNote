@@ -27,16 +27,14 @@ public class PrayRequestViewController: UIViewController {
         
         view.backgroundColor = UIColor(named: "BackgroundColor")
         
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        tapGesture.delegate = self
-        tapGesture.cancelsTouchesInView = false
-        view.addGestureRecognizer(tapGesture)
-        let navBarTapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        navBarTapGesture.cancelsTouchesInView = false
-        navigationController?.navigationBar.addGestureRecognizer(navBarTapGesture)
-        
         setupNavigationBar()
+        setupTapGesture()
         setupUI()
+    }
+    
+    public override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        setupNavBarTapGesture()
     }
     
     private func setupNavigationBar() {
@@ -80,6 +78,13 @@ public class PrayRequestViewController: UIViewController {
             UIBarButtonItem(customView: plusButton)
         ]
     }
+    
+    private func setupTapGesture() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.delegate = self
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+    }
 
     
     private func setupUI() {
@@ -100,6 +105,20 @@ public class PrayRequestViewController: UIViewController {
             prayRequestCollectionView.topAnchor.constraint(equalTo: praySearchBar.bottomAnchor, constant: 12),
             prayRequestCollectionView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor),
         ])
+    }
+    
+    private func setupNavBarTapGesture() {
+        // 중복 추가 방지를 위해 먼저 제거
+        if let recognizers = navigationController?.navigationBar.gestureRecognizers {
+            recognizers
+                .filter { $0.name == "NavBarKeyboardDismiss" }
+                .forEach { navigationController?.navigationBar.removeGestureRecognizer($0) }
+        }
+        
+        let navBarTapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        navBarTapGesture.name = "NavBarKeyboardDismiss"
+        navBarTapGesture.cancelsTouchesInView = false
+        navigationController?.navigationBar.addGestureRecognizer(navBarTapGesture)
     }
     
     private func setupButtonActions() {
