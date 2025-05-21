@@ -11,6 +11,7 @@ public enum PlaceholderStrings {
     public static let prayContentInputPlaceholder: String =
     """
     ex) 영훈 : 매일 묵상하고 기도하기
+          민송 : 지혜와 체력
 
     위 형식으로 입력하면 자동으로 이름과 내용을 분리합니다.
 
