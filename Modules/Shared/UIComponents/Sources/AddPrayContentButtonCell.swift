@@ -8,7 +8,9 @@
 import UIKit
 
 class AddPrayContentButtonCell: UITableViewCell {
-
+    
+    weak var delegate: AddPrayContentButtonCellDelegate?
+    
     private let addContentButton = {
         let button = UIButton()
         let attributes: [NSAttributedString.Key: Any] = [
@@ -27,6 +29,9 @@ class AddPrayContentButtonCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupUI()
+        addContentButton.addAction(UIAction() { [weak self] _ in
+            self?.delegate?.didTapAddPrayContentButton()
+        }, for: .touchUpInside)
     }
     
     required init?(coder: NSCoder) {

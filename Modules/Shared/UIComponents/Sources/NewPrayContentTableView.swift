@@ -39,6 +39,7 @@ public class NewPrayContentTableView: UITableView, UITableViewDataSource, UITabl
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.section == prayRequestContents.count - 1 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "AddPrayContentButtonCell") as! AddPrayContentButtonCell
+            cell.delegate = self
             return cell
         }
         
@@ -69,5 +70,18 @@ extension NewPrayContentTableView: ViewHeightChangeDelegate {
         self.beginUpdates()
         self.endUpdates()
         UIView.setAnimationsEnabled(true)
+    }
+}
+
+public protocol AddPrayContentButtonCellDelegate: AnyObject {
+    func didTapAddPrayContentButton()
+}
+
+extension NewPrayContentTableView: AddPrayContentButtonCellDelegate {
+    public func didTapAddPrayContentButton() {
+        self.prayRequestContents.append(PrayRequestContent(subject: "", description: ""))
+        DispatchQueue.main.async { [weak self] in
+            self?.reloadData()
+        }
     }
 }
