@@ -39,7 +39,7 @@ class AddPrayRequestViewController: UIViewController {
             .foregroundColor: UIColor.lightGray,
         ]
         textField.attributedPlaceholder = NSAttributedString(
-            string: "ex) 조 모임",
+            string: PlaceholderStrings.prayTitleInputPlaceholder,
             attributes: placeHolderStrokeTextAttributes
         )
         textField.layer.borderColor = UIColor.lightGray.cgColor
@@ -67,7 +67,7 @@ class AddPrayRequestViewController: UIViewController {
     
     private let prayContentTextView: UITextView = {
         let textView = UITextView()
-        textView.text = "ex) 매일 묵상하고 기도하기"
+        textView.text = PlaceholderStrings.prayContentInputPlaceholder
         textView.textColor = .lightGray
         textView.font = UIFont(name: "IropkeBatangM", size: 16)
         textView.textContainerInset = .init(top: 8, left: 8, bottom: 8, right: 8)
@@ -117,6 +117,10 @@ class AddPrayRequestViewController: UIViewController {
         saveButton.setTitleColor(UIColor.systemBlue, for: .normal)
         saveButton.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
         saveButton.translatesAutoresizingMaskIntoConstraints = false
+        saveButton.addAction(UIAction() { [weak self] _ in
+            guard let self = self else { return }
+            self.convertToPrayRequestContent(with: self.prayContentTextView.text)
+        }, for: .touchUpInside)
         
         navigationItem.titleView = titleLabel
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: saveButton)
@@ -205,12 +209,54 @@ class AddPrayRequestViewController: UIViewController {
         }
     }
 
+    // TODO: ViewModel로 이동
+//    private func convertToPrayRequestContent(with text: String) {
+//        var prayRequestContents = [PrayRequestContent]()
+//        let strings = text.split(separator: ":")
+//        print(strings)
+//    }
+    private func convertToPrayRequestContent(with text: String) {
+        var results = [PrayRequestContent]()
+        
+        // 입력 끝에 개행 추가 (마지막 항목까지 매치되도록)
+        let normalizedText = text.hasSuffix("\n") ? text : text + "\n"
+        
+        // ":"가 없을 때는 전체 Text를 하나의 Description으로 처리
+        if !text.contains(":") {
+            let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            let prayRequestContent = PrayRequestContent(subject: "", description: trimmedText)
+            results.append(prayRequestContent)
+            print(results)
+            return
+        }
+        
+        // ":" 기준으로 둘로 나눔
+        let pattern = #"(?ms)^([^:\n]+)\s*:\s*(.*?)(?=^[^:\n]+\s*:\s*|\z)"#
+        
+        if let regex = try? NSRegularExpression(pattern: pattern) {
+            let nsText = normalizedText as NSString
+            let matches = regex.matches(in: normalizedText, range: NSRange(normalizedText.startIndex..., in: normalizedText))
+            
+            for match in matches {
+                let rawSubject = nsText.substring(with: match.range(at: 1))
+                let rawDescription = nsText.substring(with: match.range(at: 2))
+                
+                let subject = rawSubject.trimmingCharacters(in: .whitespacesAndNewlines)
+                let description = rawDescription.trimmingCharacters(in: .whitespacesAndNewlines)
+                
+                let prayRequestContent = PrayRequestContent(subject: subject, description: description)
+                results.append(prayRequestContent)
+            }
+        }
+        print(results)
+    }
+
 }
 
 extension AddPrayRequestViewController: UITextViewDelegate {
     
     func textViewDidBeginEditing(_ textView: UITextView) {
-        if textView.text == "ex) 매일 묵상하고 기도하기" {
+        if textView.text == PlaceholderStrings.prayContentInputPlaceholder {
             textView.text = ""
             textView.textColor = .black
         }
@@ -218,7 +264,7 @@ extension AddPrayRequestViewController: UITextViewDelegate {
     
     func textViewDidEndEditing(_ textView: UITextView) {
         if textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            textView.text = "ex) 매일 묵상하고 기도하기"
+            textView.text = PlaceholderStrings.prayContentInputPlaceholder
             textView.textColor = .lightGray
         }
     }
