@@ -92,6 +92,7 @@ class AddPrayRequestViewController: UIViewController {
         setupUI()
         setupNotificationCenter()
         
+        titleTextField.delegate = self
         prayContentTextView.delegate = self
     }
     
@@ -115,6 +116,7 @@ class AddPrayRequestViewController: UIViewController {
         let saveButton = UIButton()
         saveButton.setTitle("저장", for: .normal)
         saveButton.setTitleColor(UIColor.systemBlue, for: .normal)
+        saveButton.setTitleColor(UIColor.lightGray, for: .disabled)
         saveButton.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
         saveButton.translatesAutoresizingMaskIntoConstraints = false
         saveButton.addAction(UIAction() { [weak self] _ in
@@ -124,6 +126,7 @@ class AddPrayRequestViewController: UIViewController {
         
         navigationItem.titleView = titleLabel
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: saveButton)
+        navigationItem.rightBarButtonItem?.isEnabled = false
     }
     
     private func setupTapGesture() {
@@ -178,6 +181,20 @@ class AddPrayRequestViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
+    private func checkSaveButtonEnabled(titleText: String?, contentText: String?) -> Bool {
+        guard let titleText = titleText, let contentText = contentText else { return false }
+        
+        if titleText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return false
+        }
+        
+        if contentText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || contentText == PlaceholderStrings.prayContentInputPlaceholder {
+            return false
+        }
+        
+        return true
+    }
+    
     @objc private func dismissKeyboard() {
         view.endEditing(true)
     }
@@ -209,12 +226,6 @@ class AddPrayRequestViewController: UIViewController {
         }
     }
 
-    // TODO: ViewModel로 이동
-//    private func convertToPrayRequestContent(with text: String) {
-//        var prayRequestContents = [PrayRequestContent]()
-//        let strings = text.split(separator: ":")
-//        print(strings)
-//    }
     private func convertToPrayRequestContent(with text: String) {
         var results = [PrayRequestContent]()
         
@@ -267,5 +278,25 @@ extension AddPrayRequestViewController: UITextViewDelegate {
             textView.text = PlaceholderStrings.prayContentInputPlaceholder
             textView.textColor = .lightGray
         }
+    }
+    
+    func textViewDidChange(_ textView: UITextView) {
+        navigationItem.rightBarButtonItem?.isEnabled = checkSaveButtonEnabled(titleText: titleTextField.text, contentText: textView.text)
+    }
+}
+
+extension AddPrayRequestViewController: UITextFieldDelegate {
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        // 변경 후 텍스트를 미리 계산
+        if let currentText = textField.text,
+           let textRange = Range(range, in: currentText) {
+            
+            let updatedText = currentText.replacingCharacters(in: textRange, with: string)
+            
+            navigationItem.rightBarButtonItem?.isEnabled = checkSaveButtonEnabled(titleText: updatedText, contentText: prayContentTextView.text)
+        }
+        
+        return true // 텍스트 변경을 허용
     }
 }
