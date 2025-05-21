@@ -129,13 +129,13 @@ public class PrayRequestViewController: UIViewController {
         return true // 터치 이벤트를 동시에 처리하도록 허용
     }
     
-    @objc private func dismissKeyboard() {
-        view.endEditing(true)
-    }
-    
     private func plusButtonTapped() {
         let addPrayRequestViewController = AddPrayRequestViewController()
         self.navigationController?.pushViewController(addPrayRequestViewController, animated: true)
+    }
+    
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
     }
 }
 
