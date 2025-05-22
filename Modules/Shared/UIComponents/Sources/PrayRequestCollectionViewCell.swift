@@ -96,9 +96,11 @@ class PrayRequestCollectionViewCell: UICollectionViewCell {
             string: prayRequest.title,
             attributes: titleStrokeTextAttributes
         )
+        
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .short
         dateLabel.text = dateFormatter.string(from: prayRequest.date)
+        
         prayRequestContentTableView.prayRequestContents = prayRequest.contents
         DispatchQueue.main.async {
             self.prayRequestContentTableView.reloadData()

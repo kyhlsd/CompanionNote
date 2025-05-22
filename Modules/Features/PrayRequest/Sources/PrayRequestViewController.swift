@@ -66,6 +66,7 @@ public class PrayRequestViewController: UIViewController {
     private lazy var prayRequestCollectionView = {
         let prayRequestCollectionView = PrayRequestCollectionView(prayRequests: PrayRequest.dummyDatas)
         prayRequestCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        prayRequestCollectionView.pushViewControllerDelegate = self
         return prayRequestCollectionView
     }()
     
@@ -184,5 +185,11 @@ extension PrayRequestViewController: UIGestureRecognizerDelegate {
     
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true // 터치 이벤트를 동시에 처리하도록 허용
+    }
+}
+
+extension PrayRequestViewController: PushViewControllerDelegate {
+    public func pushViewController(with viewController: UIViewController) {
+        self.navigationController?.pushViewController(viewController, animated: true)
     }
 }

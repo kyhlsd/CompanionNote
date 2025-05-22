@@ -8,10 +8,10 @@
 import UIKit
 
 public struct PrayRequest {
-    let date: Date
-    let title: String
-    let contents: [PrayRequestContent]
-    let uuid: UUID
+    public let date: Date
+    public let title: String
+    public let contents: [PrayRequestContent]
+    public let uuid: UUID
     
     public init(date: Date, title: String, contents: [PrayRequestContent], uuid: UUID = UUID()) {
         self.date = date
@@ -58,6 +58,7 @@ public class PrayRequestCollectionView: UICollectionView {
 
     public var prayRequests: [PrayRequest]
     public var isDeleteMode: Bool = false
+    public weak var pushViewControllerDelegate: PushViewControllerDelegate?
     
     public init(prayRequests: [PrayRequest]) {
         self.prayRequests = prayRequests
@@ -116,7 +117,8 @@ extension PrayRequestCollectionView: UICollectionViewDataSource, UICollectionVie
             }
         } else { // 기본 모드일 때 상세보기
             let selectedPrayRequest = prayRequests[indexPath.row]
-            print(selectedPrayRequest)
+            let prayRequestDetailViewController = PrayRequestDetailViewController(with: selectedPrayRequest)
+            pushViewControllerDelegate?.pushViewController(with: prayRequestDetailViewController)
         }
     }
     
