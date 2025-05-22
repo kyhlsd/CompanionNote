@@ -9,6 +9,8 @@ import UIKit
 
 class PrayRequestCollectionViewCell: UICollectionViewCell {
     
+    private var prayRequestUUID: UUID?
+    
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont(name: "IropkeBatangM", size: 16)
@@ -69,7 +71,6 @@ class PrayRequestCollectionViewCell: UICollectionViewCell {
             titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
 
             dateLabel.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
-//            dateLabel.trailingAnchor.constraint(equalTo: checkBox.leadingAnchor, constant: -12),
             
             checkBox.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
             checkBox.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
@@ -102,6 +103,8 @@ class PrayRequestCollectionViewCell: UICollectionViewCell {
         DispatchQueue.main.async {
             self.prayRequestContentTableView.reloadData()
         }
+        
+        self.prayRequestUUID = prayRequest.uuid
     }
     
     func enableDeleteMode() {
@@ -111,7 +114,23 @@ class PrayRequestCollectionViewCell: UICollectionViewCell {
         dateLabelTrailingConstraint.isActive = true
     }
     
+    func disableDeleteMode() {
+        checkBox.isHidden = true
+        checkBox.isChecked = false
+        dateLabelTrailingConstraint.isActive = false
+        dateLabelTrailingConstraint = dateLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12)
+        dateLabelTrailingConstraint.isActive = true
+    }
+    
     func toggleCheckBoxState() {
         checkBox.isChecked.toggle()
+    }
+    
+    func getCheckedState() -> Bool {
+        return checkBox.isChecked
+    }
+    
+    func getPrayRequestUUID() -> UUID? {
+        return self.prayRequestUUID
     }
 }

@@ -159,8 +159,9 @@ public class PrayRequestViewController: UIViewController {
     }
     
     private func completeDeleteButtonTapped() {
-        print("삭제")
+        prayRequestCollectionView.deletePrayRequests()
         prayRequestCollectionView.isDeleteMode = false
+        prayRequestCollectionView.reloadData()
         navigationItem.rightBarButtonItems = [
             UIBarButtonItem(customView: deleteButton),
             UIBarButtonItem(customView: plusButton)

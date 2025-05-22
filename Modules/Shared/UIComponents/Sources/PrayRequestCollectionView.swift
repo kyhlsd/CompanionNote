@@ -11,6 +11,14 @@ public struct PrayRequest {
     let date: Date
     let title: String
     let contents: [PrayRequestContent]
+    let uuid: UUID
+    
+    public init(date: Date, title: String, contents: [PrayRequestContent], uuid: UUID = UUID()) {
+        self.date = date
+        self.title = title
+        self.contents = contents
+        self.uuid = uuid
+    }
     
     public static let dummyDatas = [
         PrayRequest(date: Date(), title: "조 모임", contents: [
@@ -72,6 +80,14 @@ public class PrayRequestCollectionView: UICollectionView {
             cell.enableDeleteMode()
         }
     }
+    
+    public func deletePrayRequests() {
+        for case let cell as PrayRequestCollectionViewCell in visibleCells {
+            if cell.getCheckedState(), let uuid = cell.getPrayRequestUUID() {
+                print(uuid.uuidString)
+            }
+        }
+    }
 }
 
 extension PrayRequestCollectionView: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
@@ -84,6 +100,11 @@ extension PrayRequestCollectionView: UICollectionViewDataSource, UICollectionVie
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PrayRequestCell", for: indexPath) as! PrayRequestCollectionViewCell
         let prayRequest = prayRequests[indexPath.row]
         cell.configure(with: prayRequest)
+        if isDeleteMode {
+            cell.enableDeleteMode()
+        } else {
+            cell.disableDeleteMode()
+        }
         return cell
     }
     
