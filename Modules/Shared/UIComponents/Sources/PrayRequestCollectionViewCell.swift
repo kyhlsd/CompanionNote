@@ -24,13 +24,22 @@ class PrayRequestCollectionViewCell: UICollectionViewCell {
         return tableView
     }()
     
-    private let dateLabel: UILabel = {
+    private lazy var dateLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont(name: "IropkeBatangM", size: 14)
         label.textColor = .gray
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
+    
+    private lazy var checkBox: CheckBox = {
+        let checkBox = CheckBox()
+        checkBox.translatesAutoresizingMaskIntoConstraints = false
+        checkBox.isHidden = true
+        return checkBox
+    }()
+    
+    private var dateLabelTrailingConstraint: NSLayoutConstraint!
     
     override init(frame: CGRect = .zero) {
         super.init(frame: frame)
@@ -51,6 +60,7 @@ class PrayRequestCollectionViewCell: UICollectionViewCell {
         
         contentView.addSubview(titleLabel)
         contentView.addSubview(dateLabel)
+        contentView.addSubview(checkBox)
         contentView.addSubview(prayRequestContentTableView)
         
         NSLayoutConstraint.activate([
@@ -59,13 +69,20 @@ class PrayRequestCollectionViewCell: UICollectionViewCell {
             titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
 
             dateLabel.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
-            dateLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
+//            dateLabel.trailingAnchor.constraint(equalTo: checkBox.leadingAnchor, constant: -12),
+            
+            checkBox.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
+            checkBox.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
+            checkBox.heightAnchor.constraint(equalToConstant: 24),
+            checkBox.widthAnchor.constraint(equalToConstant: 24),
 
             prayRequestContentTableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
             prayRequestContentTableView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
             prayRequestContentTableView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
             prayRequestContentTableView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5)
         ])
+        dateLabelTrailingConstraint = dateLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12)
+        dateLabelTrailingConstraint.isActive = true
     }
     
     func configure(with prayRequest: PrayRequest) {
@@ -85,5 +102,16 @@ class PrayRequestCollectionViewCell: UICollectionViewCell {
         DispatchQueue.main.async {
             self.prayRequestContentTableView.reloadData()
         }
+    }
+    
+    func enableDeleteMode() {
+        checkBox.isHidden = false
+        dateLabelTrailingConstraint.isActive = false
+        dateLabelTrailingConstraint = dateLabel.trailingAnchor.constraint(equalTo: checkBox.leadingAnchor, constant: -12)
+        dateLabelTrailingConstraint.isActive = true
+    }
+    
+    func toggleCheckBoxState() {
+        checkBox.isChecked.toggle()
     }
 }

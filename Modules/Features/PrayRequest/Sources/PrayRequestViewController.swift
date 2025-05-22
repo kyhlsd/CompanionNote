@@ -10,6 +10,53 @@ import Shared
 
 public class PrayRequestViewController: UIViewController {
     
+    private lazy var plusButton = {
+        let button = UIButton()
+        let image = UIImage(systemName: "plus")?
+            .withConfiguration(UIImage.SymbolConfiguration(weight: .semibold))
+        button.setImage(image, for: .normal)
+        
+        button.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            button.widthAnchor.constraint(equalToConstant: 28),
+            button.heightAnchor.constraint(equalToConstant: 28)
+        ])
+        
+        button.addAction(UIAction { [weak self] _ in
+            self?.plusButtonTapped()
+        }, for: .touchUpInside)
+        return button
+    }()
+    
+    private lazy var deleteButton = {
+        let button = UIButton()
+        let image = UIImage(systemName: "trash")?
+            .withConfiguration(UIImage.SymbolConfiguration(weight: .regular))
+        button.setImage(image, for: .normal)
+        
+        button.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            button.widthAnchor.constraint(equalToConstant: 28),
+            button.heightAnchor.constraint(equalToConstant: 28)
+        ])
+        
+        button.addAction(UIAction { [weak self] _ in
+            self?.deleteButtonTapped()
+        }, for: .touchUpInside)
+        return button
+    }()
+    
+    private lazy var completeDeleteButton = {
+        let button = UIButton()
+        button.setTitle("삭제", for: .normal)
+        button.setTitleColor(UIColor.systemBlue, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
+        button.addAction(UIAction() { [weak self] _ in
+            self?.completeDeleteButtonTapped()
+        }, for: .touchUpInside)
+        return button
+    }()
+    
     private lazy var praySearchBar = {
         let praySearchBar = PraySearchBar()
         praySearchBar.translatesAutoresizingMaskIntoConstraints = false
@@ -48,29 +95,6 @@ public class PrayRequestViewController: UIViewController {
         )
         titleLabel.font = UIFont(name: "IropkeBatangM", size: 22)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        
-        let plusButton = UIButton()
-        let plusImage = UIImage(systemName: "plus")?
-            .withConfiguration(UIImage.SymbolConfiguration(weight: .semibold))
-        plusButton.setImage(plusImage, for: .normal)
-        plusButton.translatesAutoresizingMaskIntoConstraints = false
-        plusButton.addAction(UIAction{ [weak self] _ in
-            self?.plusButtonTapped()
-        }, for: .touchUpInside)
-
-        let deleteButton = UIButton()
-        let deleteImage = UIImage(systemName: "trash")?
-            .withConfiguration(UIImage.SymbolConfiguration(weight: .regular))
-        deleteButton.setImage(deleteImage, for: .normal)
-        deleteButton.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            deleteButton.widthAnchor.constraint(equalToConstant: 28),
-            deleteButton.heightAnchor.constraint(equalToConstant: 28),
-
-            plusButton.widthAnchor.constraint(equalToConstant: 28),
-            plusButton.heightAnchor.constraint(equalToConstant: 28)
-        ])
 
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: titleLabel)
         navigationItem.rightBarButtonItems = [
@@ -121,17 +145,26 @@ public class PrayRequestViewController: UIViewController {
         navigationController?.navigationBar.addGestureRecognizer(navBarTapGesture)
     }
     
-    private func setupButtonActions() {
-        
-    }
-    
-    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        return true // 터치 이벤트를 동시에 처리하도록 허용
-    }
-    
     private func plusButtonTapped() {
         let addPrayRequestViewController = AddPrayRequestViewController()
         self.navigationController?.pushViewController(addPrayRequestViewController, animated: true)
+    }
+    
+    private func deleteButtonTapped() {
+        prayRequestCollectionView.enableDeleteMode()
+        prayRequestCollectionView.isDeleteMode = true
+        navigationItem.rightBarButtonItems = [
+            UIBarButtonItem(customView: completeDeleteButton)
+        ]
+    }
+    
+    private func completeDeleteButtonTapped() {
+        print("삭제")
+        prayRequestCollectionView.isDeleteMode = false
+        navigationItem.rightBarButtonItems = [
+            UIBarButtonItem(customView: deleteButton),
+            UIBarButtonItem(customView: plusButton)
+        ]
     }
     
     @objc private func dismissKeyboard() {
@@ -146,5 +179,9 @@ extension PrayRequestViewController: UIGestureRecognizerDelegate {
             return false
         }
         return true
+    }
+    
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true // 터치 이벤트를 동시에 처리하도록 허용
     }
 }

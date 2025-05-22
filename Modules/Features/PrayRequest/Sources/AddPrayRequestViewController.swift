@@ -118,7 +118,6 @@ class AddPrayRequestViewController: UIViewController {
         saveButton.setTitleColor(UIColor.systemBlue, for: .normal)
         saveButton.setTitleColor(UIColor.lightGray, for: .disabled)
         saveButton.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
-        saveButton.translatesAutoresizingMaskIntoConstraints = false
         saveButton.addAction(UIAction() { [weak self] _ in
             guard let self = self else { return }
             self.convertToPrayRequestContent(with: self.prayContentTextView.text)

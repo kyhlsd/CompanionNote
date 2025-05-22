@@ -46,9 +46,10 @@ public struct PrayRequestContent {
     }
 }
 
-public class PrayRequestCollectionView: UICollectionView, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout  {
+public class PrayRequestCollectionView: UICollectionView {
 
     public var prayRequests: [PrayRequest]
+    public var isDeleteMode: Bool = false
     
     public init(prayRequests: [PrayRequest]) {
         self.prayRequests = prayRequests
@@ -66,6 +67,15 @@ public class PrayRequestCollectionView: UICollectionView, UICollectionViewDataSo
         fatalError("init(coder:) has not been implemented")
     }
     
+    public func enableDeleteMode() {
+        for case let cell as PrayRequestCollectionViewCell in visibleCells {
+            cell.enableDeleteMode()
+        }
+    }
+}
+
+extension PrayRequestCollectionView: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
+    
     public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         prayRequests.count
     }
@@ -78,8 +88,15 @@ public class PrayRequestCollectionView: UICollectionView, UICollectionViewDataSo
     }
     
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let selectedPrayRequest = prayRequests[indexPath.row]
-        print(selectedPrayRequest)
+        // 삭제 모드일 때 체크박스 토글
+        if isDeleteMode {
+            if let cell = collectionView.cellForItem(at: indexPath) as? PrayRequestCollectionViewCell {
+                cell.toggleCheckBoxState()
+            }
+        } else { // 기본 모드일 때 상세보기
+            let selectedPrayRequest = prayRequests[indexPath.row]
+            print(selectedPrayRequest)
+        }
     }
     
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
