@@ -179,6 +179,18 @@ public class PrayEditorView: UIView {
         print(results)
     }
     
+    public func convertFromPrayRequestContents(with contents: [PrayRequestContent]) -> String {
+        let lines = contents.map { content in
+            if content.subject.isEmpty {
+                return content.description
+            } else {
+                return "\(content.subject) : \(content.description)"
+            }
+        }
+        
+        return lines.joined(separator: "\n\n")
+    }
+    
     public func getPrayContentText() -> String {
         return prayContentTextView.text
     }
@@ -189,6 +201,12 @@ public class PrayEditorView: UIView {
         UIView.animate(withDuration: animationDuration) {
             self.layoutIfNeeded()
         }
+    }
+    
+    public func configure(with prayRequest: PrayRequest) {
+        titleTextField.text = prayRequest.title
+        prayContentTextView.text = convertFromPrayRequestContents(with: prayRequest.contents)
+        prayContentTextView.textColor = .black
     }
 }
 

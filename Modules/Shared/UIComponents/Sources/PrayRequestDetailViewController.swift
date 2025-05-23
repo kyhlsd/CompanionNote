@@ -87,6 +87,19 @@ class PrayRequestDetailViewController: UIViewController {
         return label
     }()
     
+    private lazy var prayEditorContainerView: PrayContainerView = {
+        let prayContainerView = PrayContainerView()
+        prayContainerView.translatesAutoresizingMaskIntoConstraints = false
+        prayContainerView.isHidden = true
+        return prayContainerView
+    }()
+    
+    private lazy var prayEditorView: PrayEditorView = {
+        let prayEditorView = PrayEditorView()
+        prayEditorView.translatesAutoresizingMaskIntoConstraints = false
+        return prayEditorView
+    }()
+    
     init(with prayRequest: PrayRequest) {
         self.prayRequest = prayRequest
         super.init(nibName: nil, bundle: nil)
@@ -127,6 +140,8 @@ class PrayRequestDetailViewController: UIViewController {
         prayContainerView.addSubview(titleLabel)
         prayContainerView.addSubview(dateLabel)
         prayContainerView.addSubview(prayDetailTableView)
+        view.addSubview(prayEditorContainerView)
+        prayEditorContainerView.addSubview(prayEditorView)
         
         let sidePadding = Constants.sidePadding
         
@@ -147,7 +162,17 @@ class PrayRequestDetailViewController: UIViewController {
             prayDetailTableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 6),
             prayDetailTableView.leadingAnchor.constraint(equalTo: prayContainerView.leadingAnchor, constant: 12),
             prayDetailTableView.trailingAnchor.constraint(equalTo: prayContainerView.trailingAnchor, constant: -12),
-            prayDetailTableView.bottomAnchor.constraint(equalTo: prayContainerView.bottomAnchor, constant: -5)
+            prayDetailTableView.bottomAnchor.constraint(equalTo: prayContainerView.bottomAnchor, constant: -5),
+            
+            prayEditorContainerView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 4),
+            prayEditorContainerView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -12),
+            prayEditorContainerView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: sidePadding),
+            prayEditorContainerView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -sidePadding),
+            
+            prayEditorView.leadingAnchor.constraint(equalTo: prayEditorContainerView.leadingAnchor, constant: 12),
+            prayEditorView.trailingAnchor.constraint(equalTo: prayEditorContainerView.trailingAnchor, constant: -12),
+            prayEditorView.topAnchor.constraint(equalTo: prayEditorContainerView.topAnchor, constant: 12),
+            prayEditorView.bottomAnchor.constraint(equalTo: prayEditorContainerView.bottomAnchor, constant: -12)
         ])
     }
     
@@ -155,12 +180,17 @@ class PrayRequestDetailViewController: UIViewController {
         navigationItem.rightBarButtonItems = [
             UIBarButtonItem(customView: completeButton)
         ]
+        prayContainerView.isHidden = true
+        prayEditorContainerView.isHidden = false
     }
     
     private func completeButtonTapped() {
         navigationItem.rightBarButtonItems = [
             UIBarButtonItem(customView: editButton)
         ]
+        prayEditorView.configure(with: prayRequest)
+        prayContainerView.isHidden = false
+        prayEditorContainerView.isHidden = true
     }
 }
 
