@@ -23,7 +23,7 @@ class PrayRequestDetailViewController: UIViewController {
     
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont(name: "IropkeBatangM", size: 16)
+        label.font = UIFont(name: "IropkeBatangM", size: 20)
         let titleStrokeTextAttributes: [NSAttributedString.Key: Any] = [
             .strokeColor: UIColor.systemBlue,
             .foregroundColor: UIColor.systemBlue,
@@ -37,15 +37,20 @@ class PrayRequestDetailViewController: UIViewController {
         return label
     }()
     
-    private lazy var prayRequestContentTableView: PrayRequestContentTableView = {
-        let tableView = PrayRequestContentTableView(prayRequestContents: prayRequest.contents)
+    private lazy var prayDetailTableView: UITableView = {
+        let tableView = UITableView(frame: .zero, style: .plain)
+        tableView.backgroundColor = .clear
+        tableView.separatorStyle = .none
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.register(PrayDetailTableViewCell.self, forCellReuseIdentifier: "PrayDetailCell")
         tableView.translatesAutoresizingMaskIntoConstraints = false
         return tableView
     }()
     
     private lazy var dateLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont(name: "IropkeBatangM", size: 14)
+        label.font = UIFont(name: "IropkeBatangM", size: 16)
         label.textColor = .gray
         
         let dateFormatter = DateFormatter()
@@ -77,7 +82,7 @@ class PrayRequestDetailViewController: UIViewController {
         view.addSubview(prayContainerView)
         prayContainerView.addSubview(titleLabel)
         prayContainerView.addSubview(dateLabel)
-        prayContainerView.addSubview(prayRequestContentTableView)
+        prayContainerView.addSubview(prayDetailTableView)
         
         let sidePadding = Constants.sidePadding
         
@@ -95,10 +100,23 @@ class PrayRequestDetailViewController: UIViewController {
             dateLabel.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
             dateLabel.trailingAnchor.constraint(equalTo: prayContainerView.trailingAnchor, constant: -12),
             
-            prayRequestContentTableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
-            prayRequestContentTableView.leadingAnchor.constraint(equalTo: prayContainerView.leadingAnchor, constant: 12),
-            prayRequestContentTableView.trailingAnchor.constraint(equalTo: prayContainerView.trailingAnchor, constant: -12),
-            prayRequestContentTableView.bottomAnchor.constraint(equalTo: prayContainerView.bottomAnchor, constant: -5)
+            prayDetailTableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 6),
+            prayDetailTableView.leadingAnchor.constraint(equalTo: prayContainerView.leadingAnchor, constant: 12),
+            prayDetailTableView.trailingAnchor.constraint(equalTo: prayContainerView.trailingAnchor, constant: -12),
+            prayDetailTableView.bottomAnchor.constraint(equalTo: prayContainerView.bottomAnchor, constant: -5)
         ])
+    }
+}
+
+extension PrayRequestDetailViewController: UITableViewDataSource, UITableViewDelegate {
+    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return prayRequest.contents.count
+    }
+    
+    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "PrayDetailCell") as! PrayDetailTableViewCell
+        let prayRequestContent = prayRequest.contents[indexPath.row]
+        cell.configure(with: prayRequestContent)
+        return cell
     }
 }

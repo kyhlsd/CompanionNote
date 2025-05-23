@@ -83,6 +83,7 @@ public class PrayRequestCollectionView: UICollectionView {
     }
     
     public func deletePrayRequests() {
+        //TODO: 전체 순회할 필요없이 체크 박스 선택 시 뷰모델 배열에 uuid 추가하도록
         for case let cell as PrayRequestCollectionViewCell in visibleCells {
             if cell.getCheckedState(), let uuid = cell.getPrayRequestUUID() {
                 print(uuid.uuidString)
