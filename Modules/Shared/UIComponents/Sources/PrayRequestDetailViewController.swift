@@ -15,6 +15,32 @@ class PrayRequestDetailViewController: UIViewController {
 
     private let prayRequest: PrayRequest
     
+    private lazy var editButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("수정", for: .normal)
+        button.setTitleColor(UIColor.systemBlue, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
+        button.addAction(UIAction() { [weak self] _ in
+            guard let self = self else { return }
+            self.editButtonTapped()
+        }, for: .touchUpInside)
+        return button
+    }()
+    
+    private lazy var completeButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("완료", for: .normal)
+        button.setTitleColor(UIColor.systemBlue, for: .normal)
+        button.setTitleColor(UIColor.lightGray, for: .disabled)
+        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
+        button.addAction(UIAction() { [weak self] _ in
+            guard let self = self else { return }
+            self.completeButtonTapped()
+        }, for: .touchUpInside)
+        button.isEnabled = false
+        return button
+    }()
+    
     private lazy var prayContainerView = {
         let prayContainerView = PrayContainerView()
         prayContainerView.translatesAutoresizingMaskIntoConstraints = false
@@ -75,7 +101,25 @@ class PrayRequestDetailViewController: UIViewController {
         
         view.backgroundColor = UIColor(named: "BackgroundColor")
         
+        setupNavigationBar()
         setupUI()
+    }
+    
+    private func setupNavigationBar() {
+        let titleLabel = UILabel()
+        let strokeTextAttributes: [NSAttributedString.Key: Any] = [
+            .strokeWidth: -2.5
+        ]
+        titleLabel.attributedText = NSAttributedString(
+            string: "기도 제목",
+            attributes: strokeTextAttributes
+        )
+        
+        titleLabel.font = UIFont(name: "IropkeBatangM", size: 22)
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        navigationItem.titleView = titleLabel
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: editButton)
     }
 
     private func setupUI() {
@@ -105,6 +149,18 @@ class PrayRequestDetailViewController: UIViewController {
             prayDetailTableView.trailingAnchor.constraint(equalTo: prayContainerView.trailingAnchor, constant: -12),
             prayDetailTableView.bottomAnchor.constraint(equalTo: prayContainerView.bottomAnchor, constant: -5)
         ])
+    }
+    
+    private func editButtonTapped() {
+        navigationItem.rightBarButtonItems = [
+            UIBarButtonItem(customView: completeButton)
+        ]
+    }
+    
+    private func completeButtonTapped() {
+        navigationItem.rightBarButtonItems = [
+            UIBarButtonItem(customView: editButton)
+        ]
     }
 }
 

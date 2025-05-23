@@ -46,13 +46,13 @@ public class PrayRequestViewController: UIViewController {
         return button
     }()
     
-    private lazy var completeDeleteButton = {
+    private lazy var completeButton = {
         let button = UIButton()
         button.setTitle("삭제", for: .normal)
         button.setTitleColor(UIColor.systemBlue, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
         button.addAction(UIAction() { [weak self] _ in
-            self?.completeDeleteButtonTapped()
+            self?.completeButtonTapped()
         }, for: .touchUpInside)
         return button
     }()
@@ -155,11 +155,11 @@ public class PrayRequestViewController: UIViewController {
         prayRequestCollectionView.enableDeleteMode()
         prayRequestCollectionView.isDeleteMode = true
         navigationItem.rightBarButtonItems = [
-            UIBarButtonItem(customView: completeDeleteButton)
+            UIBarButtonItem(customView: completeButton)
         ]
     }
     
-    private func completeDeleteButtonTapped() {
+    private func completeButtonTapped() {
         prayRequestCollectionView.deletePrayRequests()
         prayRequestCollectionView.isDeleteMode = false
         prayRequestCollectionView.reloadData()
