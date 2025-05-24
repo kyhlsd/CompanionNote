@@ -15,7 +15,7 @@ class PrayRequestDetailViewController: UIViewController {
 
     private let prayRequest: PrayRequest
     
-    private lazy var editButton: UIButton = {
+    private lazy var editBarButtonItem: UIBarButtonItem = {
         let button = UIButton()
         button.setTitle("수정", for: .normal)
         button.setTitleColor(UIColor.systemBlue, for: .normal)
@@ -24,10 +24,11 @@ class PrayRequestDetailViewController: UIViewController {
             guard let self = self else { return }
             self.editButtonTapped()
         }, for: .touchUpInside)
-        return button
+        let buttonItem = UIBarButtonItem(customView: button)
+        return buttonItem
     }()
     
-    private lazy var completeButton: UIButton = {
+    private lazy var completeBarButtonItem: UIBarButtonItem = {
         let button = UIButton()
         button.setTitle("완료", for: .normal)
         button.setTitleColor(UIColor.systemBlue, for: .normal)
@@ -37,8 +38,9 @@ class PrayRequestDetailViewController: UIViewController {
             guard let self = self else { return }
             self.completeButtonTapped()
         }, for: .touchUpInside)
-        button.isEnabled = false
-        return button
+        let buttonItem = UIBarButtonItem(customView: button)
+        buttonItem.isEnabled = false
+        return buttonItem
     }()
     
     private lazy var prayContainerView = {
@@ -138,8 +140,10 @@ class PrayRequestDetailViewController: UIViewController {
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         
         navigationItem.titleView = titleLabel
-        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: editButton)
+        navigationItem.rightBarButtonItem = editBarButtonItem
     }
+    
+    
     
     private func setupTapGesture() {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
@@ -199,16 +203,19 @@ class PrayRequestDetailViewController: UIViewController {
     
     private func editButtonTapped() {
         navigationItem.rightBarButtonItems = [
-            UIBarButtonItem(customView: completeButton)
+            completeBarButtonItem
         ]
         prayEditorView.configure(with: prayRequest)
         prayContainerView.isHidden = true
         prayEditorContainerView.isHidden = false
+        
+        navigationItem.rightBarButtonItem?.isEnabled = false
     }
+
     
     private func completeButtonTapped() {
         navigationItem.rightBarButtonItems = [
-            UIBarButtonItem(customView: editButton)
+            editButtonItem
         ]
         prayContainerView.isHidden = false
         prayEditorContainerView.isHidden = true
