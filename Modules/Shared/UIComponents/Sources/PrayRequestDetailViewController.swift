@@ -109,13 +109,19 @@ class PrayRequestDetailViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = UIColor(named: "BackgroundColor")
         
         setupNavigationBar()
+        setupTapGesture()
         setupUI()
+        setupNotificationCenter()
     }
     
     private func setupNavigationBar() {
@@ -133,6 +139,16 @@ class PrayRequestDetailViewController: UIViewController {
         
         navigationItem.titleView = titleLabel
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: editButton)
+    }
+    
+    private func setupTapGesture() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+        
+        let navBarTapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        navBarTapGesture.cancelsTouchesInView = false
+        navigationController?.navigationBar.addGestureRecognizer(navBarTapGesture)
     }
 
     private func setupUI() {
@@ -176,6 +192,11 @@ class PrayRequestDetailViewController: UIViewController {
         ])
     }
     
+    private func setupNotificationCenter() {
+        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
     private func editButtonTapped() {
         navigationItem.rightBarButtonItems = [
             UIBarButtonItem(customView: completeButton)
@@ -191,6 +212,29 @@ class PrayRequestDetailViewController: UIViewController {
         ]
         prayContainerView.isHidden = false
         prayEditorContainerView.isHidden = true
+    }
+    
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
+    }
+    
+    @objc private func handleKeyboardWillShow(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
+              let animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else { return }
+
+        let keyboardHeight = keyboardFrame.height
+        let tabBarHeight = tabBarController?.tabBar.frame.height ?? 0
+        let safeOffset = keyboardHeight - tabBarHeight
+        
+        prayEditorView.updateBottomConstraint(with: safeOffset, animationDuration: animationDuration)
+    }
+
+    @objc private func handleKeyboardWillHide(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else { return }
+
+        prayEditorView.updateBottomConstraint(animationDuration: animationDuration)
     }
 }
 
