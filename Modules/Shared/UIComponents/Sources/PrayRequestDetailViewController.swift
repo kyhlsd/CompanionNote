@@ -99,6 +99,7 @@ class PrayRequestDetailViewController: UIViewController {
     private lazy var prayEditorView: PrayEditorView = {
         let prayEditorView = PrayEditorView()
         prayEditorView.translatesAutoresizingMaskIntoConstraints = false
+        prayEditorView.delegate = self
         return prayEditorView
     }()
     
@@ -215,7 +216,7 @@ class PrayRequestDetailViewController: UIViewController {
     
     private func completeButtonTapped() {
         navigationItem.rightBarButtonItems = [
-            editButtonItem
+            editBarButtonItem
         ]
         prayContainerView.isHidden = false
         prayEditorContainerView.isHidden = true
@@ -257,3 +258,16 @@ extension PrayRequestDetailViewController: UITableViewDataSource, UITableViewDel
         return cell
     }
 }
+
+extension PrayRequestDetailViewController: RightBarButtonStateDelegate {
+    func updateRightBarButtonEnabled() {
+        let editedPrayRequest =  prayEditorView.getEditedPrayRequest()
+        // 변경 사항이 없으면 disable 처리
+        if prayRequest.title == editedPrayRequest.title, prayRequest.contents == editedPrayRequest.contents {
+            completeBarButtonItem.isEnabled = false
+        } else { // 변경 사항이 있을 때 text valid 검사
+            completeBarButtonItem.isEnabled = prayEditorView.isAllTextsValid
+        }
+    }
+}
+

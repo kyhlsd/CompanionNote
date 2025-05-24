@@ -40,6 +40,8 @@ public class PrayEditorView: UIView {
         textField.layer.cornerRadius = 8
         
         textField.translatesAutoresizingMaskIntoConstraints = false
+        
+        textField.addTarget(self, action: #selector(titleTextFieldDidChange(_:)), for: .editingChanged)
         return textField
     }()
     
@@ -143,7 +145,7 @@ public class PrayEditorView: UIView {
     }
     
     // TODO: Util로 빼기
-    public func convertToPrayRequestContent(with text: String) {
+    public func convertToPrayRequestContent(with text: String) -> [PrayRequestContent] {
         var results = [PrayRequestContent]()
         
         // 입력 끝에 개행 추가 (마지막 항목까지 매치되도록)
@@ -155,7 +157,7 @@ public class PrayEditorView: UIView {
             let prayRequestContent = PrayRequestContent(subject: "", description: trimmedText)
             results.append(prayRequestContent)
             print(results)
-            return
+            return results
         }
         
         // ":" 기준으로 둘로 나눔
@@ -177,6 +179,7 @@ public class PrayEditorView: UIView {
             }
         }
         print(results)
+        return results
     }
     
     public func convertFromPrayRequestContents(with contents: [PrayRequestContent]) -> String {
@@ -208,6 +211,10 @@ public class PrayEditorView: UIView {
         prayContentTextView.text = convertFromPrayRequestContents(with: prayRequest.contents)
         prayContentTextView.textColor = .black
     }
+    
+    public func getEditedPrayRequest() -> PrayRequest {
+        return PrayRequest(date: Date(), title: titleTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "", contents: convertToPrayRequestContent(with: prayContentTextView.text))
+    }
 }
 
 extension PrayEditorView: UITextViewDelegate {
@@ -233,17 +240,23 @@ extension PrayEditorView: UITextViewDelegate {
 
 extension PrayEditorView: UITextFieldDelegate {
     
-    public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        // 변경 후 텍스트를 미리 계산
-        if let currentText = textField.text,
-           let textRange = Range(range, in: currentText) {
-            
-            let updatedText = currentText.replacingCharacters(in: textRange, with: string)
-            
-            checkTextsValidation(titleText: updatedText, contentText: prayContentTextView.text)
-        }
-        
-        return true // 텍스트 변경을 허용
+    // TODO: 글자수 제한
+//    public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+//        // 변경 후 텍스트를 미리 계산
+//        if let currentText = textField.text,
+//           let textRange = Range(range, in: currentText) {
+//            
+//            let updatedText = currentText.replacingCharacters(in: textRange, with: string)
+//            
+//            checkTextsValidation(titleText: updatedText, contentText: prayContentTextView.text)
+//        }
+//        
+//        return true // 텍스트 변경을 허용
+//    }
+    
+    @objc private func titleTextFieldDidChange(_ textField: UITextField) {
+        checkTextsValidation(titleText: textField.text, contentText: prayContentTextView.text)
+        delegate?.updateRightBarButtonEnabled()
     }
 }
 

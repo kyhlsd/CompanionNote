@@ -44,7 +44,7 @@ public struct PrayRequest {
     ]
 }
 
-public struct PrayRequestContent {
+public struct PrayRequestContent: Equatable {
     let subject: String
     let description: String
     
