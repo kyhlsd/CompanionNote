@@ -8,78 +8,22 @@
 import UIKit
 import Shared
 
-final class PrayRequestViewController: UIViewController {
+final public class PrayRequestViewController: UIViewController {
     
-    private let plusButton = UIButton()
-    
-    private func setupPlusButton() {
-        let image = UIImage(systemName: "plus")?
-            .withConfiguration(UIImage.SymbolConfiguration(weight: .semibold))
-        plusButton.setImage(image, for: .normal)
-        
-        plusButton.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            plusButton.widthAnchor.constraint(equalToConstant: 28),
-            plusButton.heightAnchor.constraint(equalToConstant: 28)
-        ])
-    }
-    
-    private func setupButtonActions() {
-        plusButton.addAction(UIAction { [weak self] _ in
-            self?.plusButtonTapped()
-        }, for: .touchUpInside)
-    }
-    
-    private lazy var deleteButton = {
-        let button = UIButton()
-        let image = UIImage(systemName: "trash")?
-            .withConfiguration(UIImage.SymbolConfiguration(weight: .regular))
-        button.setImage(image, for: .normal)
-        
-        button.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            button.widthAnchor.constraint(equalToConstant: 28),
-            button.heightAnchor.constraint(equalToConstant: 28)
-        ])
-        
-        button.addAction(UIAction { [weak self] _ in
-            self?.deleteButtonTapped()
-        }, for: .touchUpInside)
-        return button
-    }()
-    
-    private lazy var completeButton = {
-        let button = UIButton()
-        button.setTitle("삭제", for: .normal)
-        button.setTitleColor(UIColor.systemBlue, for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
-        button.addAction(UIAction() { [weak self] _ in
-            self?.completeButtonTapped()
-        }, for: .touchUpInside)
-        return button
-    }()
-    
-    private lazy var praySearchBar = {
-        let praySearchBar = CustomSearchBar()
-        praySearchBar.translatesAutoresizingMaskIntoConstraints = false
-        return praySearchBar
-    }()
-    
-    private lazy var prayRequestCollectionView = {
-        let prayRequestCollectionView = PrayRequestCollectionView(prayRequests: PrayRequest.dummyDatas)
-        prayRequestCollectionView.translatesAutoresizingMaskIntoConstraints = false
-        prayRequestCollectionView.pushViewControllerDelegate = self
-        return prayRequestCollectionView
-    }()
+    private let plusBarButtonItem = UIBarButtonItem()
+    private let deleteBarButtonItem = UIBarButtonItem()
+    private let completeBarButtonItem = UIBarButtonItem()
+    private let praySearchBar = CustomSearchBar()
+    private let prayRequestCollectionView = PrayRequestCollectionView(prayRequests: PrayRequest.dummyDatas)
     
     public override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = UIColor(named: "BackgroundColor")
-        
         setupNavigationBar()
-        setupTapGesture()
         setupUI()
+        setupButtonActions()
+        setupDelegate()
+        setupTapGesture()
     }
     
     public override func viewWillAppear(_ animated: Bool) {
@@ -89,7 +33,12 @@ final class PrayRequestViewController: UIViewController {
         prayRequestCollectionView.reloadData()
     }
     
+    // MARK: Setups
     private func setupNavigationBar() {
+        setupPlusBarButtonItem()
+        setupDeleteBarButtonItem()
+        setupCompleteBarButtonItem()
+        
         let titleLabel = UILabel()
         let strokeTextAttributes: [NSAttributedString.Key: Any] = [
             .strokeWidth: -2.5
@@ -103,28 +52,60 @@ final class PrayRequestViewController: UIViewController {
 
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: titleLabel)
         navigationItem.rightBarButtonItems = [
-            UIBarButtonItem(customView: deleteButton),
-            UIBarButtonItem(customView: plusButton)
+            deleteBarButtonItem,
+            plusBarButtonItem
         ]
     }
     
-    private func setupTapGesture() {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        tapGesture.delegate = self
-        tapGesture.cancelsTouchesInView = false
-        view.addGestureRecognizer(tapGesture)
+    private func setupPlusBarButtonItem() {
+        let button = UIButton()
+        let image = UIImage(systemName: "plus")?
+            .withConfiguration(UIImage.SymbolConfiguration(weight: .semibold))
+        button.setImage(image, for: .normal)
+        
+        button.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            button.widthAnchor.constraint(equalToConstant: 28),
+            button.heightAnchor.constraint(equalToConstant: 28)
+        ])
+        plusBarButtonItem.customView = button
     }
-
+    
+    private func setupDeleteBarButtonItem() {
+        let button = UIButton()
+        let image = UIImage(systemName: "trash")?
+            .withConfiguration(UIImage.SymbolConfiguration(weight: .regular))
+        button.setImage(image, for: .normal)
+        
+        button.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            button.widthAnchor.constraint(equalToConstant: 28),
+            button.heightAnchor.constraint(equalToConstant: 28)
+        ])
+        deleteBarButtonItem.customView = button
+    }
+    
+    private func setupCompleteBarButtonItem() {
+        let button = UIButton()
+        button.setTitle("삭제", for: .normal)
+        button.setTitleColor(UIColor.systemBlue, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
+        completeBarButtonItem.customView = button
+    }
     
     private func setupUI() {
+        view.backgroundColor = UIColor(named: "BackgroundColor")
+        
         view.addSubview(praySearchBar)
         view.addSubview(prayRequestCollectionView)
         
         let sidePadding = Constants.sidePadding
-        
         let safeArea = view.safeAreaLayoutGuide
+        
+        praySearchBar.translatesAutoresizingMaskIntoConstraints = false
+        prayRequestCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        
         NSLayoutConstraint.activate([
-            
             praySearchBar.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 4),
             praySearchBar.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: sidePadding),
             praySearchBar.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -sidePadding),
@@ -134,6 +115,40 @@ final class PrayRequestViewController: UIViewController {
             prayRequestCollectionView.topAnchor.constraint(equalTo: praySearchBar.bottomAnchor, constant: 12),
             prayRequestCollectionView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor),
         ])
+    }
+    
+    private func setupButtonActions() {
+        // Plus Button
+        if let button = plusBarButtonItem.customView as? UIButton {
+            button.addAction(UIAction { [weak self] _ in
+                self?.plusButtonTapped()
+            }, for: .touchUpInside)
+        }
+        
+        // DeleteButton
+        if let button = deleteBarButtonItem.customView as? UIButton {
+            button.addAction(UIAction { [weak self] _ in
+                self?.deleteButtonTapped()
+            }, for: .touchUpInside)
+        }
+        
+        // CompleteButton
+        if let button = completeBarButtonItem.customView as? UIButton {
+            button.addAction(UIAction { [weak self] _ in
+                self?.completeButtonTapped()
+            }, for: .touchUpInside)
+        }
+    }
+    
+    private func setupDelegate() {
+        prayRequestCollectionView.pushViewControllerDelegate = self
+    }
+    
+    private func setupTapGesture() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.delegate = self
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
     }
     
     private func setupNavBarTapGesture() {
@@ -150,6 +165,7 @@ final class PrayRequestViewController: UIViewController {
         navigationController?.navigationBar.addGestureRecognizer(navBarTapGesture)
     }
     
+    // MARK: Button Actions
     private func plusButtonTapped() {
         let addPrayRequestViewController = AddPrayRequestViewController()
         self.navigationController?.pushViewController(addPrayRequestViewController, animated: true)
@@ -159,7 +175,7 @@ final class PrayRequestViewController: UIViewController {
         prayRequestCollectionView.enableDeleteMode()
         prayRequestCollectionView.isDeleteMode = true
         navigationItem.rightBarButtonItems = [
-            UIBarButtonItem(customView: completeButton)
+            completeBarButtonItem
         ]
     }
     
@@ -168,16 +184,18 @@ final class PrayRequestViewController: UIViewController {
         prayRequestCollectionView.isDeleteMode = false
         prayRequestCollectionView.reloadData()
         navigationItem.rightBarButtonItems = [
-            UIBarButtonItem(customView: deleteButton),
-            UIBarButtonItem(customView: plusButton)
+            deleteBarButtonItem,
+            plusBarButtonItem
         ]
     }
     
+    // MARK: Gesture Actions
     @objc private func dismissKeyboard() {
         view.endEditing(true)
     }
 }
 
+// MARK: Extensions
 extension PrayRequestViewController: UIGestureRecognizerDelegate {
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
         // 터치된 뷰가 UISearchBar 또는 내부 구성 요소라면 동작하지 않도록
@@ -193,7 +211,7 @@ extension PrayRequestViewController: UIGestureRecognizerDelegate {
 }
 
 extension PrayRequestViewController: PushViewControllerDelegate {
-    public func pushViewController(with viewController: UIViewController) {
+    func pushViewController(with viewController: UIViewController) {
         self.navigationController?.pushViewController(viewController, animated: true)
     }
 }

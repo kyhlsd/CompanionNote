@@ -8,7 +8,7 @@
 import UIKit
 import Shared
 
-public protocol PushViewControllerDelegate: AnyObject {
+protocol PushViewControllerDelegate: AnyObject {
     func pushViewController(with viewController: UIViewController)
 }
 

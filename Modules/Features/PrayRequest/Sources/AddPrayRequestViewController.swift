@@ -16,8 +16,6 @@ final class AddPrayRequestViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = UIColor(named: "BackgroundColor")
-        
         setupNavigationBar()
         setupUI()
         setupDelegate()
@@ -59,6 +57,8 @@ final class AddPrayRequestViewController: UIViewController {
     }
     
     private func setupUI() {
+        view.backgroundColor = UIColor(named: "BackgroundColor")
+
         view.addSubview(prayContainerView)
         prayContainerView.addSubview(prayEditorView)
         

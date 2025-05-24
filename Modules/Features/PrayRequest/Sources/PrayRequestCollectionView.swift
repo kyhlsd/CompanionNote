@@ -63,7 +63,7 @@ public class PrayRequestCollectionView: UICollectionView {
 
     public var prayRequests: [PrayRequest]
     public var isDeleteMode: Bool = false
-    public weak var pushViewControllerDelegate: PushViewControllerDelegate?
+    weak var pushViewControllerDelegate: PushViewControllerDelegate?
     
     public init(prayRequests: [PrayRequest]) {
         self.prayRequests = prayRequests
