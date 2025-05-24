@@ -9,47 +9,18 @@ import UIKit
 import Core
 import Shared
 
-class PrayRequestCollectionViewCell: UICollectionViewCell {
+final class PrayRequestCollectionViewCell: UICollectionViewCell {
     
     private var prayRequestUUID: UUID?
     
-    private lazy var cellContainerView = {
-        let cellContainerView = CellContainerView()
-        cellContainerView.translatesAutoresizingMaskIntoConstraints = false
-        return cellContainerView
-    }()
-    
-    private let titleLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont(name: "IropkeBatangM", size: 16)
-        label.textColor = .systemBlue
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private lazy var prayRequestContentTableView: PrayRequestContentTableView = {
-        let tableView = PrayRequestContentTableView()
-        tableView.isScrollEnabled = false
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        return tableView
-    }()
-    
-    private lazy var dateLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont(name: "IropkeBatangM", size: 14)
-        label.textColor = .gray
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private lazy var checkBox: CheckBox = {
-        let checkBox = CheckBox()
-        checkBox.translatesAutoresizingMaskIntoConstraints = false
-        checkBox.isHidden = true
-        return checkBox
-    }()
+    private let cellContainerView = CellContainerView()
+    private let titleLabel = UILabel()
+    private let prayRequestContentTableView = UITableView(frame: .zero, style: .plain)
+    private let dateLabel = UILabel()
+    private let checkBox = CheckBox()
     
     private var dateLabelTrailingConstraint: NSLayoutConstraint!
+    private var prayRequestContents: [PrayRequestContent] = []
     
     override init(frame: CGRect = .zero) {
         super.init(frame: frame)
@@ -61,8 +32,13 @@ class PrayRequestCollectionViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: Setups
     private func setupUI() {
-
+        setupTitleLabel()
+        setupPrayRequestContentTableView()
+        setupDateLabel()
+        setupCheckBox()
+        
         backgroundColor = .clear
         selectedBackgroundView = UIView()
         
@@ -71,6 +47,13 @@ class PrayRequestCollectionViewCell: UICollectionViewCell {
         cellContainerView.addSubview(dateLabel)
         cellContainerView.addSubview(checkBox)
         cellContainerView.addSubview(prayRequestContentTableView)
+        
+        cellContainerView.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        prayRequestContentTableView.translatesAutoresizingMaskIntoConstraints = false
+        dateLabel.translatesAutoresizingMaskIntoConstraints = false
+        checkBox.translatesAutoresizingMaskIntoConstraints = false
+        
         
         NSLayoutConstraint.activate([
             cellContainerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
@@ -98,6 +81,30 @@ class PrayRequestCollectionViewCell: UICollectionViewCell {
         dateLabelTrailingConstraint.isActive = true
     }
     
+    private func setupTitleLabel() {
+        titleLabel.font = UIFont(name: "IropkeBatangM", size: 16)
+        titleLabel.textColor = .systemBlue
+    }
+   
+    private func setupPrayRequestContentTableView() {
+        prayRequestContentTableView.isScrollEnabled = false
+        prayRequestContentTableView.isUserInteractionEnabled = false
+        prayRequestContentTableView.backgroundColor = .clear
+        prayRequestContentTableView.separatorStyle = .none
+        prayRequestContentTableView.dataSource = self
+        prayRequestContentTableView.delegate = self
+        prayRequestContentTableView.register(PrayRequestContentTableViewCell.self, forCellReuseIdentifier: "PrayRequestContentCell")
+    }
+    
+    private func setupDateLabel() {
+        dateLabel.font = UIFont(name: "IropkeBatangM", size: 14)
+        dateLabel.textColor = .gray
+    }
+    
+    private func setupCheckBox() {
+        checkBox.isHidden = true
+    }
+    
     func configure(with prayRequest: PrayRequest) {
         let titleStrokeTextAttributes: [NSAttributedString.Key: Any] = [
             .strokeColor: UIColor.systemBlue,
@@ -113,7 +120,7 @@ class PrayRequestCollectionViewCell: UICollectionViewCell {
         dateFormatter.dateStyle = .short
         dateLabel.text = dateFormatter.string(from: prayRequest.date)
         
-        prayRequestContentTableView.prayRequestContents = prayRequest.contents
+        prayRequestContents = prayRequest.contents
         DispatchQueue.main.async {
             self.prayRequestContentTableView.reloadData()
         }
@@ -146,5 +153,19 @@ class PrayRequestCollectionViewCell: UICollectionViewCell {
     
     func getPrayRequestUUID() -> UUID? {
         return self.prayRequestUUID
+    }
+}
+
+// MARK: Extensions
+extension PrayRequestCollectionViewCell: UITableViewDataSource, UITableViewDelegate {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return prayRequestContents.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "PrayRequestContentCell") as! PrayRequestContentTableViewCell
+        let prayRequestContent = prayRequestContents[indexPath.row]
+        cell.configure(with: prayRequestContent)
+        return cell
     }
 }
