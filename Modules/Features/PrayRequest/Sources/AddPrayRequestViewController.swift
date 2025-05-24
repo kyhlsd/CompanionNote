@@ -11,7 +11,7 @@ import Shared
 class AddPrayRequestViewController: UIViewController {
     
     private lazy var prayContainerView = {
-        let prayContainerView = PrayContainerView()
+        let prayContainerView = CellContainerView()
         prayContainerView.translatesAutoresizingMaskIntoConstraints = false
         return prayContainerView
     }()

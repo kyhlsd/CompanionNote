@@ -7,7 +7,7 @@
 
 import UIKit
 
-public class PraySearchBar: UIView {
+public class CustomSearchBar: UIView {
     
     override public init(frame: CGRect = .zero) {
         super.init(frame: frame)

@@ -7,9 +7,9 @@
 
 import UIKit
 
-class CheckBox: UIButton {
+public class CheckBox: UIButton {
     
-    var isChecked = false {
+    public var isChecked = false {
         didSet {
             updateImage()
         }

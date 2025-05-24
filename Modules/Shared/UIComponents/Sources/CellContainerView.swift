@@ -7,11 +7,11 @@
 
 import UIKit
 
-public class PrayContainerView: UIView {
+public class CellContainerView: UIView {
     
     override public init(frame: CGRect = .zero) {
         super.init(frame: frame)
-        backgroundColor = UIColor(named: "PrayCellColor", in: Bundle.module, compatibleWith: nil)
+        backgroundColor = UIColor(named: "CellColor", in: Bundle.module, compatibleWith: nil)
         layer.cornerRadius = 8
     }
     

@@ -58,7 +58,7 @@ public class PrayRequestViewController: UIViewController {
     }()
     
     private lazy var praySearchBar = {
-        let praySearchBar = PraySearchBar()
+        let praySearchBar = CustomSearchBar()
         praySearchBar.translatesAutoresizingMaskIntoConstraints = false
         return praySearchBar
     }()

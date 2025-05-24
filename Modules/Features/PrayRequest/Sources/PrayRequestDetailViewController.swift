@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Shared
 
 public protocol PushViewControllerDelegate: AnyObject {
     func pushViewController(with viewController: UIViewController)
@@ -44,7 +45,7 @@ class PrayRequestDetailViewController: UIViewController {
     }()
     
     private lazy var prayContainerView = {
-        let prayContainerView = PrayContainerView()
+        let prayContainerView = CellContainerView()
         prayContainerView.translatesAutoresizingMaskIntoConstraints = false
         return prayContainerView
     }()
@@ -89,8 +90,8 @@ class PrayRequestDetailViewController: UIViewController {
         return label
     }()
     
-    private lazy var prayEditorContainerView: PrayContainerView = {
-        let prayContainerView = PrayContainerView()
+    private lazy var prayEditorContainerView: CellContainerView = {
+        let prayContainerView = CellContainerView()
         prayContainerView.translatesAutoresizingMaskIntoConstraints = false
         prayContainerView.isHidden = true
         return prayContainerView

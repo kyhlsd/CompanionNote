@@ -6,10 +6,17 @@
 //
 
 import UIKit
+import Shared
 
 class PrayRequestCollectionViewCell: UICollectionViewCell {
     
     private var prayRequestUUID: UUID?
+    
+    private lazy var cellContainerView = {
+        let cellContainerView = CellContainerView()
+        cellContainerView.translatesAutoresizingMaskIntoConstraints = false
+        return cellContainerView
+    }()
     
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -55,34 +62,38 @@ class PrayRequestCollectionViewCell: UICollectionViewCell {
     
     private func setupUI() {
 
-        backgroundColor = UIColor(named: "PrayCellColor", in: Bundle.module, compatibleWith: nil)
-        layer.cornerRadius = 8
-        
+        backgroundColor = .clear
         selectedBackgroundView = UIView()
         
-        contentView.addSubview(titleLabel)
-        contentView.addSubview(dateLabel)
-        contentView.addSubview(checkBox)
-        contentView.addSubview(prayRequestContentTableView)
+        contentView.addSubview(cellContainerView)
+        cellContainerView.addSubview(titleLabel)
+        cellContainerView.addSubview(dateLabel)
+        cellContainerView.addSubview(checkBox)
+        cellContainerView.addSubview(prayRequestContentTableView)
         
         NSLayoutConstraint.activate([
-            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
+            cellContainerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            cellContainerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            cellContainerView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            cellContainerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            
+            titleLabel.leadingAnchor.constraint(equalTo: cellContainerView.leadingAnchor, constant: 12),
             titleLabel.trailingAnchor.constraint(equalTo: dateLabel.leadingAnchor, constant: -12),
-            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
+            titleLabel.topAnchor.constraint(equalTo: cellContainerView.topAnchor, constant: 12),
 
             dateLabel.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
             
-            checkBox.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
+            checkBox.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -12),
             checkBox.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
             checkBox.heightAnchor.constraint(equalToConstant: 24),
             checkBox.widthAnchor.constraint(equalToConstant: 24),
 
             prayRequestContentTableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
-            prayRequestContentTableView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
-            prayRequestContentTableView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
-            prayRequestContentTableView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5)
+            prayRequestContentTableView.leadingAnchor.constraint(equalTo: cellContainerView.leadingAnchor, constant: 12),
+            prayRequestContentTableView.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -12),
+            prayRequestContentTableView.bottomAnchor.constraint(equalTo: cellContainerView.bottomAnchor, constant: -5)
         ])
-        dateLabelTrailingConstraint = dateLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12)
+        dateLabelTrailingConstraint = dateLabel.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -12)
         dateLabelTrailingConstraint.isActive = true
     }
     
@@ -120,7 +131,7 @@ class PrayRequestCollectionViewCell: UICollectionViewCell {
         checkBox.isHidden = true
         checkBox.isChecked = false
         dateLabelTrailingConstraint.isActive = false
-        dateLabelTrailingConstraint = dateLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12)
+        dateLabelTrailingConstraint = dateLabel.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -12)
         dateLabelTrailingConstraint.isActive = true
     }
     
