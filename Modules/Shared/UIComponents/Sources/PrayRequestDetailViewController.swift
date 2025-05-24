@@ -180,6 +180,7 @@ class PrayRequestDetailViewController: UIViewController {
         navigationItem.rightBarButtonItems = [
             UIBarButtonItem(customView: completeButton)
         ]
+        prayEditorView.configure(with: prayRequest)
         prayContainerView.isHidden = true
         prayEditorContainerView.isHidden = false
     }
@@ -188,7 +189,6 @@ class PrayRequestDetailViewController: UIViewController {
         navigationItem.rightBarButtonItems = [
             UIBarButtonItem(customView: editButton)
         ]
-        prayEditorView.configure(with: prayRequest)
         prayContainerView.isHidden = false
         prayEditorContainerView.isHidden = true
     }
