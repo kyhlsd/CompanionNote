@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Core
 
 public class PrayRequestContentTableView: UITableView, UITableViewDataSource, UITableViewDelegate {
 

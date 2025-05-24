@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Core
 import Shared
 
 class PrayRequestCollectionViewCell: UICollectionViewCell {

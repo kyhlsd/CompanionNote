@@ -1,11 +1,12 @@
 //
-//  PrayEditorViewController.swift
+//  PrayEditorView.swift
 //  Shared
 //
 //  Created by 김영훈 on 5/23/25.
 //
 
 import UIKit
+import Core
 import Shared
 
 public class PrayEditorView: UIView {

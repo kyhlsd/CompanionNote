@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Core
 import Shared
 
 final public class PrayRequestViewController: UIViewController {
@@ -14,7 +15,10 @@ final public class PrayRequestViewController: UIViewController {
     private let deleteBarButtonItem = UIBarButtonItem()
     private let completeBarButtonItem = UIBarButtonItem()
     private let praySearchBar = CustomSearchBar()
-    private let prayRequestCollectionView = PrayRequestCollectionView(prayRequests: PrayRequest.dummyDatas)
+    private let prayRequestCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    
+    private let prayRequests = PrayRequest.dummyDatas
+    private var isDeleteMode = false
     
     public override func viewDidLoad() {
         super.viewDidLoad()
@@ -94,6 +98,8 @@ final public class PrayRequestViewController: UIViewController {
     }
     
     private func setupUI() {
+        setupPrayRequestCollectionVIew()
+        
         view.backgroundColor = UIColor(named: "BackgroundColor")
         
         view.addSubview(praySearchBar)
@@ -115,6 +121,11 @@ final public class PrayRequestViewController: UIViewController {
             prayRequestCollectionView.topAnchor.constraint(equalTo: praySearchBar.bottomAnchor, constant: 12),
             prayRequestCollectionView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor),
         ])
+    }
+    
+    private func setupPrayRequestCollectionVIew() {
+        prayRequestCollectionView.backgroundColor = .clear
+        prayRequestCollectionView.register(PrayRequestCollectionViewCell.self, forCellWithReuseIdentifier: "PrayRequestCell")
     }
     
     private func setupButtonActions() {
@@ -141,7 +152,8 @@ final public class PrayRequestViewController: UIViewController {
     }
     
     private func setupDelegate() {
-        prayRequestCollectionView.pushViewControllerDelegate = self
+        prayRequestCollectionView.dataSource = self
+        prayRequestCollectionView.delegate = self
     }
     
     private func setupTapGesture() {
@@ -172,16 +184,23 @@ final public class PrayRequestViewController: UIViewController {
     }
     
     private func deleteButtonTapped() {
-        prayRequestCollectionView.enableDeleteMode()
-        prayRequestCollectionView.isDeleteMode = true
+        for case let cell as PrayRequestCollectionViewCell in prayRequestCollectionView.visibleCells {
+            cell.enableDeleteMode()
+        }
+        isDeleteMode = true
         navigationItem.rightBarButtonItems = [
             completeBarButtonItem
         ]
     }
     
     private func completeButtonTapped() {
-        prayRequestCollectionView.deletePrayRequests()
-        prayRequestCollectionView.isDeleteMode = false
+        //TODO: 전체 순회할 필요없이 체크 박스 선택 시 뷰모델 배열에 uuid 추가하도록
+        for case let cell as PrayRequestCollectionViewCell in prayRequestCollectionView.visibleCells {
+            if cell.getCheckedState(), let uuid = cell.getPrayRequestUUID() {
+                print(uuid.uuidString)
+            }
+        }
+        isDeleteMode = false
         prayRequestCollectionView.reloadData()
         navigationItem.rightBarButtonItems = [
             deleteBarButtonItem,
@@ -210,8 +229,48 @@ extension PrayRequestViewController: UIGestureRecognizerDelegate {
     }
 }
 
-extension PrayRequestViewController: PushViewControllerDelegate {
-    func pushViewController(with viewController: UIViewController) {
-        self.navigationController?.pushViewController(viewController, animated: true)
+extension PrayRequestViewController: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
+    
+    public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        prayRequests.count
+    }
+    
+    public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PrayRequestCell", for: indexPath) as! PrayRequestCollectionViewCell
+        let prayRequest = prayRequests[indexPath.row]
+        cell.configure(with: prayRequest)
+        if isDeleteMode {
+            cell.enableDeleteMode()
+        } else {
+            cell.disableDeleteMode()
+        }
+        return cell
+    }
+    
+    public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        // 삭제 모드일 때 체크박스 토글
+        if isDeleteMode {
+            if let cell = collectionView.cellForItem(at: indexPath) as? PrayRequestCollectionViewCell {
+                cell.toggleCheckBoxState()
+            }
+        } else { // 기본 모드일 때 상세보기
+            let selectedPrayRequest = prayRequests[indexPath.row]
+            let prayRequestDetailViewController = PrayRequestDetailViewController(with: selectedPrayRequest)
+            self.navigationController?.pushViewController(prayRequestDetailViewController, animated: true)
+        }
+    }
+    
+    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let frameWidth = collectionView.frame.width
+        let width = frameWidth < 600 ? frameWidth : frameWidth / 2
+        return CGSize(width: width, height: 150)
+    }
+    
+    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 20
+    }
+
+    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 20
     }
 }
