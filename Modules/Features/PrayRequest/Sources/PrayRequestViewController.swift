@@ -8,25 +8,27 @@
 import UIKit
 import Shared
 
-public class PrayRequestViewController: UIViewController {
+final class PrayRequestViewController: UIViewController {
     
-    private lazy var plusButton = {
-        let button = UIButton()
+    private let plusButton = UIButton()
+    
+    private func setupPlusButton() {
         let image = UIImage(systemName: "plus")?
             .withConfiguration(UIImage.SymbolConfiguration(weight: .semibold))
-        button.setImage(image, for: .normal)
+        plusButton.setImage(image, for: .normal)
         
-        button.translatesAutoresizingMaskIntoConstraints = false
+        plusButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            button.widthAnchor.constraint(equalToConstant: 28),
-            button.heightAnchor.constraint(equalToConstant: 28)
+            plusButton.widthAnchor.constraint(equalToConstant: 28),
+            plusButton.heightAnchor.constraint(equalToConstant: 28)
         ])
-        
-        button.addAction(UIAction { [weak self] _ in
+    }
+    
+    private func setupButtonActions() {
+        plusButton.addAction(UIAction { [weak self] _ in
             self?.plusButtonTapped()
         }, for: .touchUpInside)
-        return button
-    }()
+    }
     
     private lazy var deleteButton = {
         let button = UIButton()

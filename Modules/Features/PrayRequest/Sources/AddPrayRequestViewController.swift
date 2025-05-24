@@ -8,73 +8,54 @@
 import UIKit
 import Shared
 
-class AddPrayRequestViewController: UIViewController {
+final class AddPrayRequestViewController: UIViewController {
     
-    private lazy var prayContainerView = {
-        let prayContainerView = CellContainerView()
-        prayContainerView.translatesAutoresizingMaskIntoConstraints = false
-        return prayContainerView
-    }()
+    private let prayContainerView = CellContainerView()
+    private let prayEditorView = PrayEditorView()
     
-    private lazy var prayEditorView = {
-        let prayEditorView = PrayEditorView()
-        prayEditorView.translatesAutoresizingMaskIntoConstraints = false
-        prayEditorView.delegate = self
-        return prayEditorView
-    }()
-    
-    public override func viewDidLoad() {
+    override func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = UIColor(named: "BackgroundColor")
         
         setupNavigationBar()
-        setupTapGesture()
         setupUI()
+        setupDelegate()
+        setupTapGesture()
         setupNotificationCenter()
-        
     }
     
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
     
+    // MARK: Setups
     private func setupNavigationBar() {
-        let titleLabel = UILabel()
+        let label = UILabel()
         let strokeTextAttributes: [NSAttributedString.Key: Any] = [
             .strokeWidth: -2.5
         ]
-        titleLabel.attributedText = NSAttributedString(
+        label.attributedText = NSAttributedString(
             string: "기도 제목 추가",
             attributes: strokeTextAttributes
         )
         
-        titleLabel.font = UIFont(name: "IropkeBatangM", size: 22)
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        label.font = UIFont(name: "IropkeBatangM", size: 22)
+        label.translatesAutoresizingMaskIntoConstraints = false
         
-        let saveButton = UIButton()
-        saveButton.setTitle("저장", for: .normal)
-        saveButton.setTitleColor(UIColor.systemBlue, for: .normal)
-        saveButton.setTitleColor(UIColor.lightGray, for: .disabled)
-        saveButton.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
-        saveButton.addAction(UIAction() { [weak self] _ in
+        let button = UIButton()
+        button.setTitle("저장", for: .normal)
+        button.setTitleColor(UIColor.systemBlue, for: .normal)
+        button.setTitleColor(UIColor.lightGray, for: .disabled)
+        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
+        button.addAction(UIAction() { [weak self] _ in
             guard let self = self else { return }
-            self.prayEditorView.convertToPrayRequestContent(with: self.prayEditorView.getPrayContentText())
+            let _ = self.prayEditorView.convertToPrayRequestContent(with: self.prayEditorView.getPrayContentText())
         }, for: .touchUpInside)
         
-        navigationItem.titleView = titleLabel
-        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: saveButton)
+        navigationItem.titleView = label
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: button)
         navigationItem.rightBarButtonItem?.isEnabled = false
-    }
-    
-    private func setupTapGesture() {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        tapGesture.cancelsTouchesInView = false
-        view.addGestureRecognizer(tapGesture)
-        
-        let navBarTapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        navBarTapGesture.cancelsTouchesInView = false
-        navigationController?.navigationBar.addGestureRecognizer(navBarTapGesture)
     }
     
     private func setupUI() {
@@ -82,8 +63,11 @@ class AddPrayRequestViewController: UIViewController {
         prayContainerView.addSubview(prayEditorView)
         
         let sidePadding = Constants.sidePadding
-        
         let safeArea = view.safeAreaLayoutGuide
+        
+        prayContainerView.translatesAutoresizingMaskIntoConstraints = false
+        prayEditorView.translatesAutoresizingMaskIntoConstraints = false
+        
         NSLayoutConstraint.activate([
             prayContainerView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 4),
             prayContainerView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -12),
@@ -97,15 +81,31 @@ class AddPrayRequestViewController: UIViewController {
         ])
     }
     
+    private func setupDelegate() {
+        prayEditorView.delegate = self
+    }
+    
+    private func setupTapGesture() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+        
+        let navBarTapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        navBarTapGesture.cancelsTouchesInView = false
+        navigationController?.navigationBar.addGestureRecognizer(navBarTapGesture)
+    }
+    
     private func setupNotificationCenter() {
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
+    // MARK: Gesture Actions
     @objc private func dismissKeyboard() {
         view.endEditing(true)
     }
     
+    // MARK: Notification Handlers
     @objc private func handleKeyboardWillShow(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
               let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
@@ -126,6 +126,7 @@ class AddPrayRequestViewController: UIViewController {
     }
 }
 
+// MARK: Extensions
 extension AddPrayRequestViewController: RightBarButtonStateDelegate {
     func updateRightBarButtonEnabled() {
         navigationItem.rightBarButtonItem?.isEnabled = prayEditorView.isAllTextsValid
