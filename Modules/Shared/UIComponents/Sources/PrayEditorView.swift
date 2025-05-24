@@ -40,8 +40,6 @@ public class PrayEditorView: UIView {
         textField.layer.cornerRadius = 8
         
         textField.translatesAutoresizingMaskIntoConstraints = false
-        
-        textField.addTarget(self, action: #selector(titleTextFieldDidChange(_:)), for: .editingChanged)
         return textField
     }()
     
@@ -90,6 +88,8 @@ public class PrayEditorView: UIView {
         
         titleTextField.delegate = self
         prayContentTextView.delegate = self
+        
+        titleTextField.addTarget(self, action: #selector(titleTextFieldDidChange(_:)), for: .editingChanged)
     }
     
     required init?(coder: NSCoder) {

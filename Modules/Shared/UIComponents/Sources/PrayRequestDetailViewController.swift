@@ -215,11 +215,33 @@ class PrayRequestDetailViewController: UIViewController {
 
     
     private func completeButtonTapped() {
+        let editedPrayRequest = prayEditorView.getEditedPrayRequest()
+        prayRequest.updateData(title: editedPrayRequest.title, contents: editedPrayRequest.contents)
+        print("수정")
+        
+        updateUI()
+        
         navigationItem.rightBarButtonItems = [
             editBarButtonItem
         ]
         prayContainerView.isHidden = false
         prayEditorContainerView.isHidden = true
+    }
+    
+    private func updateUI() {
+        let titleStrokeTextAttributes: [NSAttributedString.Key: Any] = [
+            .strokeColor: UIColor.systemBlue,
+            .foregroundColor: UIColor.systemBlue,
+            .strokeWidth: -4.0
+        ]
+
+        DispatchQueue.main.async {
+            self.titleLabel.attributedText = NSAttributedString(
+                string: self.prayRequest.title,
+                attributes: titleStrokeTextAttributes
+            )
+            self.prayDetailTableView.reloadData()
+        }
     }
     
     @objc private func dismissKeyboard() {

@@ -7,10 +7,10 @@
 
 import UIKit
 
-public struct PrayRequest {
+public class PrayRequest {
     public let date: Date
-    public let title: String
-    public let contents: [PrayRequestContent]
+    public var title: String
+    public var contents: [PrayRequestContent]
     public let uuid: UUID
     
     public init(date: Date, title: String, contents: [PrayRequestContent], uuid: UUID = UUID()) {
@@ -18,6 +18,11 @@ public struct PrayRequest {
         self.title = title
         self.contents = contents
         self.uuid = uuid
+    }
+    
+    public func updateData(title: String, contents: [PrayRequestContent]) {
+        self.title = title
+        self.contents = contents
     }
     
     public static let dummyDatas = [

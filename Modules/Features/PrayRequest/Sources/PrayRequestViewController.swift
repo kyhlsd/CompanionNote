@@ -83,6 +83,8 @@ public class PrayRequestViewController: UIViewController {
     public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setupNavBarTapGesture()
+        //TODO: firestore snapshot을 쓴다면 안해도 될지도. 테스트
+        prayRequestCollectionView.reloadData()
     }
     
     private func setupNavigationBar() {
