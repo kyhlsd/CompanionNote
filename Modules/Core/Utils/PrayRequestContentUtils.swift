@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct PrayRequestContentUtils {
+public enum PrayRequestContentUtils {
     
     // String -> [PrayRequestContent]
     public static func convertToPrayRequestContent(with text: String) -> [PrayRequestContent] {

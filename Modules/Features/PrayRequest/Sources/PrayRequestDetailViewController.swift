@@ -164,10 +164,7 @@ final class PrayRequestDetailViewController: UIViewController {
     private func setupDateLabel() {
         dateLabel.font = UIFont(name: "IropkeBatangM", size: 16)
         dateLabel.textColor = .gray
-        
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateStyle = .short
-        dateLabel.text = dateFormatter.string(from: prayRequest.date)
+        dateLabel.text = DateFormatUtil.shortWithDayFormatter.string(from: prayRequest.date)
     }
     
     private func setupPrayEditorContainerView() {

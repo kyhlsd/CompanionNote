@@ -117,9 +117,7 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
             attributes: titleStrokeTextAttributes
         )
         
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateStyle = .short
-        dateLabel.text = dateFormatter.string(from: prayRequest.date)
+        dateLabel.text = DateFormatUtil.shortWithDayFormatter.string(from: prayRequest.date)
         
         prayRequestContents = prayRequest.contents
         DispatchQueue.main.async {
