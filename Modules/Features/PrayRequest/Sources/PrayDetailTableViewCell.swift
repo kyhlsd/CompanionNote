@@ -8,25 +8,10 @@
 import UIKit
 import Core
 
-class PrayDetailTableViewCell: UITableViewCell {
+final class PrayDetailTableViewCell: UITableViewCell {
 
-    private let subjectLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont(name: "IropkeBatangM", size: 16)
-        label.numberOfLines = 0
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private let descriptionLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont(name: "IropkeBatangM", size: 16)
-        label.numberOfLines = 0
-        label.lineBreakMode = .byTruncatingTail
-        label.lineBreakStrategy = .pushOut
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
+    private let subjectLabel = UILabel()
+    private let descriptionLabel = UILabel()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -38,8 +23,10 @@ class PrayDetailTableViewCell: UITableViewCell {
     }
     
     private func setupUI() {
-        backgroundColor = .clear
+        subjectLabel.translatesAutoresizingMaskIntoConstraints = false
+        descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         
+        backgroundColor = .clear
         selectionStyle = .none
         
         contentView.addSubview(subjectLabel)
@@ -55,6 +42,18 @@ class PrayDetailTableViewCell: UITableViewCell {
             descriptionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             descriptionLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8)
         ])
+    }
+    
+    private func setupSubjectLabel() {
+        subjectLabel.font = UIFont(name: "IropkeBatangM", size: 16)
+        subjectLabel.numberOfLines = 0
+    }
+    
+    private func setupDescriptionLabel() {
+        descriptionLabel.font = UIFont(name: "IropkeBatangM", size: 16)
+        descriptionLabel.numberOfLines = 0
+        descriptionLabel.lineBreakMode = .byTruncatingTail
+        descriptionLabel.lineBreakStrategy = .pushOut
     }
     
     func configure(with prayRequestContent: PrayRequestContent) {
