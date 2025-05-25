@@ -9,100 +9,18 @@ import UIKit
 import Core
 import Shared
 
-protocol PushViewControllerDelegate: AnyObject {
-    func pushViewController(with viewController: UIViewController)
-}
-
-class PrayRequestDetailViewController: UIViewController {
+final class PrayRequestDetailViewController: UIViewController {
 
     private let prayRequest: PrayRequest
     
-    private lazy var editBarButtonItem: UIBarButtonItem = {
-        let button = UIButton()
-        button.setTitle("수정", for: .normal)
-        button.setTitleColor(UIColor.systemBlue, for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
-        button.addAction(UIAction() { [weak self] _ in
-            guard let self = self else { return }
-            self.editButtonTapped()
-        }, for: .touchUpInside)
-        let buttonItem = UIBarButtonItem(customView: button)
-        return buttonItem
-    }()
-    
-    private lazy var completeBarButtonItem: UIBarButtonItem = {
-        let button = UIButton()
-        button.setTitle("완료", for: .normal)
-        button.setTitleColor(UIColor.systemBlue, for: .normal)
-        button.setTitleColor(UIColor.lightGray, for: .disabled)
-        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
-        button.addAction(UIAction() { [weak self] _ in
-            guard let self = self else { return }
-            self.completeButtonTapped()
-        }, for: .touchUpInside)
-        let buttonItem = UIBarButtonItem(customView: button)
-        return buttonItem
-    }()
-    
-    private lazy var prayContainerView = {
-        let prayContainerView = CellContainerView()
-        prayContainerView.translatesAutoresizingMaskIntoConstraints = false
-        return prayContainerView
-    }()
-    
-    private lazy var titleLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont(name: "IropkeBatangM", size: 20)
-        let titleStrokeTextAttributes: [NSAttributedString.Key: Any] = [
-            .strokeColor: UIColor.systemBlue,
-            .foregroundColor: UIColor.systemBlue,
-            .strokeWidth: -4.0
-        ]
-        label.attributedText = NSAttributedString(
-            string: prayRequest.title,
-            attributes: titleStrokeTextAttributes
-        )
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private lazy var prayDetailTableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .plain)
-        tableView.backgroundColor = .clear
-        tableView.separatorStyle = .none
-        tableView.dataSource = self
-        tableView.delegate = self
-        tableView.register(PrayDetailTableViewCell.self, forCellReuseIdentifier: "PrayDetailCell")
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        return tableView
-    }()
-    
-    private lazy var dateLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont(name: "IropkeBatangM", size: 16)
-        label.textColor = .gray
-        
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateStyle = .short
-        label.text = dateFormatter.string(from: prayRequest.date)
-        
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private lazy var prayEditorContainerView: CellContainerView = {
-        let prayContainerView = CellContainerView()
-        prayContainerView.translatesAutoresizingMaskIntoConstraints = false
-        prayContainerView.isHidden = true
-        return prayContainerView
-    }()
-    
-    private lazy var prayEditorView: PrayEditorView = {
-        let prayEditorView = PrayEditorView()
-        prayEditorView.translatesAutoresizingMaskIntoConstraints = false
-        prayEditorView.delegate = self
-        return prayEditorView
-    }()
+    private let editBarButtonItem = UIBarButtonItem()
+    private let completeBarButtonItem = UIBarButtonItem()
+    private let prayContainerView = CellContainerView()
+    private let titleLabel = UILabel()
+    private let prayDetailTableView: UITableView = UITableView(frame: .zero, style: .plain)
+    private let dateLabel = UILabel()
+    private let prayEditorContainerView = CellContainerView()
+    private let prayEditorView = PrayEditorView()
     
     init(with prayRequest: PrayRequest) {
         self.prayRequest = prayRequest
@@ -123,12 +41,18 @@ class PrayRequestDetailViewController: UIViewController {
         view.backgroundColor = UIColor(named: "BackgroundColor")
         
         setupNavigationBar()
-        setupTapGesture()
         setupUI()
+        setupButtonActions()
+        setupDelegate()
+        setupTapGesture()
         setupNotificationCenter()
     }
     
+    // MARK: Setups
     private func setupNavigationBar() {
+        setupEditBarButtonItem()
+        setupCompleteBarButtonItem()
+        
         let titleLabel = UILabel()
         let strokeTextAttributes: [NSAttributedString.Key: Any] = [
             .strokeWidth: -2.5
@@ -145,19 +69,29 @@ class PrayRequestDetailViewController: UIViewController {
         navigationItem.rightBarButtonItem = editBarButtonItem
     }
     
+    private func setupEditBarButtonItem() {
+        let button = UIButton()
+        button.setTitle("수정", for: .normal)
+        button.setTitleColor(UIColor.systemBlue, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
+        editBarButtonItem.customView = button
+    }
     
-    
-    private func setupTapGesture() {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        tapGesture.cancelsTouchesInView = false
-        view.addGestureRecognizer(tapGesture)
-        
-        let navBarTapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        navBarTapGesture.cancelsTouchesInView = false
-        navigationController?.navigationBar.addGestureRecognizer(navBarTapGesture)
+    private func setupCompleteBarButtonItem() {
+        let button = UIButton()
+        button.setTitle("완료", for: .normal)
+        button.setTitleColor(UIColor.systemBlue, for: .normal)
+        button.setTitleColor(UIColor.lightGray, for: .disabled)
+        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
+        completeBarButtonItem.customView = button
     }
 
     private func setupUI() {
+        setupTitleLabel()
+        setupDateLabel()
+        setupPrayDetailTableView()
+        setupPrayEditorContainerView()
+        
         view.addSubview(prayContainerView)
         prayContainerView.addSubview(titleLabel)
         prayContainerView.addSubview(dateLabel)
@@ -166,6 +100,13 @@ class PrayRequestDetailViewController: UIViewController {
         prayEditorContainerView.addSubview(prayEditorView)
         
         let sidePadding = Constants.sidePadding
+        
+        prayContainerView.translatesAutoresizingMaskIntoConstraints = false
+        prayDetailTableView.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        dateLabel.translatesAutoresizingMaskIntoConstraints = false
+        prayEditorContainerView.translatesAutoresizingMaskIntoConstraints = false
+        prayEditorView.translatesAutoresizingMaskIntoConstraints = false
         
         let safeArea = view.safeAreaLayoutGuide
         NSLayoutConstraint.activate([
@@ -198,11 +139,76 @@ class PrayRequestDetailViewController: UIViewController {
         ])
     }
     
+    private func setupTitleLabel() {
+        titleLabel.font = UIFont(name: "IropkeBatangM", size: 20)
+        let titleStrokeTextAttributes: [NSAttributedString.Key: Any] = [
+            .strokeColor: UIColor.systemBlue,
+            .foregroundColor: UIColor.systemBlue,
+            .strokeWidth: -4.0
+        ]
+        titleLabel.attributedText = NSAttributedString(
+            string: prayRequest.title,
+            attributes: titleStrokeTextAttributes
+        )
+    }
+    
+    private func setupPrayDetailTableView() {
+        prayDetailTableView.backgroundColor = .clear
+        prayDetailTableView.separatorStyle = .none
+        prayDetailTableView.register(PrayDetailTableViewCell.self, forCellReuseIdentifier: "PrayDetailCell")
+    }
+    
+    private func setupDateLabel() {
+        dateLabel.font = UIFont(name: "IropkeBatangM", size: 16)
+        dateLabel.textColor = .gray
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .short
+        dateLabel.text = dateFormatter.string(from: prayRequest.date)
+    }
+    
+    private func setupPrayEditorContainerView() {
+        prayEditorContainerView.isHidden = true
+    }
+    
+    private func setupButtonActions() {
+        // Edit Button
+        if let button = editBarButtonItem.customView as? UIButton {
+            button.addAction(UIAction { [weak self] _ in
+                self?.editButtonTapped()
+            }, for: .touchUpInside)
+        }
+        
+        // Complete Button
+        if let button = completeBarButtonItem.customView as? UIButton {
+            button.addAction(UIAction { [weak self] _ in
+                self?.completeButtonTapped()
+            }, for: .touchUpInside)
+        }
+    }
+    
+    private func setupDelegate() {
+        prayDetailTableView.dataSource = self
+        prayDetailTableView.delegate = self
+        prayEditorView.delegate = self
+    }
+    
+    private func setupTapGesture() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+        
+        let navBarTapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        navBarTapGesture.cancelsTouchesInView = false
+        navigationController?.navigationBar.addGestureRecognizer(navBarTapGesture)
+    }
+    
     private func setupNotificationCenter() {
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
+    //MARK: ButtonActions
     private func editButtonTapped() {
         navigationItem.rightBarButtonItems = [
             completeBarButtonItem
@@ -246,10 +252,12 @@ class PrayRequestDetailViewController: UIViewController {
         }
     }
     
+    // MARK: Gesture Actions
     @objc private func dismissKeyboard() {
         view.endEditing(true)
     }
     
+    // MARK: Notification Handlers
     @objc private func handleKeyboardWillShow(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
               let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
@@ -270,6 +278,7 @@ class PrayRequestDetailViewController: UIViewController {
     }
 }
 
+// MARK: Extensions
 extension PrayRequestDetailViewController: UITableViewDataSource, UITableViewDelegate {
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return prayRequest.contents.count
