@@ -9,4 +9,6 @@ import Foundation
 
 public enum Constants {
     public static let sidePadding: CGFloat = 16
+    public static let topPadding: CGFloat = 4
+    public static let innerPadding: CGFloat = 12
 }

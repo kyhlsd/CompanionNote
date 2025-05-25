@@ -59,6 +59,8 @@ final class PrayEditorView: UIView {
         prayContentLabel.translatesAutoresizingMaskIntoConstraints = false
         prayContentTextView.translatesAutoresizingMaskIntoConstraints = false
         
+        let innerPadding = Constants.innerPadding
+
         NSLayoutConstraint.activate([
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
             titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
@@ -77,7 +79,7 @@ final class PrayEditorView: UIView {
             prayContentTextView.topAnchor.constraint(equalTo: prayContentLabel.bottomAnchor, constant: 4),
         ])
         
-        prayContentTextViewBottomConstraint = prayContentTextView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -12)
+        prayContentTextViewBottomConstraint = prayContentTextView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -innerPadding)
         prayContentTextViewBottomConstraint.isActive = true
     }
     
@@ -167,7 +169,8 @@ final class PrayEditorView: UIView {
     }
     
     func updateBottomConstraint(with constant: CGFloat = 0.0, animationDuration: TimeInterval) {
-        prayContentTextViewBottomConstraint.constant = -12 - constant
+        let innerPadding = Constants.innerPadding
+        prayContentTextViewBottomConstraint.constant = -innerPadding - constant
 
         UIView.animate(withDuration: animationDuration) {
             self.layoutIfNeeded()

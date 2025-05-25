@@ -105,20 +105,22 @@ final public class PrayRequestViewController: UIViewController {
         view.addSubview(praySearchBar)
         view.addSubview(prayRequestCollectionView)
         
-        let sidePadding = Constants.sidePadding
-        let safeArea = view.safeAreaLayoutGuide
-        
         praySearchBar.translatesAutoresizingMaskIntoConstraints = false
         prayRequestCollectionView.translatesAutoresizingMaskIntoConstraints = false
         
+        let sidePadding = Constants.sidePadding
+        let topPadding = Constants.topPadding
+        let innerPadding = Constants.innerPadding
+        let safeArea = view.safeAreaLayoutGuide
+        
         NSLayoutConstraint.activate([
-            praySearchBar.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 4),
+            praySearchBar.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: topPadding),
             praySearchBar.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: sidePadding),
             praySearchBar.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -sidePadding),
             
             prayRequestCollectionView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: sidePadding),
             prayRequestCollectionView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -sidePadding),
-            prayRequestCollectionView.topAnchor.constraint(equalTo: praySearchBar.bottomAnchor, constant: 12),
+            prayRequestCollectionView.topAnchor.constraint(equalTo: praySearchBar.bottomAnchor, constant: innerPadding),
             prayRequestCollectionView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor),
         ])
     }

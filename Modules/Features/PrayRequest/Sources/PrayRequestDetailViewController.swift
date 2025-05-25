@@ -107,35 +107,38 @@ final class PrayRequestDetailViewController: UIViewController {
         dateLabel.translatesAutoresizingMaskIntoConstraints = false
         prayEditorContainerView.translatesAutoresizingMaskIntoConstraints = false
         prayEditorView.translatesAutoresizingMaskIntoConstraints = false
-        
+
+        let topPadding = Constants.topPadding
+        let innerPadding = Constants.innerPadding
         let safeArea = view.safeAreaLayoutGuide
+
         NSLayoutConstraint.activate([
-            prayContainerView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 4),
-            prayContainerView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -12),
+            prayContainerView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: topPadding),
+            prayContainerView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -innerPadding),
             prayContainerView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: sidePadding),
             prayContainerView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -sidePadding),
 
-            titleLabel.leadingAnchor.constraint(equalTo: prayContainerView.leadingAnchor, constant: 12),
-            titleLabel.trailingAnchor.constraint(equalTo: prayContainerView.trailingAnchor, constant: -12),
-            titleLabel.topAnchor.constraint(equalTo: prayContainerView.topAnchor, constant: 12),
+            titleLabel.leadingAnchor.constraint(equalTo: prayContainerView.leadingAnchor, constant: innerPadding),
+            titleLabel.trailingAnchor.constraint(equalTo: prayContainerView.trailingAnchor, constant: -innerPadding),
+            titleLabel.topAnchor.constraint(equalTo: prayContainerView.topAnchor, constant: innerPadding),
 
             dateLabel.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
-            dateLabel.trailingAnchor.constraint(equalTo: prayContainerView.trailingAnchor, constant: -12),
+            dateLabel.trailingAnchor.constraint(equalTo: prayContainerView.trailingAnchor, constant: -innerPadding),
             
             prayDetailTableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 6),
-            prayDetailTableView.leadingAnchor.constraint(equalTo: prayContainerView.leadingAnchor, constant: 12),
-            prayDetailTableView.trailingAnchor.constraint(equalTo: prayContainerView.trailingAnchor, constant: -12),
+            prayDetailTableView.leadingAnchor.constraint(equalTo: prayContainerView.leadingAnchor, constant: innerPadding),
+            prayDetailTableView.trailingAnchor.constraint(equalTo: prayContainerView.trailingAnchor, constant: -innerPadding),
             prayDetailTableView.bottomAnchor.constraint(equalTo: prayContainerView.bottomAnchor, constant: -5),
             
-            prayEditorContainerView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 4),
-            prayEditorContainerView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -12),
+            prayEditorContainerView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: topPadding),
+            prayEditorContainerView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -innerPadding),
             prayEditorContainerView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: sidePadding),
             prayEditorContainerView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -sidePadding),
             
-            prayEditorView.leadingAnchor.constraint(equalTo: prayEditorContainerView.leadingAnchor, constant: 12),
-            prayEditorView.trailingAnchor.constraint(equalTo: prayEditorContainerView.trailingAnchor, constant: -12),
-            prayEditorView.topAnchor.constraint(equalTo: prayEditorContainerView.topAnchor, constant: 12),
-            prayEditorView.bottomAnchor.constraint(equalTo: prayEditorContainerView.bottomAnchor, constant: -12)
+            prayEditorView.leadingAnchor.constraint(equalTo: prayEditorContainerView.leadingAnchor, constant: innerPadding),
+            prayEditorView.trailingAnchor.constraint(equalTo: prayEditorContainerView.trailingAnchor, constant: -innerPadding),
+            prayEditorView.topAnchor.constraint(equalTo: prayEditorContainerView.topAnchor, constant: innerPadding),
+            prayEditorView.bottomAnchor.constraint(equalTo: prayEditorContainerView.bottomAnchor, constant: -innerPadding)
         ])
     }
     

@@ -54,6 +54,7 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
         dateLabel.translatesAutoresizingMaskIntoConstraints = false
         checkBox.translatesAutoresizingMaskIntoConstraints = false
         
+        let innerPadding = Constants.innerPadding
         
         NSLayoutConstraint.activate([
             cellContainerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
@@ -61,23 +62,23 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
             cellContainerView.topAnchor.constraint(equalTo: contentView.topAnchor),
             cellContainerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
             
-            titleLabel.leadingAnchor.constraint(equalTo: cellContainerView.leadingAnchor, constant: 12),
-            titleLabel.trailingAnchor.constraint(equalTo: dateLabel.leadingAnchor, constant: -12),
-            titleLabel.topAnchor.constraint(equalTo: cellContainerView.topAnchor, constant: 12),
+            titleLabel.leadingAnchor.constraint(equalTo: cellContainerView.leadingAnchor, constant: innerPadding),
+            titleLabel.trailingAnchor.constraint(equalTo: dateLabel.leadingAnchor, constant: -innerPadding),
+            titleLabel.topAnchor.constraint(equalTo: cellContainerView.topAnchor, constant: innerPadding),
 
             dateLabel.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
             
-            checkBox.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -12),
+            checkBox.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -innerPadding),
             checkBox.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
             checkBox.heightAnchor.constraint(equalToConstant: 24),
             checkBox.widthAnchor.constraint(equalToConstant: 24),
 
             prayRequestContentTableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
-            prayRequestContentTableView.leadingAnchor.constraint(equalTo: cellContainerView.leadingAnchor, constant: 12),
-            prayRequestContentTableView.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -12),
+            prayRequestContentTableView.leadingAnchor.constraint(equalTo: cellContainerView.leadingAnchor, constant: innerPadding),
+            prayRequestContentTableView.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -innerPadding),
             prayRequestContentTableView.bottomAnchor.constraint(equalTo: cellContainerView.bottomAnchor, constant: -5)
         ])
-        dateLabelTrailingConstraint = dateLabel.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -12)
+        dateLabelTrailingConstraint = dateLabel.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -innerPadding)
         dateLabelTrailingConstraint.isActive = true
     }
     
@@ -131,7 +132,8 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
     func enableDeleteMode() {
         checkBox.isHidden = false
         dateLabelTrailingConstraint.isActive = false
-        dateLabelTrailingConstraint = dateLabel.trailingAnchor.constraint(equalTo: checkBox.leadingAnchor, constant: -12)
+        let innerPadding = Constants.innerPadding
+        dateLabelTrailingConstraint = dateLabel.trailingAnchor.constraint(equalTo: checkBox.leadingAnchor, constant: -innerPadding)
         dateLabelTrailingConstraint.isActive = true
     }
     
@@ -139,7 +141,8 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
         checkBox.isHidden = true
         checkBox.isChecked = false
         dateLabelTrailingConstraint.isActive = false
-        dateLabelTrailingConstraint = dateLabel.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -12)
+        let innerPadding = Constants.innerPadding
+        dateLabelTrailingConstraint = dateLabel.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -innerPadding)
         dateLabelTrailingConstraint.isActive = true
     }
     

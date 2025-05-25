@@ -63,22 +63,24 @@ final class AddPrayRequestViewController: UIViewController {
         view.addSubview(prayContainerView)
         prayContainerView.addSubview(prayEditorView)
         
-        let sidePadding = Constants.sidePadding
-        let safeArea = view.safeAreaLayoutGuide
-        
         prayContainerView.translatesAutoresizingMaskIntoConstraints = false
         prayEditorView.translatesAutoresizingMaskIntoConstraints = false
         
+        let sidePadding = Constants.sidePadding
+        let topPadding = Constants.topPadding
+        let innerPadding = Constants.innerPadding
+        let safeArea = view.safeAreaLayoutGuide
+        
         NSLayoutConstraint.activate([
-            prayContainerView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 4),
-            prayContainerView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -12),
+            prayContainerView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: topPadding),
+            prayContainerView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -innerPadding),
             prayContainerView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: sidePadding),
             prayContainerView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -sidePadding),
             
-            prayEditorView.leadingAnchor.constraint(equalTo: prayContainerView.leadingAnchor, constant: 12),
-            prayEditorView.trailingAnchor.constraint(equalTo: prayContainerView.trailingAnchor, constant: -12),
-            prayEditorView.topAnchor.constraint(equalTo: prayContainerView.topAnchor, constant: 12),
-            prayEditorView.bottomAnchor.constraint(equalTo: prayContainerView.bottomAnchor, constant: -12)
+            prayEditorView.leadingAnchor.constraint(equalTo: prayContainerView.leadingAnchor, constant: innerPadding),
+            prayEditorView.trailingAnchor.constraint(equalTo: prayContainerView.trailingAnchor, constant: -innerPadding),
+            prayEditorView.topAnchor.constraint(equalTo: prayContainerView.topAnchor, constant: innerPadding),
+            prayEditorView.bottomAnchor.constraint(equalTo: prayContainerView.bottomAnchor, constant: -innerPadding)
         ])
     }
     
