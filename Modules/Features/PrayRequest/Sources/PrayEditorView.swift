@@ -9,7 +9,7 @@ import UIKit
 import Core
 import Shared
 
-public class PrayEditorView: UIView {
+final class PrayEditorView: UIView {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -25,6 +25,10 @@ public class PrayEditorView: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
+    
+    private let setupTitleLabel() {
+        
+    }
     
     private let titleTextField: PaddedTextField = {
         let textField = PaddedTextField()

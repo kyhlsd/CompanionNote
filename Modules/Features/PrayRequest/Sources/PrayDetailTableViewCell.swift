@@ -23,14 +23,17 @@ final class PrayDetailTableViewCell: UITableViewCell {
     }
     
     private func setupUI() {
-        subjectLabel.translatesAutoresizingMaskIntoConstraints = false
-        descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
+        setupSubjectLabel()
+        setupDescriptionLabel()
         
         backgroundColor = .clear
         selectionStyle = .none
         
         contentView.addSubview(subjectLabel)
         contentView.addSubview(descriptionLabel)
+        
+        subjectLabel.translatesAutoresizingMaskIntoConstraints = false
+        descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             subjectLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
