@@ -41,7 +41,6 @@ class PrayRequestDetailViewController: UIViewController {
             self.completeButtonTapped()
         }, for: .touchUpInside)
         let buttonItem = UIBarButtonItem(customView: button)
-        buttonItem.isEnabled = false
         return buttonItem
     }()
     
@@ -211,17 +210,18 @@ class PrayRequestDetailViewController: UIViewController {
         prayEditorView.configure(with: prayRequest)
         prayContainerView.isHidden = true
         prayEditorContainerView.isHidden = false
-        
-        navigationItem.rightBarButtonItem?.isEnabled = false
     }
-
     
     private func completeButtonTapped() {
         let editedPrayRequest = prayEditorView.getEditedPrayRequest()
-        prayRequest.updateData(title: editedPrayRequest.title, contents: editedPrayRequest.contents)
-        print("수정")
         
-        updateUI()
+        // 변경 사항이 있을 때만 update
+        if prayRequest.title != editedPrayRequest.title || prayRequest.contents != editedPrayRequest.contents {
+            prayRequest.updateData(title: editedPrayRequest.title, contents: editedPrayRequest.contents)
+            print("수정")
+            
+            updateUI()
+        }
         
         navigationItem.rightBarButtonItems = [
             editBarButtonItem
@@ -285,13 +285,7 @@ extension PrayRequestDetailViewController: UITableViewDataSource, UITableViewDel
 
 extension PrayRequestDetailViewController: RightBarButtonStateDelegate {
     func updateRightBarButtonEnabled() {
-        let editedPrayRequest =  prayEditorView.getEditedPrayRequest()
-        // 변경 사항이 없으면 disable 처리
-        if prayRequest.title == editedPrayRequest.title, prayRequest.contents == editedPrayRequest.contents {
-            completeBarButtonItem.isEnabled = false
-        } else { // 변경 사항이 있을 때 text valid 검사
-            completeBarButtonItem.isEnabled = prayEditorView.isAllTextsValid
-        }
+        completeBarButtonItem.isEnabled = prayEditorView.isAllTextsValid
     }
 }
 
