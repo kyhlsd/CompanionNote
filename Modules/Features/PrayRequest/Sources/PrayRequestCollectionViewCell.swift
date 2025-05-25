@@ -64,11 +64,11 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
             
             titleLabel.leadingAnchor.constraint(equalTo: cellContainerView.leadingAnchor, constant: innerPadding),
             titleLabel.trailingAnchor.constraint(equalTo: dateLabel.leadingAnchor, constant: -innerPadding),
-            titleLabel.topAnchor.constraint(equalTo: cellContainerView.topAnchor, constant: innerPadding),
+            titleLabel.topAnchor.constraint(equalTo: cellContainerView.topAnchor, constant: innerPadding - 4), // Font 여백에 따른 조정
 
             dateLabel.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
             
-            checkBox.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -innerPadding),
+            checkBox.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -innerPadding + 4), // Font 여백에 따른 조정
             checkBox.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
             checkBox.heightAnchor.constraint(equalToConstant: 24),
             checkBox.widthAnchor.constraint(equalToConstant: 24),
