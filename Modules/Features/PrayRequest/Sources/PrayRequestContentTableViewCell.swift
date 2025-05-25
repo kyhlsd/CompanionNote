@@ -8,25 +8,10 @@
 import UIKit
 import Core
 
-class PrayRequestContentTableViewCell: UITableViewCell {
+final class PrayRequestContentTableViewCell: UITableViewCell {
 
-    private let subjectLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont(name: "IropkeBatangM", size: 12)
-        label.numberOfLines = 1
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private let descriptionLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont(name: "IropkeBatangM", size: 12)
-        label.numberOfLines = 2
-        label.lineBreakMode = .byTruncatingTail
-        label.lineBreakStrategy = .pushOut
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
+    private let subjectLabel = UILabel()
+    private let descriptionLabel = UILabel()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -37,13 +22,19 @@ class PrayRequestContentTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: Setups
     private func setupUI() {
-        backgroundColor = .clear
+        setupSubjectLabel()
+        setupDescriptionLabel()
         
+        backgroundColor = .clear
         selectionStyle = .none
         
         contentView.addSubview(subjectLabel)
         contentView.addSubview(descriptionLabel)
+        
+        subjectLabel.translatesAutoresizingMaskIntoConstraints = false
+        descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             subjectLabel.topAnchor.constraint(equalTo: contentView.topAnchor),
@@ -55,6 +46,18 @@ class PrayRequestContentTableViewCell: UITableViewCell {
             descriptionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             descriptionLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8)
         ])
+    }
+    
+    private func setupSubjectLabel() {
+        subjectLabel.font = UIFont(name: "IropkeBatangM", size: 12)
+        subjectLabel.numberOfLines = 1
+    }
+    
+    private func setupDescriptionLabel() {
+        descriptionLabel.font = UIFont(name: "IropkeBatangM", size: 12)
+        descriptionLabel.numberOfLines = 2
+        descriptionLabel.lineBreakMode = .byTruncatingTail
+        descriptionLabel.lineBreakStrategy = .pushOut
     }
     
     func configure(with prayRequestContent: PrayRequestContent) {

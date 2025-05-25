@@ -183,6 +183,7 @@ final class PrayEditorView: UIView {
     }
 }
 
+// MARK: Extensions
 extension PrayEditorView: UITextViewDelegate {
     
     func textViewDidBeginEditing(_ textView: UITextView) {
