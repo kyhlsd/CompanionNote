@@ -125,10 +125,10 @@ final class PrayRequestDetailViewController: UIViewController {
             dateLabel.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
             dateLabel.trailingAnchor.constraint(equalTo: prayContainerView.trailingAnchor, constant: -innerPadding),
             
-            prayDetailTableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 6),
+            prayDetailTableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
             prayDetailTableView.leadingAnchor.constraint(equalTo: prayContainerView.leadingAnchor, constant: innerPadding),
             prayDetailTableView.trailingAnchor.constraint(equalTo: prayContainerView.trailingAnchor, constant: -innerPadding),
-            prayDetailTableView.bottomAnchor.constraint(equalTo: prayContainerView.bottomAnchor, constant: -5),
+            prayDetailTableView.bottomAnchor.constraint(equalTo: prayContainerView.bottomAnchor, constant: -4),
             
             prayEditorContainerView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: topPadding),
             prayEditorContainerView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -innerPadding),

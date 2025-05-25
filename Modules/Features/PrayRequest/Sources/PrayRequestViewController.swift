@@ -265,14 +265,14 @@ extension PrayRequestViewController: UICollectionViewDataSource, UICollectionVie
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let frameWidth = collectionView.frame.width
         let width = frameWidth < 600 ? frameWidth : frameWidth / 2
-        return CGSize(width: width, height: 128)
+        return CGSize(width: width, height: 106)
     }
     
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return 20
+        return Constants.innerPadding
     }
 
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return 20
+        return Constants.innerPadding
     }
 }

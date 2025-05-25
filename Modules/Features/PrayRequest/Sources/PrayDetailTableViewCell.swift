@@ -38,14 +38,14 @@ final class PrayDetailTableViewCell: UITableViewCell {
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            subjectLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
+            subjectLabel.topAnchor.constraint(equalTo: contentView.topAnchor),
             subjectLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             subjectLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             
-            descriptionLabel.topAnchor.constraint(equalTo: subjectLabel.bottomAnchor, constant: 2),
+            descriptionLabel.topAnchor.constraint(equalTo: subjectLabel.bottomAnchor),
             descriptionLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             descriptionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            descriptionLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8)
+            descriptionLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20)
         ])
     }
     

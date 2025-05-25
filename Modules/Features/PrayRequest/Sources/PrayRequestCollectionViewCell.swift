@@ -73,10 +73,10 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
             checkBox.heightAnchor.constraint(equalToConstant: 24),
             checkBox.widthAnchor.constraint(equalToConstant: 24),
 
-            prayRequestContentTableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
+            prayRequestContentTableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 6),
             prayRequestContentTableView.leadingAnchor.constraint(equalTo: cellContainerView.leadingAnchor, constant: innerPadding),
             prayRequestContentTableView.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -innerPadding),
-            prayRequestContentTableView.bottomAnchor.constraint(equalTo: cellContainerView.bottomAnchor, constant: -5)
+            prayRequestContentTableView.bottomAnchor.constraint(equalTo: cellContainerView.bottomAnchor, constant: -4)
         ])
         dateLabelTrailingConstraint = dateLabel.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -innerPadding)
         dateLabelTrailingConstraint.isActive = true

@@ -41,10 +41,10 @@ final class PrayRequestContentTableViewCell: UITableViewCell {
             subjectLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             subjectLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             
-            descriptionLabel.topAnchor.constraint(equalTo: subjectLabel.bottomAnchor, constant: 2),
+            descriptionLabel.topAnchor.constraint(equalTo: subjectLabel.bottomAnchor),
             descriptionLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             descriptionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            descriptionLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8)
+            descriptionLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4)
         ])
     }
     
