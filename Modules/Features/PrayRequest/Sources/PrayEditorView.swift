@@ -252,19 +252,19 @@ extension PrayEditorView: UITextViewDelegate {
 
 extension PrayEditorView: UITextFieldDelegate {
     
-    // TODO: 글자수 제한
-//    public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-//        // 변경 후 텍스트를 미리 계산
-//        if let currentText = textField.text,
-//           let textRange = Range(range, in: currentText) {
-//            
-//            let updatedText = currentText.replacingCharacters(in: textRange, with: string)
-//            
-//            checkTextsValidation(titleText: updatedText, contentText: prayContentTextView.text)
-//        }
-//        
-//        return true // 텍스트 변경을 허용
-//    }
+    // 입력 가능 텍스트 최대 20자 설정
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        // 변경 후 텍스트를 미리 계산
+        if let currentText = textField.text,
+           let textRange = Range(range, in: currentText) {
+            
+            let updatedText = currentText.replacingCharacters(in: textRange, with: string)
+            
+            return updatedText.count <= 20
+        }
+        
+        return true
+    }
     
     @objc private func titleTextFieldDidChange(_ textField: UITextField) {
         checkTextsValidation(titleText: textField.text, contentText: prayContentTextView.text)
