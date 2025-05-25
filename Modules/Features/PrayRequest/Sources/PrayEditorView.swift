@@ -33,17 +33,17 @@ final class PrayEditorView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        setup()
+        setupUI()
         setupDelegate()
-        
-        titleTextField.addTarget(self, action: #selector(titleTextFieldDidChange(_:)), for: .editingChanged)
+        setupTarget()
     }
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
     }
     
-    private func setup() {
+    // MARK: Setups
+    private func setupUI() {
         setupTitleLabel()
         setupTitleTextField()
         setupPrayContentLabel()
@@ -136,6 +136,10 @@ final class PrayEditorView: UIView {
         prayContentTextView.delegate = self
     }
     
+    private func setupTarget() {
+        titleTextField.addTarget(self, action: #selector(titleTextFieldDidChange(_:)), for: .editingChanged)
+    }
+    
     private func checkTextsValidation(titleText: String?, contentText: String?) {
         guard let titleText = titleText, let contentText = contentText else {
             isAllTextsValid = false
@@ -156,59 +160,9 @@ final class PrayEditorView: UIView {
         return
     }
     
-    // TODO: Util로 빼기
-    func convertToPrayRequestContent(with text: String) -> [PrayRequestContent] {
-        var results = [PrayRequestContent]()
-        
-        // 입력 끝에 개행 추가 (마지막 항목까지 매치되도록)
-        let normalizedText = text.hasSuffix("\n") ? text : text + "\n"
-        
-        // ":"가 없을 때는 전체 Text를 하나의 Description으로 처리
-        if !text.contains(":") {
-            let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
-            let prayRequestContent = PrayRequestContent(subject: "", description: trimmedText)
-            results.append(prayRequestContent)
-            print(results)
-            return results
-        }
-        
-        // ":" 기준으로 둘로 나눔
-        let pattern = #"(?ms)^([^:\n]+)\s*:\s*(.*?)(?=^[^:\n]+\s*:\s*|\z)"#
-        
-        if let regex = try? NSRegularExpression(pattern: pattern) {
-            let nsText = normalizedText as NSString
-            let matches = regex.matches(in: normalizedText, range: NSRange(normalizedText.startIndex..., in: normalizedText))
-            
-            for match in matches {
-                let rawSubject = nsText.substring(with: match.range(at: 1))
-                let rawDescription = nsText.substring(with: match.range(at: 2))
-                
-                let subject = rawSubject.trimmingCharacters(in: .whitespacesAndNewlines)
-                let description = rawDescription.trimmingCharacters(in: .whitespacesAndNewlines)
-                
-                let prayRequestContent = PrayRequestContent(subject: subject, description: description)
-                results.append(prayRequestContent)
-            }
-        }
-        print(results)
-        return results
-    }
-    
-    func convertFromPrayRequestContents(with contents: [PrayRequestContent]) -> String {
-        let lines = contents.map { content in
-            if content.subject.isEmpty {
-                return content.description
-            } else {
-                return "\(content.subject) : \(content.description)"
-            }
-        }
-        
-        return lines.joined(separator: "\n\n")
-    }
-    
     func configure(with prayRequest: PrayRequest) {
         titleTextField.text = prayRequest.title
-        prayContentTextView.text = convertFromPrayRequestContents(with: prayRequest.contents)
+        prayContentTextView.text = PrayRequestContentUtils.convertFromPrayRequestContents(with: prayRequest.contents)
         prayContentTextView.textColor = .black
     }
     
@@ -225,7 +179,7 @@ final class PrayEditorView: UIView {
     }
     
     func getEditedPrayRequest() -> PrayRequest {
-        return PrayRequest(date: Date(), title: titleTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "", contents: convertToPrayRequestContent(with: prayContentTextView.text))
+        return PrayRequest(date: Date(), title: titleTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "", contents: PrayRequestContentUtils.convertToPrayRequestContent(with: prayContentTextView.text))
     }
 }
 

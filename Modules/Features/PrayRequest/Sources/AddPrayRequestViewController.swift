@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Core
 import Shared
 
 final class AddPrayRequestViewController: UIViewController {
@@ -48,7 +49,7 @@ final class AddPrayRequestViewController: UIViewController {
         button.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
         button.addAction(UIAction() { [weak self] _ in
             guard let self = self else { return }
-            let _ = self.prayEditorView.convertToPrayRequestContent(with: self.prayEditorView.getPrayContentText())
+            let _ = PrayRequestContentUtils.convertToPrayRequestContent(with: self.prayEditorView.getPrayContentText())
         }, for: .touchUpInside)
         
         navigationItem.titleView = label

@@ -22,6 +22,7 @@ final class PrayDetailTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: Setups
     private func setupUI() {
         setupSubjectLabel()
         setupDescriptionLabel()
