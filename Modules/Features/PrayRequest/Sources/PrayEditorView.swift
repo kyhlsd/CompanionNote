@@ -22,12 +22,16 @@ final class PrayEditorView: UIView {
     private let prayContentTextView = UITextView()
     
     private var prayContentTextViewBottomConstraint: NSLayoutConstraint!
-    weak var delegate: RightBarButtonStateDelegate?
+    weak var rightBarButtonStateDelegate: RightBarButtonStateDelegate?
     
     var isAllTextsValid: Bool = false {
         didSet {
-            delegate?.updateRightBarButtonEnabled()
+            rightBarButtonStateDelegate?.updateRightBarButtonEnabled()
         }
+    }
+    
+    var isTextViewFirstResponder: Bool {
+        return prayContentTextView.isFirstResponder
     }
     
     override init(frame: CGRect) {
@@ -171,6 +175,18 @@ final class PrayEditorView: UIView {
         }
     }
     
+    func moveView(up: Bool, animationDuration: TimeInterval) {
+//        PrayContentLabel이 가장 위에 오도록 움직여야 하는 값 + 상위 View Padding 고려
+        let offset = titleLabel.frame.height + titleTextField.frame.height + 4 + 16 + 8
+        UIView.animate(withDuration: animationDuration) {
+            self.transform = up ? CGAffineTransform(translationX: 0, y: -offset) : .identity
+        }
+    }
+    
+    func getTextViewHeight() -> CGFloat {
+        return prayContentTextView.frame.height
+    }
+    
     func getPrayContentText() -> String {
         return prayContentTextView.text
     }
@@ -220,6 +236,6 @@ extension PrayEditorView: UITextFieldDelegate {
     
     @objc private func titleTextFieldDidChange(_ textField: UITextField) {
         checkTextsValidation(titleText: textField.text, contentText: prayContentTextView.text)
-        delegate?.updateRightBarButtonEnabled()
+        rightBarButtonStateDelegate?.updateRightBarButtonEnabled()
     }
 }

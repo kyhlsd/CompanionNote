@@ -13,6 +13,7 @@ public class CellContainerView: UIView {
         super.init(frame: frame)
         backgroundColor = UIColor(named: "CellColor", in: Bundle.module, compatibleWith: nil)
         layer.cornerRadius = 8
+        clipsToBounds = true
     }
     
     required public init?(coder: NSCoder) {

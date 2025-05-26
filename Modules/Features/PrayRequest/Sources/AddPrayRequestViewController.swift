@@ -83,7 +83,7 @@ final class AddPrayRequestViewController: UIViewController {
     }
     
     private func setupDelegate() {
-        prayEditorView.delegate = self
+        prayEditorView.rightBarButtonStateDelegate = self
     }
     
     private func setupTapGesture() {
@@ -116,7 +116,12 @@ final class AddPrayRequestViewController: UIViewController {
         let tabBarHeight = tabBarController?.tabBar.frame.height ?? 0
         let safeOffset = keyboardHeight - tabBarHeight
         
-        prayEditorView.updateBottomConstraint(with: safeOffset, animationDuration: animationDuration)
+        let textViewHeight = prayEditorView.getTextViewHeight()
+        if textViewHeight > 160 {
+            prayEditorView.updateBottomConstraint(with: safeOffset, animationDuration: animationDuration)
+        } else if prayEditorView.isTextViewFirstResponder {
+            prayEditorView.moveView(up: true, animationDuration: animationDuration)
+        }
     }
 
     @objc private func handleKeyboardWillHide(_ notification: Notification) {
@@ -124,6 +129,7 @@ final class AddPrayRequestViewController: UIViewController {
               let animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else { return }
 
         prayEditorView.updateBottomConstraint(animationDuration: animationDuration)
+        prayEditorView.moveView(up: false, animationDuration: animationDuration)
     }
 }
 
