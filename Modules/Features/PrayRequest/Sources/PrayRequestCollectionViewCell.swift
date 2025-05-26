@@ -55,6 +55,7 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
         checkBox.translatesAutoresizingMaskIntoConstraints = false
         
         let innerPadding = Constants.innerPadding
+        let scrolledCellBottomPadding = Constants.scrolledCellBottomPadding
         
         NSLayoutConstraint.activate([
             cellContainerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
@@ -76,14 +77,14 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
             prayRequestContentTableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 6),
             prayRequestContentTableView.leadingAnchor.constraint(equalTo: cellContainerView.leadingAnchor, constant: innerPadding),
             prayRequestContentTableView.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -innerPadding),
-            prayRequestContentTableView.bottomAnchor.constraint(equalTo: cellContainerView.bottomAnchor, constant: -4)
+            prayRequestContentTableView.bottomAnchor.constraint(equalTo: cellContainerView.bottomAnchor, constant: -scrolledCellBottomPadding)
         ])
         dateLabelTrailingConstraint = dateLabel.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -innerPadding)
         dateLabelTrailingConstraint.isActive = true
     }
     
     private func setupTitleLabel() {
-        titleLabel.font = UIFont(name: "IropkeBatangM", size: 16)
+        titleLabel.font = Shared.AppFonts.body
         titleLabel.textColor = .systemBlue
     }
    
@@ -98,7 +99,7 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
     }
     
     private func setupDateLabel() {
-        dateLabel.font = UIFont(name: "IropkeBatangM", size: 14)
+        dateLabel.font = Shared.AppFonts.detail
         dateLabel.textColor = .gray
     }
     

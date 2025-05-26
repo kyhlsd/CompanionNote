@@ -50,12 +50,12 @@ final class PrayDetailTableViewCell: UITableViewCell {
     }
     
     private func setupSubjectLabel() {
-        subjectLabel.font = UIFont(name: "IropkeBatangM", size: 16)
+        subjectLabel.font = Shared.AppFonts.body
         subjectLabel.numberOfLines = 0
     }
     
     private func setupDescriptionLabel() {
-        descriptionLabel.font = UIFont(name: "IropkeBatangM", size: 16)
+        descriptionLabel.font = Shared.AppFonts.body
         descriptionLabel.numberOfLines = 0
         descriptionLabel.lineBreakMode = .byTruncatingTail
         descriptionLabel.lineBreakStrategy = .pushOut

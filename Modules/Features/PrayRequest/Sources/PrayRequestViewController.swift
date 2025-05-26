@@ -51,7 +51,7 @@ final public class PrayRequestViewController: UIViewController {
             string: "기도 제목",
             attributes: strokeTextAttributes
         )
-        titleLabel.font = UIFont(name: "IropkeBatangM", size: 22)
+        titleLabel.font = Shared.AppFonts.navBarTitle
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: titleLabel)
@@ -93,7 +93,7 @@ final public class PrayRequestViewController: UIViewController {
         let button = UIButton()
         button.setTitle("삭제", for: .normal)
         button.setTitleColor(UIColor.systemBlue, for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
+        button.titleLabel?.font = Shared.AppFonts.navBarButtonText
         completeBarButtonItem.customView = button
     }
     

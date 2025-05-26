@@ -39,14 +39,14 @@ final class AddPrayRequestViewController: UIViewController {
             attributes: strokeTextAttributes
         )
         
-        label.font = UIFont(name: "IropkeBatangM", size: 22)
+        label.font = Shared.AppFonts.navBarTitle
         label.translatesAutoresizingMaskIntoConstraints = false
         
         let button = UIButton()
         button.setTitle("저장", for: .normal)
         button.setTitleColor(UIColor.systemBlue, for: .normal)
         button.setTitleColor(UIColor.lightGray, for: .disabled)
-        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
+        button.titleLabel?.font = Shared.AppFonts.navBarButtonText
         button.addAction(UIAction() { [weak self] _ in
             guard let self = self else { return }
             let _ = PrayRequestContentUtils.convertToPrayRequestContent(with: self.prayEditorView.getPrayContentText())

@@ -62,7 +62,7 @@ final class PrayRequestDetailViewController: UIViewController {
             attributes: strokeTextAttributes
         )
         
-        titleLabel.font = UIFont(name: "IropkeBatangM", size: 22)
+        titleLabel.font = Shared.AppFonts.navBarTitle
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         
         navigationItem.titleView = titleLabel
@@ -73,7 +73,7 @@ final class PrayRequestDetailViewController: UIViewController {
         let button = UIButton()
         button.setTitle("수정", for: .normal)
         button.setTitleColor(UIColor.systemBlue, for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
+        button.titleLabel?.font = Shared.AppFonts.navBarButtonText
         editBarButtonItem.customView = button
     }
     
@@ -82,7 +82,7 @@ final class PrayRequestDetailViewController: UIViewController {
         button.setTitle("완료", for: .normal)
         button.setTitleColor(UIColor.systemBlue, for: .normal)
         button.setTitleColor(UIColor.lightGray, for: .disabled)
-        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
+        button.titleLabel?.font = Shared.AppFonts.navBarButtonText
         completeBarButtonItem.customView = button
     }
 
@@ -143,7 +143,7 @@ final class PrayRequestDetailViewController: UIViewController {
     }
     
     private func setupTitleLabel() {
-        titleLabel.font = UIFont(name: "IropkeBatangM", size: 20)
+        titleLabel.font = Shared.AppFonts.title
         let titleStrokeTextAttributes: [NSAttributedString.Key: Any] = [
             .strokeColor: UIColor.systemBlue,
             .foregroundColor: UIColor.systemBlue,
@@ -162,7 +162,7 @@ final class PrayRequestDetailViewController: UIViewController {
     }
     
     private func setupDateLabel() {
-        dateLabel.font = UIFont(name: "IropkeBatangM", size: 16)
+        dateLabel.font = Shared.AppFonts.body
         dateLabel.textColor = .gray
         dateLabel.text = DateFormatUtil.shortWithDayFormatter.string(from: prayRequest.date)
     }

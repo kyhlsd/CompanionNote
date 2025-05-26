@@ -84,7 +84,7 @@ final class PrayEditorView: UIView {
     }
     
     private func setupTitleLabel() {
-        titleLabel.font = UIFont(name: "IropkeBatangM", size: 14)
+        titleLabel.font = Shared.AppFonts.detail
         let subjectStrokeTextAttributes: [NSAttributedString.Key: Any] = [
             .strokeWidth: -2.0
         ]
@@ -96,7 +96,7 @@ final class PrayEditorView: UIView {
     }
     
     private func setupTitleTextField() {
-        titleTextField.font = UIFont(name: "IropkeBatangM", size: 16)
+        titleTextField.font = Shared.AppFonts.body
         let placeHolderStrokeTextAttributes: [NSAttributedString.Key: Any] = [
             .strokeColor: UIColor.lightGray,
             .foregroundColor: UIColor.lightGray,
@@ -111,7 +111,7 @@ final class PrayEditorView: UIView {
     }
     
     private func setupPrayContentLabel() {
-        prayContentLabel.font = UIFont(name: "IropkeBatangM", size: 14)
+        prayContentLabel.font = Shared.AppFonts.detail
         let subjectStrokeTextAttributes: [NSAttributedString.Key: Any] = [
             .strokeWidth: -2.0
         ]
@@ -125,7 +125,7 @@ final class PrayEditorView: UIView {
     private func setupPrayContentTextView() {
         prayContentTextView.text = PlaceholderStrings.prayContentInputPlaceholder
         prayContentTextView.textColor = .lightGray
-        prayContentTextView.font = UIFont(name: "IropkeBatangM", size: 16)
+        prayContentTextView.font = Shared.AppFonts.body
         prayContentTextView.textContainerInset = .init(top: 8, left: 8, bottom: 8, right: 8)
         prayContentTextView.textContainer.lineFragmentPadding = 0
         prayContentTextView.layer.borderColor = UIColor.lightGray.cgColor
