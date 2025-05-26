@@ -68,9 +68,10 @@ final public class PrayRequestViewController: UIViewController {
         button.setImage(image, for: .normal)
         
         button.translatesAutoresizingMaskIntoConstraints = false
+        let navBarButtonSize = Shared.Constants.navBarButtonSize
         NSLayoutConstraint.activate([
-            button.widthAnchor.constraint(equalToConstant: 28),
-            button.heightAnchor.constraint(equalToConstant: 28)
+            button.widthAnchor.constraint(equalToConstant: navBarButtonSize),
+            button.heightAnchor.constraint(equalToConstant: navBarButtonSize)
         ])
         plusBarButtonItem.customView = button
     }
@@ -82,9 +83,10 @@ final public class PrayRequestViewController: UIViewController {
         button.setImage(image, for: .normal)
         
         button.translatesAutoresizingMaskIntoConstraints = false
+        let navBarButtonSize = Shared.Constants.navBarButtonSize
         NSLayoutConstraint.activate([
-            button.widthAnchor.constraint(equalToConstant: 28),
-            button.heightAnchor.constraint(equalToConstant: 28)
+            button.widthAnchor.constraint(equalToConstant: navBarButtonSize),
+            button.heightAnchor.constraint(equalToConstant: navBarButtonSize)
         ])
         deleteBarButtonItem.customView = button
     }
