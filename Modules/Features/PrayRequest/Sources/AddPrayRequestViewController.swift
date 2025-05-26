@@ -31,12 +31,10 @@ final class AddPrayRequestViewController: UIViewController {
     // MARK: Setups
     private func setupNavigationBar() {
         let label = UILabel()
-        let strokeTextAttributes: [NSAttributedString.Key: Any] = [
-            .strokeWidth: -2.5
-        ]
+        
         label.attributedText = NSAttributedString(
             string: "기도 제목 추가",
-            attributes: strokeTextAttributes
+            attributes: Shared.FontTextAttributes.navBarTextAttributes
         )
         
         label.font = Shared.AppFonts.navBarTitle

@@ -85,12 +85,9 @@ final class PrayEditorView: UIView {
     
     private func setupTitleLabel() {
         titleLabel.font = Shared.AppFonts.detail
-        let subjectStrokeTextAttributes: [NSAttributedString.Key: Any] = [
-            .strokeWidth: -2.0
-        ]
         titleLabel.attributedText = NSAttributedString(
             string: "제목",
-            attributes: subjectStrokeTextAttributes
+            attributes: Shared.FontTextAttributes.detailTextAttributes
         )
         titleLabel.numberOfLines = 1
     }
@@ -112,12 +109,9 @@ final class PrayEditorView: UIView {
     
     private func setupPrayContentLabel() {
         prayContentLabel.font = Shared.AppFonts.detail
-        let subjectStrokeTextAttributes: [NSAttributedString.Key: Any] = [
-            .strokeWidth: -2.0
-        ]
         prayContentLabel.attributedText = NSAttributedString(
             string: "내용",
-            attributes: subjectStrokeTextAttributes
+            attributes: Shared.FontTextAttributes.detailTextAttributes
         )
         prayContentLabel.numberOfLines = 1
     }

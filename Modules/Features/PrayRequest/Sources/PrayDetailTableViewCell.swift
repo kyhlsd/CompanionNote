@@ -62,12 +62,9 @@ final class PrayDetailTableViewCell: UITableViewCell {
     }
     
     func configure(with prayRequestContent: PrayRequestContent) {
-        let subjectStrokeTextAttributes: [NSAttributedString.Key: Any] = [
-            .strokeWidth: -3.0
-        ]
         subjectLabel.attributedText = NSAttributedString(
             string: prayRequestContent.subject,
-            attributes: subjectStrokeTextAttributes
+            attributes: Shared.FontTextAttributes.bodyTextAttributes
         )
         descriptionLabel.text = prayRequestContent.description
     }

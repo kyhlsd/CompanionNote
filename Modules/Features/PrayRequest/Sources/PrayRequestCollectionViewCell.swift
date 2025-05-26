@@ -108,14 +108,10 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
     }
     
     func configure(with prayRequest: PrayRequest) {
-        let titleStrokeTextAttributes: [NSAttributedString.Key: Any] = [
-            .strokeColor: UIColor.systemBlue,
-            .foregroundColor: UIColor.systemBlue,
-            .strokeWidth: -4.0
-        ]
+        
         titleLabel.attributedText = NSAttributedString(
             string: prayRequest.title,
-            attributes: titleStrokeTextAttributes
+            attributes: Shared.FontTextAttributes.titleTextAttributes
         )
         
         dateLabel.text = DateFormatUtil.shortWithDayFormatter.string(from: prayRequest.date)

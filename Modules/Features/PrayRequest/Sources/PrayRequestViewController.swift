@@ -44,12 +44,9 @@ final public class PrayRequestViewController: UIViewController {
         setupCompleteBarButtonItem()
         
         let titleLabel = UILabel()
-        let strokeTextAttributes: [NSAttributedString.Key: Any] = [
-            .strokeWidth: -2.5
-        ]
         titleLabel.attributedText = NSAttributedString(
             string: "기도 제목",
-            attributes: strokeTextAttributes
+            attributes: Shared.FontTextAttributes.navBarTextAttributes
         )
         titleLabel.font = Shared.AppFonts.navBarTitle
         titleLabel.translatesAutoresizingMaskIntoConstraints = false

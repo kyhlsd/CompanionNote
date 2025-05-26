@@ -54,12 +54,9 @@ final class PrayRequestDetailViewController: UIViewController {
         setupCompleteBarButtonItem()
         
         let titleLabel = UILabel()
-        let strokeTextAttributes: [NSAttributedString.Key: Any] = [
-            .strokeWidth: -2.5
-        ]
         titleLabel.attributedText = NSAttributedString(
             string: "기도 제목",
-            attributes: strokeTextAttributes
+            attributes: Shared.FontTextAttributes.navBarTextAttributes
         )
         
         titleLabel.font = Shared.AppFonts.navBarTitle
@@ -144,14 +141,9 @@ final class PrayRequestDetailViewController: UIViewController {
     
     private func setupTitleLabel() {
         titleLabel.font = Shared.AppFonts.title
-        let titleStrokeTextAttributes: [NSAttributedString.Key: Any] = [
-            .strokeColor: UIColor.systemBlue,
-            .foregroundColor: UIColor.systemBlue,
-            .strokeWidth: -4.0
-        ]
         titleLabel.attributedText = NSAttributedString(
             string: prayRequest.title,
-            attributes: titleStrokeTextAttributes
+            attributes: Shared.FontTextAttributes.titleTextAttributes
         )
     }
     
@@ -237,16 +229,10 @@ final class PrayRequestDetailViewController: UIViewController {
     }
     
     private func updateUI() {
-        let titleStrokeTextAttributes: [NSAttributedString.Key: Any] = [
-            .strokeColor: UIColor.systemBlue,
-            .foregroundColor: UIColor.systemBlue,
-            .strokeWidth: -4.0
-        ]
-
         DispatchQueue.main.async {
             self.titleLabel.attributedText = NSAttributedString(
                 string: self.prayRequest.title,
-                attributes: titleStrokeTextAttributes
+                attributes: Shared.FontTextAttributes.titleTextAttributes
             )
             self.prayDetailTableView.reloadData()
         }
