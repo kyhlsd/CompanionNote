@@ -37,6 +37,14 @@ final public class PrayRequestViewController: UIViewController {
         prayRequestCollectionView.reloadData()
     }
     
+    public override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        
+        coordinator.animate(alongsideTransition: { _ in
+            self.prayRequestCollectionView.collectionViewLayout.invalidateLayout()
+        })
+    }
+    
     // MARK: Setups
     private func setupNavigationBar() {
         setupPlusBarButtonItem()
@@ -263,7 +271,7 @@ extension PrayRequestViewController: UICollectionViewDataSource, UICollectionVie
     
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let frameWidth = collectionView.frame.width
-        let width = frameWidth < 600 ? frameWidth : frameWidth / 2
+        let width = frameWidth < 600 ? frameWidth : frameWidth / 2 - Constants.innerPadding
         return CGSize(width: width, height: 106)
     }
     
