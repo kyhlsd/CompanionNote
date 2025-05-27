@@ -40,8 +40,12 @@ public enum TextInputUtils {
            let scalar = lastComponent.unicodeScalars.first,
            let mappedVowel = compatibilityVowelMap[Character(scalar)] {
             let baseVowel = String(mappedVowel)
-            if canComposeCompoundVowel(lastCharacter: baseVowel, addCharacter: replacementText) ||
-                isKoreanConsonant(replacementText) {
+            // 겹모음 허용
+            if canComposeCompoundVowel(lastCharacter: baseVowel, addCharacter: replacementText) {
+                return true
+            }
+            // 종성으로 허용 가능한 자음인지 확인
+            if isKoreanConsonant(replacementText), canBeFinalConsonant(replacementText) {
                 return true
             }
         }
@@ -68,6 +72,7 @@ public enum TextInputUtils {
         let consonantScalarRange: ClosedRange<UInt32> = 0x3131...0x314E
         return consonantScalarRange.contains(scalar)
     }
+    
     // 한글 모음인지 판단
     private static func isKoreanVowel(_ character: String) -> Bool {
         guard let scalar = character.unicodeScalars.first?.value else {
@@ -78,6 +83,7 @@ public enum TextInputUtils {
         let vowelScalarRange: ClosedRange<UInt32> = 0x314F...0x3163
         return vowelScalarRange.contains(scalar)
     }
+    
     // 겹모음 되는지 판단
     private static func canComposeCompoundVowel(lastCharacter: String, addCharacter: String) -> Bool {
         let compoundVowelMap: [String: [String]] = [
@@ -108,6 +114,16 @@ public enum TextInputUtils {
         
         return possibleNexts.contains(addCharacter)
     }
+    
+    // 받침으로 올 수 있는 자음인지 확인
+    private static func canBeFinalConsonant(_ character: String) -> Bool {
+        let validFinalConsonants: Set<String> = [
+            "ㄱ", "ㄲ", "ㄳ", "ㄴ", "ㄵ", "ㄶ", "ㄷ", "ㄹ", "ㄺ", "ㄻ", "ㄼ", "ㄽ", "ㄾ", "ㄿ", "ㅀ",
+            "ㅁ", "ㅂ", "ㅄ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"
+        ]
+        return validFinalConsonants.contains(character)
+    }
+    
     // 중성 자모 변환 맵
     private static let compatibilityVowelMap: [Character: Character] = [
         "ᅡ": "ㅏ", "ᅢ": "ㅐ", "ᅣ": "ㅑ", "ᅤ": "ㅒ", "ᅥ": "ㅓ", "ᅦ": "ㅔ", "ᅧ": "ㅕ",
