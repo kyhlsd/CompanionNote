@@ -70,7 +70,7 @@ final class PrayEditorView: UIView {
         prayItemTextView.translatesAutoresizingMaskIntoConstraints = false
         
         let innerPadding = Constants.innerPadding
-
+        
         NSLayoutConstraint.activate([
             categoryLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
             categoryLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
@@ -196,14 +196,14 @@ final class PrayEditorView: UIView {
     func updateBottomConstraint(with constant: CGFloat = 0.0, animationDuration: TimeInterval) {
         let innerPadding = Constants.innerPadding
         prayItemTextViewBottomConstraint.constant = -innerPadding - constant
-
+        
         UIView.animate(withDuration: animationDuration) {
             self.layoutIfNeeded()
         }
     }
     
     func moveView(up: Bool, animationDuration: TimeInterval) {
-//        PrayItemLabel이 가장 위에 오도록 움직여야 하는 값
+        //        PrayItemLabel이 가장 위에 오도록 움직여야 하는 값
         let offset = categoryLabel.frame.height + 4 + categorySelectorView.frame.height +  titleLabel.frame.height + 4 + titleTextField.frame.height + 16
         UIView.animate(withDuration: animationDuration) {
             self.transform = up ? CGAffineTransform(translationX: 0, y: -offset) : .identity
@@ -249,16 +249,8 @@ extension PrayEditorView: UITextFieldDelegate {
     
     // 입력 가능 텍스트 최대 11자 설정
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        // 변경 후 텍스트를 미리 계산
-        if let currentText = textField.text,
-           let textRange = Range(range, in: currentText) {
-            
-            let updatedText = currentText.replacingCharacters(in: textRange, with: string)
-            
-            return updatedText.count <= 11
-        }
-        
-        return true
+        let oldText = textField.text ?? ""
+        return TextInputUtils.shouldAllowChange(oldText: oldText, replacementText: string, maxLength: 11)
     }
     
     @objc private func titleTextFieldDidChange(_ textField: UITextField) {
