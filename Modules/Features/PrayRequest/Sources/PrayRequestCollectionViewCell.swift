@@ -15,12 +15,12 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
     
     private let cellContainerView = CellContainerView()
     private let titleLabel = UILabel()
-    private let prayRequestContentTableView = UITableView(frame: .zero, style: .plain)
+    private let prayItemTableView = UITableView(frame: .zero, style: .plain)
     private let dateLabel = UILabel()
     private let checkBox = CheckBox()
     
     private var dateLabelTrailingConstraint: NSLayoutConstraint!
-    private var prayRequestContents: [PrayRequestContent] = []
+    private var prayItems: [PrayItem] = []
     
     override init(frame: CGRect = .zero) {
         super.init(frame: frame)
@@ -35,7 +35,7 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
     // MARK: Setups
     private func setupUI() {
         setupTitleLabel()
-        setupPrayRequestContentTableView()
+        setupPrayItemTableView()
         setupDateLabel()
         setupCheckBox()
         
@@ -46,11 +46,11 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
         cellContainerView.addSubview(titleLabel)
         cellContainerView.addSubview(dateLabel)
         cellContainerView.addSubview(checkBox)
-        cellContainerView.addSubview(prayRequestContentTableView)
+        cellContainerView.addSubview(prayItemTableView)
         
         cellContainerView.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        prayRequestContentTableView.translatesAutoresizingMaskIntoConstraints = false
+        prayItemTableView.translatesAutoresizingMaskIntoConstraints = false
         dateLabel.translatesAutoresizingMaskIntoConstraints = false
         checkBox.translatesAutoresizingMaskIntoConstraints = false
         
@@ -74,10 +74,10 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
             checkBox.heightAnchor.constraint(equalToConstant: 24),
             checkBox.widthAnchor.constraint(equalToConstant: 24),
 
-            prayRequestContentTableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 6),
-            prayRequestContentTableView.leadingAnchor.constraint(equalTo: cellContainerView.leadingAnchor, constant: innerPadding),
-            prayRequestContentTableView.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -innerPadding),
-            prayRequestContentTableView.bottomAnchor.constraint(equalTo: cellContainerView.bottomAnchor, constant: -scrolledCellBottomPadding)
+            prayItemTableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 6),
+            prayItemTableView.leadingAnchor.constraint(equalTo: cellContainerView.leadingAnchor, constant: innerPadding),
+            prayItemTableView.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -innerPadding),
+            prayItemTableView.bottomAnchor.constraint(equalTo: cellContainerView.bottomAnchor, constant: -scrolledCellBottomPadding)
         ])
         dateLabelTrailingConstraint = dateLabel.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -innerPadding)
         dateLabelTrailingConstraint.isActive = true
@@ -88,14 +88,14 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
         titleLabel.textColor = .systemBlue
     }
    
-    private func setupPrayRequestContentTableView() {
-        prayRequestContentTableView.isScrollEnabled = false
-        prayRequestContentTableView.isUserInteractionEnabled = false
-        prayRequestContentTableView.backgroundColor = .clear
-        prayRequestContentTableView.separatorStyle = .none
-        prayRequestContentTableView.dataSource = self
-        prayRequestContentTableView.delegate = self
-        prayRequestContentTableView.register(PrayRequestContentTableViewCell.self, forCellReuseIdentifier: "PrayRequestContentCell")
+    private func setupPrayItemTableView() {
+        prayItemTableView.isScrollEnabled = false
+        prayItemTableView.isUserInteractionEnabled = false
+        prayItemTableView.backgroundColor = .clear
+        prayItemTableView.separatorStyle = .none
+        prayItemTableView.dataSource = self
+        prayItemTableView.delegate = self
+        prayItemTableView.register(PrayItemTableViewCell.self, forCellReuseIdentifier: "PrayItemTableViewCell")
     }
     
     private func setupDateLabel() {
@@ -116,9 +116,9 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
         
         dateLabel.text = DateFormatUtil.shortWithDayFormatter.string(from: prayRequest.date)
         
-        prayRequestContents = prayRequest.contents
+        prayItems = prayRequest.items
         DispatchQueue.main.async {
-            self.prayRequestContentTableView.reloadData()
+            self.prayItemTableView.reloadData()
         }
         
         self.prayRequestUUID = prayRequest.uuid
@@ -157,13 +157,13 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
 // MARK: Extensions
 extension PrayRequestCollectionViewCell: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return prayRequestContents.count
+        return prayItems.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "PrayRequestContentCell") as! PrayRequestContentTableViewCell
-        let prayRequestContent = prayRequestContents[indexPath.row]
-        cell.configure(with: prayRequestContent)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "PrayItemTableViewCell") as! PrayItemTableViewCell
+        let prayItem = prayItems[indexPath.row]
+        cell.configure(with: prayItem)
         return cell
     }
 }

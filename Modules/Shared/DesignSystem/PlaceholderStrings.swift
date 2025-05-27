@@ -8,7 +8,7 @@
 import Foundation
 
 public enum PlaceholderStrings {
-    public static let prayContentInputPlaceholder: String =
+    public static let prayItemInputPlaceholder: String =
     """
     ex) 영훈 : 매일 묵상하고 기도하기
           민송 : 지혜와 체력

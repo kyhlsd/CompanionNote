@@ -1,15 +1,15 @@
 //
-//  PrayDetailTableViewCell.swift
+//  PrayItemTableViewCell.swift
 //  Shared
 //
-//  Created by 김영훈 on 5/23/25.
+//  Created by 김영훈 on 3/28/25.
 //
 
 import UIKit
 import Core
 import Shared
 
-final class PrayDetailTableViewCell: UITableViewCell {
+final class PrayItemTableViewCell: UITableViewCell {
 
     private let nameLabel = UILabel()
     private let contentLabel = UILabel()
@@ -37,6 +37,8 @@ final class PrayDetailTableViewCell: UITableViewCell {
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         contentLabel.translatesAutoresizingMaskIntoConstraints = false
         
+        let scrolledCellBottomPadding = Constants.scrolledCellBottomPadding
+        
         NSLayoutConstraint.activate([
             nameLabel.topAnchor.constraint(equalTo: contentView.topAnchor),
             nameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
@@ -45,18 +47,18 @@ final class PrayDetailTableViewCell: UITableViewCell {
             contentLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor),
             contentLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             contentLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            contentLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20)
+            contentLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -scrolledCellBottomPadding)
         ])
     }
     
     private func setupNameLabel() {
-        nameLabel.font = Shared.AppFonts.body
-        nameLabel.numberOfLines = 0
+        nameLabel.font = Shared.AppFonts.micro
+        nameLabel.numberOfLines = 1
     }
     
     private func setupContentLabel() {
-        contentLabel.font = Shared.AppFonts.body
-        contentLabel.numberOfLines = 0
+        contentLabel.font = Shared.AppFonts.micro
+        contentLabel.numberOfLines = 2
         contentLabel.lineBreakMode = .byTruncatingTail
         contentLabel.lineBreakStrategy = .pushOut
     }
@@ -64,7 +66,7 @@ final class PrayDetailTableViewCell: UITableViewCell {
     func configure(with prayItem: PrayItem) {
         nameLabel.attributedText = NSAttributedString(
             string: prayItem.name,
-            attributes: Shared.FontTextAttributes.bodyTextAttributes
+            attributes: Shared.FontTextAttributes.detailTextAttributes
         )
         contentLabel.text = prayItem.content
     }

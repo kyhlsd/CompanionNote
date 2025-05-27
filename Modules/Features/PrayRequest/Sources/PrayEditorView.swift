@@ -18,10 +18,10 @@ final class PrayEditorView: UIView {
     
     private let titleLabel = UILabel()
     private let titleTextField = PaddedTextField()
-    private let prayContentLabel = UILabel()
-    private let prayContentTextView = UITextView()
+    private let prayItemLabel = UILabel()
+    private let prayItemTextView = UITextView()
     
-    private var prayContentTextViewBottomConstraint: NSLayoutConstraint!
+    private var prayItemTextViewBottomConstraint: NSLayoutConstraint!
     weak var rightBarButtonStateDelegate: RightBarButtonStateDelegate?
     
     var isAllTextsValid: Bool = false {
@@ -31,7 +31,7 @@ final class PrayEditorView: UIView {
     }
     
     var isTextViewFirstResponder: Bool {
-        return prayContentTextView.isFirstResponder
+        return prayItemTextView.isFirstResponder
     }
     
     override init(frame: CGRect) {
@@ -50,18 +50,18 @@ final class PrayEditorView: UIView {
     private func setupUI() {
         setupTitleLabel()
         setupTitleTextField()
-        setupPrayContentLabel()
-        setupPrayContentTextView()
+        setupPrayItemLabel()
+        setupPrayItemTextView()
         
         addSubview(titleLabel)
         addSubview(titleTextField)
-        addSubview(prayContentLabel)
-        addSubview(prayContentTextView)
+        addSubview(prayItemLabel)
+        addSubview(prayItemTextView)
         
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleTextField.translatesAutoresizingMaskIntoConstraints = false
-        prayContentLabel.translatesAutoresizingMaskIntoConstraints = false
-        prayContentTextView.translatesAutoresizingMaskIntoConstraints = false
+        prayItemLabel.translatesAutoresizingMaskIntoConstraints = false
+        prayItemTextView.translatesAutoresizingMaskIntoConstraints = false
         
         let innerPadding = Constants.innerPadding
 
@@ -74,17 +74,17 @@ final class PrayEditorView: UIView {
             titleTextField.trailingAnchor.constraint(equalTo: trailingAnchor),
             titleTextField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 4),
             
-            prayContentLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
-            prayContentLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            prayContentLabel.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 16),
+            prayItemLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
+            prayItemLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
+            prayItemLabel.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 16),
             
-            prayContentTextView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            prayContentTextView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            prayContentTextView.topAnchor.constraint(equalTo: prayContentLabel.bottomAnchor, constant: 4),
+            prayItemTextView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            prayItemTextView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            prayItemTextView.topAnchor.constraint(equalTo: prayItemLabel.bottomAnchor, constant: 4),
         ])
         
-        prayContentTextViewBottomConstraint = prayContentTextView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -innerPadding)
-        prayContentTextViewBottomConstraint.isActive = true
+        prayItemTextViewBottomConstraint = prayItemTextView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -innerPadding)
+        prayItemTextViewBottomConstraint.isActive = true
     }
     
     private func setupTitleLabel() {
@@ -111,37 +111,37 @@ final class PrayEditorView: UIView {
         titleTextField.layer.cornerRadius = 8
     }
     
-    private func setupPrayContentLabel() {
-        prayContentLabel.font = Shared.AppFonts.detail
-        prayContentLabel.attributedText = NSAttributedString(
+    private func setupPrayItemLabel() {
+        prayItemLabel.font = Shared.AppFonts.detail
+        prayItemLabel.attributedText = NSAttributedString(
             string: "내용",
             attributes: Shared.FontTextAttributes.detailTextAttributes
         )
-        prayContentLabel.numberOfLines = 1
+        prayItemLabel.numberOfLines = 1
     }
     
-    private func setupPrayContentTextView() {
-        prayContentTextView.text = PlaceholderStrings.prayContentInputPlaceholder
-        prayContentTextView.textColor = .lightGray
-        prayContentTextView.font = Shared.AppFonts.body
-        prayContentTextView.textContainerInset = .init(top: 8, left: 8, bottom: 8, right: 8)
-        prayContentTextView.textContainer.lineFragmentPadding = 0
-        prayContentTextView.layer.borderColor = UIColor.lightGray.cgColor
-        prayContentTextView.layer.borderWidth = 1
-        prayContentTextView.layer.cornerRadius = 8
+    private func setupPrayItemTextView() {
+        prayItemTextView.text = PlaceholderStrings.prayItemInputPlaceholder
+        prayItemTextView.textColor = .lightGray
+        prayItemTextView.font = Shared.AppFonts.body
+        prayItemTextView.textContainerInset = .init(top: 8, left: 8, bottom: 8, right: 8)
+        prayItemTextView.textContainer.lineFragmentPadding = 0
+        prayItemTextView.layer.borderColor = UIColor.lightGray.cgColor
+        prayItemTextView.layer.borderWidth = 1
+        prayItemTextView.layer.cornerRadius = 8
     }
     
     private func setupDelegate() {
         titleTextField.delegate = self
-        prayContentTextView.delegate = self
+        prayItemTextView.delegate = self
     }
     
     private func setupTarget() {
         titleTextField.addTarget(self, action: #selector(titleTextFieldDidChange(_:)), for: .editingChanged)
     }
     
-    private func checkTextsValidation(titleText: String?, contentText: String?) {
-        guard let titleText = titleText, let contentText = contentText else {
+    private func checkTextsValidation(titleText: String?, itemText: String?) {
+        guard let titleText = titleText, let itemText = itemText else {
             isAllTextsValid = false
             return
         }
@@ -151,7 +151,7 @@ final class PrayEditorView: UIView {
             return
         }
         
-        if contentText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || contentText == PlaceholderStrings.prayContentInputPlaceholder {
+        if itemText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || itemText == PlaceholderStrings.prayItemInputPlaceholder {
             isAllTextsValid = false
             return
         }
@@ -162,13 +162,13 @@ final class PrayEditorView: UIView {
     
     func configure(with prayRequest: PrayRequest) {
         titleTextField.text = prayRequest.title
-        prayContentTextView.text = PrayRequestContentUtils.convertFromPrayRequestContents(with: prayRequest.contents)
-        prayContentTextView.textColor = .black
+        prayItemTextView.text = PrayItemUtils.convertFromPrayItem(with: prayRequest.items)
+        prayItemTextView.textColor = .black
     }
     
     func updateBottomConstraint(with constant: CGFloat = 0.0, animationDuration: TimeInterval) {
         let innerPadding = Constants.innerPadding
-        prayContentTextViewBottomConstraint.constant = -innerPadding - constant
+        prayItemTextViewBottomConstraint.constant = -innerPadding - constant
 
         UIView.animate(withDuration: animationDuration) {
             self.layoutIfNeeded()
@@ -176,7 +176,7 @@ final class PrayEditorView: UIView {
     }
     
     func moveView(up: Bool, animationDuration: TimeInterval) {
-//        PrayContentLabel이 가장 위에 오도록 움직여야 하는 값 + 상위 View Padding 고려
+//        PrayItemLabel이 가장 위에 오도록 움직여야 하는 값 + 상위 View Padding 고려
         let offset = titleLabel.frame.height + titleTextField.frame.height + 4 + 16 + 8
         UIView.animate(withDuration: animationDuration) {
             self.transform = up ? CGAffineTransform(translationX: 0, y: -offset) : .identity
@@ -184,15 +184,15 @@ final class PrayEditorView: UIView {
     }
     
     func getTextViewHeight() -> CGFloat {
-        return prayContentTextView.frame.height
+        return prayItemTextView.frame.height
     }
     
-    func getPrayContentText() -> String {
-        return prayContentTextView.text
+    func getPrayItemText() -> String {
+        return prayItemTextView.text
     }
     
     func getEditedPrayRequest() -> PrayRequest {
-        return PrayRequest(date: Date(), title: titleTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "", contents: PrayRequestContentUtils.convertToPrayRequestContent(with: prayContentTextView.text))
+        return PrayRequest(date: Date(), title: titleTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "", items: PrayItemUtils.convertToPrayItem(with: prayItemTextView.text))
     }
 }
 
@@ -200,7 +200,7 @@ final class PrayEditorView: UIView {
 extension PrayEditorView: UITextViewDelegate {
     
     func textViewDidBeginEditing(_ textView: UITextView) {
-        if textView.text == PlaceholderStrings.prayContentInputPlaceholder {
+        if textView.text == PlaceholderStrings.prayItemInputPlaceholder {
             textView.text = ""
             textView.textColor = .black
         }
@@ -208,13 +208,13 @@ extension PrayEditorView: UITextViewDelegate {
     
     func textViewDidEndEditing(_ textView: UITextView) {
         if textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            textView.text = PlaceholderStrings.prayContentInputPlaceholder
+            textView.text = PlaceholderStrings.prayItemInputPlaceholder
             textView.textColor = .lightGray
         }
     }
     
     func textViewDidChange(_ textView: UITextView) {
-        checkTextsValidation(titleText: titleTextField.text, contentText: textView.text)
+        checkTextsValidation(titleText: titleTextField.text, itemText: textView.text)
     }
 }
 
@@ -235,7 +235,7 @@ extension PrayEditorView: UITextFieldDelegate {
     }
     
     @objc private func titleTextFieldDidChange(_ textField: UITextField) {
-        checkTextsValidation(titleText: textField.text, contentText: prayContentTextView.text)
+        checkTextsValidation(titleText: textField.text, itemText: prayItemTextView.text)
         rightBarButtonStateDelegate?.updateRightBarButtonEnabled()
     }
 }

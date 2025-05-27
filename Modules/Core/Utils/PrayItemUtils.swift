@@ -1,5 +1,5 @@
 //
-//  PrayRequestContentUtils.swift
+//  PrayItemUtils.swift
 //  CompanionNote
 //
 //  Created by 김영훈 on 3/19/25.
@@ -7,11 +7,11 @@
 
 import Foundation
 
-public enum PrayRequestContentUtils {
+public enum PrayItemUtils {
     
-    // String -> [PrayRequestContent]
-    public static func convertToPrayRequestContent(with text: String) -> [PrayRequestContent] {
-        var results = [PrayRequestContent]()
+    // String -> [PrayItem]
+    public static func convertToPrayItem(with text: String) -> [PrayItem] {
+        var results = [PrayItem]()
         
         // 입력 끝에 개행 추가 (마지막 항목까지 매치되도록)
         var normalizedText = text.hasSuffix("\n") ? text : text + "\n"
@@ -19,11 +19,11 @@ public enum PrayRequestContentUtils {
         // 줄 단위로 분해
         var lines = normalizedText.components(separatedBy: .newlines)
 
-        // 첫 줄이 ":"를 포함하지 않으면 subject 없이 description으로 처리
+        // 첫 줄이 ":"를 포함하지 않으면 name 없이 content로 처리
         if let firstLine = lines.first, !firstLine.contains(":") {
             let trimmed = firstLine.trimmingCharacters(in: .whitespacesAndNewlines)
             if !trimmed.isEmpty {
-                results.append(PrayRequestContent(subject: "", description: trimmed))
+                results.append(PrayItem(name: "", content: trimmed))
             }
             // 첫 줄 제거 후 나머지 텍스트 재구성
             lines.removeFirst()
@@ -34,13 +34,13 @@ public enum PrayRequestContentUtils {
         if !normalizedText.contains(":") {
             let trimmedText = normalizedText.trimmingCharacters(in: .whitespacesAndNewlines)
             if !trimmedText.isEmpty {
-                let prayRequestContent = PrayRequestContent(subject: "", description: trimmedText)
-                results.append(prayRequestContent)
+                let prayItem = PrayItem(name: "", content: trimmedText)
+                results.append(prayItem)
             }
             return results
         }
 
-        // ":" 기준으로 subject, description 나누기
+        // ":" 기준으로 name, content 나누기
         let pattern = #"(?ms)^([^:\n]+)\s*:\s*(.*?)(?=^[^:\n]+\s*:\s*|\z)"#
 
         if let regex = try? NSRegularExpression(pattern: pattern) {
@@ -48,27 +48,27 @@ public enum PrayRequestContentUtils {
             let matches = regex.matches(in: normalizedText, range: NSRange(normalizedText.startIndex..., in: normalizedText))
             
             for match in matches {
-                let rawSubject = nsText.substring(with: match.range(at: 1))
-                let rawDescription = nsText.substring(with: match.range(at: 2))
+                let rawName = nsText.substring(with: match.range(at: 1))
+                let rawContent = nsText.substring(with: match.range(at: 2))
                 
-                let subject = rawSubject.trimmingCharacters(in: .whitespacesAndNewlines)
-                let description = rawDescription.trimmingCharacters(in: .whitespacesAndNewlines)
+                let name = rawName.trimmingCharacters(in: .whitespacesAndNewlines)
+                let content = rawContent.trimmingCharacters(in: .whitespacesAndNewlines)
                 
-                let prayRequestContent = PrayRequestContent(subject: subject, description: description)
-                results.append(prayRequestContent)
+                let prayItem = PrayItem(name: name, content: content)
+                results.append(prayItem)
             }
         }
         return results
     }
 
     
-    // [PrayRequestContent] -> String
-    public static func convertFromPrayRequestContents(with contents: [PrayRequestContent]) -> String {
-        let lines = contents.map { content in
-            if content.subject.isEmpty {
-                return content.description
+    // [PrayItem] -> String
+    public static func convertFromPrayItem(with items: [PrayItem]) -> String {
+        let lines = items.map { item in
+            if item.name.isEmpty {
+                return item.content
             } else {
-                return "\(content.subject) : \(content.description)"
+                return "\(item.name) : \(item.content)"
             }
         }
         

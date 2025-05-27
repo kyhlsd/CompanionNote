@@ -47,7 +47,7 @@ final class AddPrayRequestViewController: UIViewController {
         button.titleLabel?.font = Shared.AppFonts.navBarButtonText
         button.addAction(UIAction() { [weak self] _ in
             guard let self = self else { return }
-            let _ = PrayRequestContentUtils.convertToPrayRequestContent(with: self.prayEditorView.getPrayContentText())
+            let _ = PrayItemUtils.convertToPrayItem(with: self.prayEditorView.getPrayItemText())
         }, for: .touchUpInside)
         
         navigationItem.titleView = label

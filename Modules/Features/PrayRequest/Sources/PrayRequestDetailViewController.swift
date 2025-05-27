@@ -214,8 +214,8 @@ final class PrayRequestDetailViewController: UIViewController {
         let editedPrayRequest = prayEditorView.getEditedPrayRequest()
         
         // 변경 사항이 있을 때만 update
-        if prayRequest.title != editedPrayRequest.title || prayRequest.contents != editedPrayRequest.contents {
-            prayRequest.updateData(title: editedPrayRequest.title, contents: editedPrayRequest.contents)
+        if prayRequest.title != editedPrayRequest.title || prayRequest.items != editedPrayRequest.items {
+            prayRequest.updateData(title: editedPrayRequest.title, items: editedPrayRequest.items)
             print("수정")
             
             updateUI()
@@ -273,13 +273,13 @@ final class PrayRequestDetailViewController: UIViewController {
 // MARK: Extensions
 extension PrayRequestDetailViewController: UITableViewDataSource, UITableViewDelegate {
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return prayRequest.contents.count
+        return prayRequest.items.count
     }
     
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "PrayDetailCell") as! PrayDetailTableViewCell
-        let prayRequestContent = prayRequest.contents[indexPath.row]
-        cell.configure(with: prayRequestContent)
+        let prayItem = prayRequest.items[indexPath.row]
+        cell.configure(with: prayItem)
         return cell
     }
 }
