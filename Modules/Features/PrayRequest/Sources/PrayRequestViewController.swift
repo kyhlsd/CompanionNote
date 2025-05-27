@@ -14,7 +14,7 @@ final public class PrayRequestViewController: UIViewController {
     private let plusBarButtonItem = UIBarButtonItem()
     private let deleteBarButtonItem = UIBarButtonItem()
     private let completeBarButtonItem = UIBarButtonItem()
-    private let categorySelectorView = CategorySelectorView(categories: ["전체"] + PrayCategory.allCases.map { $0.rawValue })
+    private let categorySelectorView = CategorySelectorView(categories: ["전체"] + PrayCategory.allCases.map { $0.rawValue }, isUnderlineVisible: true)
     private let praySearchBar = CustomSearchBar()
     private let prayRequestCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     

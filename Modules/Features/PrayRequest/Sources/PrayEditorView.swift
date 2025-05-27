@@ -15,7 +15,8 @@ protocol RightBarButtonStateDelegate: AnyObject {
 }
 
 final class PrayEditorView: UIView {
-    
+    private let categoryLabel = UILabel()
+    private let categorySelectorView = CategorySelectorView(categories: PrayCategory.allCases.map { $0.rawValue }, isUnderlineVisible: false)
     private let titleLabel = UILabel()
     private let titleTextField = PaddedTextField()
     private let prayItemLabel = UILabel()
@@ -48,16 +49,21 @@ final class PrayEditorView: UIView {
     
     // MARK: Setups
     private func setupUI() {
+        setupCategoryLabel()
         setupTitleLabel()
         setupTitleTextField()
         setupPrayItemLabel()
         setupPrayItemTextView()
         
+        addSubview(categoryLabel)
+        addSubview(categorySelectorView)
         addSubview(titleLabel)
         addSubview(titleTextField)
         addSubview(prayItemLabel)
         addSubview(prayItemTextView)
         
+        categoryLabel.translatesAutoresizingMaskIntoConstraints = false
+        categorySelectorView.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleTextField.translatesAutoresizingMaskIntoConstraints = false
         prayItemLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -66,9 +72,18 @@ final class PrayEditorView: UIView {
         let innerPadding = Constants.innerPadding
 
         NSLayoutConstraint.activate([
+            categoryLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
+            categoryLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
+            categoryLabel.topAnchor.constraint(equalTo: topAnchor),
+            
+            categorySelectorView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            categorySelectorView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            categorySelectorView.topAnchor.constraint(equalTo: categoryLabel.bottomAnchor, constant: 4),
+            categorySelectorView.heightAnchor.constraint(equalToConstant: 32),
+            
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
             titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            titleLabel.topAnchor.constraint(equalTo: topAnchor),
+            titleLabel.topAnchor.constraint(equalTo: categorySelectorView.bottomAnchor),
             
             titleTextField.leadingAnchor.constraint(equalTo: leadingAnchor),
             titleTextField.trailingAnchor.constraint(equalTo: trailingAnchor),
@@ -85,6 +100,15 @@ final class PrayEditorView: UIView {
         
         prayItemTextViewBottomConstraint = prayItemTextView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -innerPadding)
         prayItemTextViewBottomConstraint.isActive = true
+    }
+    
+    private func setupCategoryLabel() {
+        categoryLabel.font = Shared.AppFonts.detail
+        categoryLabel.attributedText = NSAttributedString(
+            string: "카테고리",
+            attributes: Shared.FontTextAttributes.detailTextAttributes
+        )
+        categoryLabel.numberOfLines = 1
     }
     
     private func setupTitleLabel() {
@@ -164,6 +188,9 @@ final class PrayEditorView: UIView {
         titleTextField.text = prayRequest.title
         prayItemTextView.text = PrayItemUtils.convertFromPrayItem(with: prayRequest.items)
         prayItemTextView.textColor = .black
+        if let index = PrayCategory.allCases.firstIndex(of: prayRequest.category) {
+            categorySelectorView.selectedIndex = index
+        }
     }
     
     func updateBottomConstraint(with constant: CGFloat = 0.0, animationDuration: TimeInterval) {
@@ -192,7 +219,7 @@ final class PrayEditorView: UIView {
     }
     
     func getEditedPrayRequest() -> PrayRequest {
-        return PrayRequest(date: Date(), title: titleTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "", items: PrayItemUtils.convertToPrayItem(with: prayItemTextView.text))
+        return PrayRequest(date: Date(), title: titleTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "", items: PrayItemUtils.convertToPrayItem(with: prayItemTextView.text), category: PrayCategory.allCases[ categorySelectorView.selectedIndex])
     }
 }
 

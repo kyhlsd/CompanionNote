@@ -14,6 +14,7 @@ public protocol SelectCategoryDelegate: AnyObject {
 public class CategorySelectorView: UIView {
     private let categories: [String]
     private var buttons: [UIButton] = []
+    private let isUnderlineVisible: Bool
     private let underlineView = UIView()
     
     private var underlineLeadingConstraint: NSLayoutConstraint?
@@ -21,12 +22,13 @@ public class CategorySelectorView: UIView {
     
     public weak var selectCategoryDelegate: SelectCategoryDelegate?
     
-    var selectedIndex: Int = 0 {
+    public var selectedIndex: Int = 0 {
         didSet { updateSelection(animated: true) }
     }
     
-    public init(categories: [String]) {
+    public init(categories: [String], isUnderlineVisible: Bool) {
         self.categories = categories
+        self.isUnderlineVisible = isUnderlineVisible
         super.init(frame: .zero)
         setupUI()
         updateSelection(animated: false)
@@ -77,11 +79,14 @@ public class CategorySelectorView: UIView {
             underlineView.topAnchor.constraint(equalTo: stackView.bottomAnchor),
             underlineView.heightAnchor.constraint(equalToConstant: 2),
         ])
+        
         let firstButton = buttons[0]
         underlineLeadingConstraint = underlineView.leadingAnchor.constraint(equalTo: firstButton.leadingAnchor)
         underlineLeadingConstraint?.isActive = true
         underlineWidthConstraint = underlineView.widthAnchor.constraint(equalTo: firstButton.widthAnchor)
         underlineWidthConstraint?.isActive = true
+        
+        underlineView.isHidden = !isUnderlineVisible
     }
     
     private func updateSelection(animated: Bool) {
