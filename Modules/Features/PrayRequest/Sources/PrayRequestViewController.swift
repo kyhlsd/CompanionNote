@@ -14,6 +14,7 @@ final public class PrayRequestViewController: UIViewController {
     private let plusBarButtonItem = UIBarButtonItem()
     private let deleteBarButtonItem = UIBarButtonItem()
     private let completeBarButtonItem = UIBarButtonItem()
+    private let categorySelectorView = CategorySelectorView(categories: ["전체"] + PrayCategory.allCases.map { $0.rawValue })
     private let praySearchBar = CustomSearchBar()
     private let prayRequestCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     
@@ -109,19 +110,25 @@ final public class PrayRequestViewController: UIViewController {
         
         view.backgroundColor = UIColor(named: "BackgroundColor")
         
+        view.addSubview(categorySelectorView)
         view.addSubview(praySearchBar)
         view.addSubview(prayRequestCollectionView)
         
+        categorySelectorView.translatesAutoresizingMaskIntoConstraints = false
         praySearchBar.translatesAutoresizingMaskIntoConstraints = false
         prayRequestCollectionView.translatesAutoresizingMaskIntoConstraints = false
         
         let sidePadding = Constants.sidePadding
-        let topPadding = Constants.topPadding
         let innerPadding = Constants.innerPadding
         let safeArea = view.safeAreaLayoutGuide
         
         NSLayoutConstraint.activate([
-            praySearchBar.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: topPadding),
+            categorySelectorView.topAnchor.constraint(equalTo: safeArea.topAnchor),
+            categorySelectorView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: sidePadding),
+            categorySelectorView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -sidePadding),
+            categorySelectorView.heightAnchor.constraint(equalToConstant: 32),
+            
+            praySearchBar.topAnchor.constraint(equalTo: categorySelectorView.bottomAnchor, constant: innerPadding),
             praySearchBar.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: sidePadding),
             praySearchBar.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -sidePadding),
             
@@ -163,6 +170,7 @@ final public class PrayRequestViewController: UIViewController {
     private func setupDelegate() {
         prayRequestCollectionView.dataSource = self
         prayRequestCollectionView.delegate = self
+        categorySelectorView.selectCategoryDelegate = self
     }
     
     private func setupTapGesture() {
@@ -281,5 +289,12 @@ extension PrayRequestViewController: UICollectionViewDataSource, UICollectionVie
 
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         return Constants.innerPadding
+    }
+}
+
+extension PrayRequestViewController: SelectCategoryDelegate {
+    public func didSelectCategory(_ index: Int) {
+        let categories = ["전체"] + PrayCategory.allCases.map { $0.rawValue }
+        print(categories[index])
     }
 }

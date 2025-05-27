@@ -11,12 +11,14 @@ public class PrayRequest {
     public let date: Date
     public var title: String
     public var items: [PrayItem]
+    public var category: PrayCategory
     public let uuid: UUID
     
-    public init(date: Date, title: String, items: [PrayItem], uuid: UUID = UUID()) {
+    public init(date: Date, title: String, items: [PrayItem], category: PrayCategory = .etc, uuid: UUID = UUID()) {
         self.date = date
         self.title = title
         self.items = items
+        self.category = category
         self.uuid = uuid
     }
     
@@ -57,4 +59,11 @@ public struct PrayItem: Equatable {
         self.name = name
         self.content = content
     }
+}
+
+public enum PrayCategory: String, CaseIterable {
+    case church = "교회"
+    case personal = "개인"
+    case intercession = "중보기도"
+    case etc = "기타"
 }
