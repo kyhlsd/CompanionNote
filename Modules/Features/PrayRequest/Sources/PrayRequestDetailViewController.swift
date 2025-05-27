@@ -16,6 +16,7 @@ final class PrayRequestDetailViewController: UIViewController {
     private let editBarButtonItem = UIBarButtonItem()
     private let completeBarButtonItem = UIBarButtonItem()
     private let prayContainerView = CellContainerView()
+    private let categoryLabel = PaddedLabel()
     private let titleLabel = UILabel()
     private let prayDetailTableView: UITableView = UITableView(frame: .zero, style: .plain)
     private let dateLabel = UILabel()
@@ -84,12 +85,14 @@ final class PrayRequestDetailViewController: UIViewController {
     }
 
     private func setupUI() {
+        setupCategoryLabel()
         setupTitleLabel()
         setupDateLabel()
         setupPrayDetailTableView()
         setupPrayEditorContainerView()
         
         view.addSubview(prayContainerView)
+        prayContainerView.addSubview(categoryLabel)
         prayContainerView.addSubview(titleLabel)
         prayContainerView.addSubview(dateLabel)
         prayContainerView.addSubview(prayDetailTableView)
@@ -99,6 +102,7 @@ final class PrayRequestDetailViewController: UIViewController {
         let sidePadding = Constants.sidePadding
         
         prayContainerView.translatesAutoresizingMaskIntoConstraints = false
+        categoryLabel.translatesAutoresizingMaskIntoConstraints = false
         prayDetailTableView.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         dateLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -114,9 +118,12 @@ final class PrayRequestDetailViewController: UIViewController {
             prayContainerView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -innerPadding),
             prayContainerView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: sidePadding),
             prayContainerView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -sidePadding),
-
-            titleLabel.leadingAnchor.constraint(equalTo: prayContainerView.leadingAnchor, constant: innerPadding),
-            titleLabel.trailingAnchor.constraint(equalTo: prayContainerView.trailingAnchor, constant: -innerPadding),
+            
+            categoryLabel.leadingAnchor.constraint(equalTo: prayContainerView.leadingAnchor, constant: innerPadding),
+            categoryLabel.topAnchor.constraint(equalTo: titleLabel.topAnchor),
+            categoryLabel.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
+            
+            titleLabel.leadingAnchor.constraint(equalTo: categoryLabel.trailingAnchor, constant: 8),
             titleLabel.topAnchor.constraint(equalTo: prayContainerView.topAnchor, constant: innerPadding),
 
             dateLabel.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
@@ -137,6 +144,16 @@ final class PrayRequestDetailViewController: UIViewController {
             prayEditorView.topAnchor.constraint(equalTo: prayEditorContainerView.topAnchor, constant: innerPadding),
             prayEditorView.bottomAnchor.constraint(equalTo: prayEditorContainerView.bottomAnchor, constant: -innerPadding)
         ])
+    }
+    
+    private func setupCategoryLabel() {
+        categoryLabel.text = prayRequest.category.rawValue
+        categoryLabel.font = Shared.AppFonts.categoryInDetail
+        categoryLabel.textColor = .white
+        categoryLabel.textInsets = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
+        categoryLabel.backgroundColor = .systemBlue
+        categoryLabel.layer.cornerRadius = 6
+        categoryLabel.clipsToBounds = true
     }
     
     private func setupTitleLabel() {
@@ -230,6 +247,7 @@ final class PrayRequestDetailViewController: UIViewController {
     
     private func updateUI() {
         DispatchQueue.main.async {
+            self.categoryLabel.text = self.prayRequest.category.rawValue
             self.titleLabel.attributedText = NSAttributedString(
                 string: self.prayRequest.title,
                 attributes: Shared.FontTextAttributes.titleTextAttributes
