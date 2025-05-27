@@ -247,7 +247,7 @@ extension PrayEditorView: UITextViewDelegate {
 
 extension PrayEditorView: UITextFieldDelegate {
     
-    // 입력 가능 텍스트 최대 20자 설정
+    // 입력 가능 텍스트 최대 11자 설정
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         // 변경 후 텍스트를 미리 계산
         if let currentText = textField.text,
@@ -255,7 +255,7 @@ extension PrayEditorView: UITextFieldDelegate {
             
             let updatedText = currentText.replacingCharacters(in: textRange, with: string)
             
-            return updatedText.count <= 20
+            return updatedText.count <= 11
         }
         
         return true

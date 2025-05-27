@@ -14,6 +14,7 @@ public enum AppFonts {
     public static let body: UIFont? = UIFont(name: "IropkeBatangM", size: 16)
     public static let detail: UIFont? = UIFont(name: "IropkeBatangM", size: 14)
     public static let micro: UIFont? = UIFont(name: "IropkeBatangM", size: 12)
+    public static let category: UIFont? = .systemFont(ofSize: 14, weight: .bold)
 }
 
 public enum FontTextAttributes {

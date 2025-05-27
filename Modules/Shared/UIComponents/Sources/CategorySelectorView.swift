@@ -55,7 +55,7 @@ public class CategorySelectorView: UIView {
             let button = UIButton(type: .system)
             button.setTitle(title, for: .normal)
             button.setTitleColor(.gray, for: .normal)
-            button.titleLabel?.font = .systemFont(ofSize: 14, weight: .bold)
+            button.titleLabel?.font = Shared.AppFonts.category
             button.alpha = 0.5
             button.tag = index
             button.addAction(UIAction { [weak self] _ in

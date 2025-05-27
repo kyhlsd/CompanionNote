@@ -14,6 +14,7 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
     private var prayRequestUUID: UUID?
     
     private let cellContainerView = CellContainerView()
+    private let categoryLabel = PaddedLabel()
     private let titleLabel = UILabel()
     private let prayItemTableView = UITableView(frame: .zero, style: .plain)
     private let dateLabel = UILabel()
@@ -34,6 +35,7 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
     
     // MARK: Setups
     private func setupUI() {
+        setupCategoryLabel()
         setupTitleLabel()
         setupPrayItemTableView()
         setupDateLabel()
@@ -43,12 +45,14 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
         selectedBackgroundView = UIView()
         
         contentView.addSubview(cellContainerView)
+        cellContainerView.addSubview(categoryLabel)
         cellContainerView.addSubview(titleLabel)
         cellContainerView.addSubview(dateLabel)
         cellContainerView.addSubview(checkBox)
         cellContainerView.addSubview(prayItemTableView)
         
         cellContainerView.translatesAutoresizingMaskIntoConstraints = false
+        categoryLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         prayItemTableView.translatesAutoresizingMaskIntoConstraints = false
         dateLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -63,8 +67,11 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
             cellContainerView.topAnchor.constraint(equalTo: contentView.topAnchor),
             cellContainerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
             
-            titleLabel.leadingAnchor.constraint(equalTo: cellContainerView.leadingAnchor, constant: innerPadding),
-            titleLabel.trailingAnchor.constraint(equalTo: dateLabel.leadingAnchor, constant: -innerPadding),
+            categoryLabel.leadingAnchor.constraint(equalTo: cellContainerView.leadingAnchor, constant: innerPadding),
+            categoryLabel.topAnchor.constraint(equalTo: titleLabel.topAnchor),
+            categoryLabel.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
+            
+            titleLabel.leadingAnchor.constraint(equalTo: categoryLabel.trailingAnchor, constant: 8),
             titleLabel.topAnchor.constraint(equalTo: cellContainerView.topAnchor, constant: innerPadding - 4), // Font 여백에 따른 조정
 
             dateLabel.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
@@ -83,9 +90,17 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
         dateLabelTrailingConstraint.isActive = true
     }
     
+    private func setupCategoryLabel() {
+        categoryLabel.font = Shared.AppFonts.category
+        categoryLabel.textColor = .white
+        categoryLabel.textInsets = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
+        categoryLabel.backgroundColor = .systemBlue
+        categoryLabel.layer.cornerRadius = 6
+        categoryLabel.clipsToBounds = true
+    }
+    
     private func setupTitleLabel() {
         titleLabel.font = Shared.AppFonts.body
-        titleLabel.textColor = .systemBlue
     }
    
     private func setupPrayItemTableView() {
@@ -109,6 +124,8 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
     
     func configure(with prayRequest: PrayRequest) {
         
+        categoryLabel.text = prayRequest.category.rawValue
+        
         titleLabel.attributedText = NSAttributedString(
             string: prayRequest.title,
             attributes: Shared.FontTextAttributes.titleTextAttributes
@@ -117,6 +134,7 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
         dateLabel.text = DateFormatUtil.shortWithDayFormatter.string(from: prayRequest.date)
         
         prayItems = prayRequest.items
+        
         DispatchQueue.main.async {
             self.prayItemTableView.reloadData()
         }
@@ -127,8 +145,7 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
     func enableDeleteMode() {
         checkBox.isHidden = false
         dateLabelTrailingConstraint.isActive = false
-        let innerPadding = Constants.innerPadding
-        dateLabelTrailingConstraint = dateLabel.trailingAnchor.constraint(equalTo: checkBox.leadingAnchor, constant: -innerPadding)
+        dateLabelTrailingConstraint = dateLabel.trailingAnchor.constraint(equalTo: checkBox.leadingAnchor, constant: -4)
         dateLabelTrailingConstraint.isActive = true
     }
     

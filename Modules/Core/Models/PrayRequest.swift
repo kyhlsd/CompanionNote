@@ -65,6 +65,6 @@ public struct PrayItem: Equatable {
 public enum PrayCategory: String, CaseIterable {
     case church = "교회"
     case personal = "개인"
-    case intercession = "중보기도"
+    case intercession = "중보"
     case etc = "기타"
 }
