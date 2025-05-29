@@ -62,7 +62,11 @@ let project = Project(
                 bundleId: "io.tuist.CompanionNote.core",
                 deploymentTargets: .iOS("16.0"),
                 infoPlist: .default,
-                sources: ["Modules/Core/**"],
+                sources: [
+                    .glob("Modules/Core/**", excluding: [
+                        "Modules/Core/**/Tests/**"
+                    ])
+                ],
                 dependencies: [
                     .target(name: "Shared")
                 ]
@@ -87,7 +91,11 @@ let project = Project(
                 bundleId: "io.tuist.CompanionNote.features",
                 deploymentTargets: .iOS("16.0"),
                 infoPlist: .default,
-                sources: ["Modules/Features/**"],
+                sources: [
+                    .glob("Modules/Features/**", excluding: [
+                        "Modules/Features/**/Tests/**"
+                    ])
+                ],
                 resources: ["Modules/Features/**/*.xcassets"],
                 dependencies: [
                     .target(name: "Core"),
