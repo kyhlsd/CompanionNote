@@ -8,14 +8,14 @@
 import UIKit
 
 public enum AppFonts {
-    public static let navBarTitle: UIFont? = UIFont(name: "IropkeBatangM", size: 22)
-    public static let navBarButtonText: UIFont? = .systemFont(ofSize: 17, weight: .bold)
-    public static let title: UIFont? = UIFont(name: "IropkeBatangM", size: 20)
-    public static let body: UIFont? = UIFont(name: "IropkeBatangM", size: 16)
-    public static let detail: UIFont? = UIFont(name: "IropkeBatangM", size: 14)
-    public static let micro: UIFont? = UIFont(name: "IropkeBatangM", size: 12)
-    public static let category: UIFont? = .systemFont(ofSize: 14, weight: .bold)
-    public static let categoryInDetail: UIFont? = .systemFont(ofSize: 16, weight: .bold)
+    public static let navBarTitle: UIFont = UIFont(name: "IropkeBatangM", size: 22) ?? .systemFont(ofSize: 22)
+    public static let navBarButtonText: UIFont = .systemFont(ofSize: 17, weight: .bold)
+    public static let title: UIFont = UIFont(name: "IropkeBatangM", size: 20) ?? .systemFont(ofSize: 20)
+    public static let body: UIFont = UIFont(name: "IropkeBatangM", size: 16) ?? .systemFont(ofSize: 16)
+    public static let detail: UIFont = UIFont(name: "IropkeBatangM", size: 14) ?? .systemFont(ofSize: 14)
+    public static let micro: UIFont = UIFont(name: "IropkeBatangM", size: 12) ?? .systemFont(ofSize: 12)
+    public static let category: UIFont = .systemFont(ofSize: 14, weight: .bold)
+    public static let categoryInDetail: UIFont = .systemFont(ofSize: 16, weight: .bold)
 }
 
 public enum FontTextAttributes {
