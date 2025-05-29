@@ -77,7 +77,7 @@ let project = Project(
                 infoPlist: .default,
                 sources: ["Modules/Core/**/Tests/**"],
                 resources: [],
-                dependencies: [.target(name: "Shared")]
+                dependencies: [.target(name: "Core")]
             ),
         
             .target(
@@ -105,8 +105,7 @@ let project = Project(
                 sources: ["Modules/Features/**/Tests/**"],
                 resources: [],
                 dependencies: [
-                    .target(name: "Core"),
-                    .target(name: "Shared")
+                    .target(name: "Features"),
                 ]
             ),
         

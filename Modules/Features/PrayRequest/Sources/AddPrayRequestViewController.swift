@@ -11,8 +11,8 @@ import Shared
 
 final class AddPrayRequestViewController: UIViewController {
     
-    private let prayContainerView = CellContainerView()
-    private let prayEditorView = PrayEditorView()
+    let prayContainerView = CellContainerView()
+    let prayEditorView = PrayEditorView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -102,12 +102,12 @@ final class AddPrayRequestViewController: UIViewController {
     }
     
     // MARK: Gesture Actions
-    @objc private func dismissKeyboard() {
+    @objc func dismissKeyboard() {
         view.endEditing(true)
     }
     
     // MARK: Notification Handlers
-    @objc private func handleKeyboardWillShow(_ notification: Notification) {
+    @objc func handleKeyboardWillShow(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
               let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
               let animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else { return }
@@ -124,7 +124,7 @@ final class AddPrayRequestViewController: UIViewController {
         }
     }
 
-    @objc private func handleKeyboardWillHide(_ notification: Notification) {
+    @objc func handleKeyboardWillHide(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
               let animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else { return }
 

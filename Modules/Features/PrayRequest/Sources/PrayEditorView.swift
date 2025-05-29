@@ -16,11 +16,11 @@ protocol RightBarButtonStateDelegate: AnyObject {
 
 final class PrayEditorView: UIView {
     private let categoryLabel = UILabel()
-    private let categorySelectorView = CategorySelectorView(categories: PrayCategory.allCases.map { $0.rawValue }, isUnderlineVisible: false)
+    let categorySelectorView = CategorySelectorView(categories: PrayCategory.allCases.map { $0.rawValue }, isUnderlineVisible: false)
     private let titleLabel = UILabel()
-    private let titleTextField = PaddedTextField()
+    let titleTextField = PaddedTextField()
     private let prayItemLabel = UILabel()
-    private let prayItemTextView = UITextView()
+    let prayItemTextView = UITextView()
     
     private var prayItemTextViewBottomConstraint: NSLayoutConstraint!
     weak var rightBarButtonStateDelegate: RightBarButtonStateDelegate?
@@ -164,7 +164,7 @@ final class PrayEditorView: UIView {
         titleTextField.addTarget(self, action: #selector(titleTextFieldDidChange(_:)), for: .editingChanged)
     }
     
-    private func checkTextsValidation(titleText: String?, itemText: String?) {
+    func checkTextsValidation(titleText: String?, itemText: String?) {
         guard let titleText = titleText, let itemText = itemText else {
             isAllTextsValid = false
             return
@@ -253,7 +253,7 @@ extension PrayEditorView: UITextFieldDelegate {
         return TextInputUtils.shouldAllowChange(oldText: oldText, replacementText: string, maxLength: 10)
     }
     
-    @objc private func titleTextFieldDidChange(_ textField: UITextField) {
+    @objc func titleTextFieldDidChange(_ textField: UITextField) {
         checkTextsValidation(titleText: textField.text, itemText: prayItemTextView.text)
         rightBarButtonStateDelegate?.updateRightBarButtonEnabled()
     }
