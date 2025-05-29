@@ -11,15 +11,15 @@ import Shared
 
 final public class PrayRequestViewController: UIViewController {
     
-    private let plusBarButtonItem = UIBarButtonItem()
-    private let deleteBarButtonItem = UIBarButtonItem()
-    private let completeBarButtonItem = UIBarButtonItem()
+    let plusBarButtonItem = UIBarButtonItem()
+    let deleteBarButtonItem = UIBarButtonItem()
+    let completeBarButtonItem = UIBarButtonItem()
     private let categorySelectorView = CategorySelectorView(categories: ["전체"] + PrayCategory.allCases.map { $0.rawValue }, isUnderlineVisible: true)
     private let praySearchBar = CustomSearchBar()
-    private let prayRequestCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    let prayRequestCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     
     private let prayRequests = PrayRequest.dummyDatas
-    private var isDeleteMode = false
+    var isDeleteMode = false
     
     public override func viewDidLoad() {
         super.viewDidLoad()
