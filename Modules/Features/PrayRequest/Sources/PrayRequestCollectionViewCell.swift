@@ -14,14 +14,14 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
     private var prayRequestUUID: UUID?
     
     private let cellContainerView = CellContainerView()
-    private let categoryLabel = PaddedLabel()
-    private let titleLabel = UILabel()
-    private let prayItemTableView = UITableView(frame: .zero, style: .plain)
-    private let dateLabel = UILabel()
-    private let checkBox = CheckBox()
+    let categoryLabel = PaddedLabel()
+    let titleLabel = UILabel()
+    let prayItemTableView = UITableView(frame: .zero, style: .plain)
+    let dateLabel = UILabel()
+    let checkBox = CheckBox()
     
-    private var dateLabelTrailingConstraint: NSLayoutConstraint!
-    private var prayItems: [PrayItem] = []
+    var dateLabelTrailingConstraint: NSLayoutConstraint!
+    var prayItems: [PrayItem] = []
     
     override init(frame: CGRect = .zero) {
         super.init(frame: frame)
