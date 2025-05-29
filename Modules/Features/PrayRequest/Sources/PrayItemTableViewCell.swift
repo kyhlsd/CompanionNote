@@ -11,8 +11,8 @@ import Shared
 
 final class PrayItemTableViewCell: UITableViewCell {
 
-    private let nameLabel = UILabel()
-    private let contentLabel = UILabel()
+    let nameLabel = UILabel()
+    let contentLabel = UILabel()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
