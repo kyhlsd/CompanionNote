@@ -1,6 +1,6 @@
 //
 //  PrayRequest.swift
-//  CompanionNote
+//  Core
 //
 //  Created by 김영훈 on 3/19/25.
 //

@@ -1,6 +1,6 @@
 //
 //  TextInputUtils.swift
-//  Features
+//  Core
 //
 //  Created by 김영훈 on 5/27/25.
 //

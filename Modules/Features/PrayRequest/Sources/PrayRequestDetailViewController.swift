@@ -11,17 +11,17 @@ import Shared
 
 final class PrayRequestDetailViewController: UIViewController {
 
-    private let prayRequest: PrayRequest
+    let prayRequest: PrayRequest
     
-    private let editBarButtonItem = UIBarButtonItem()
-    private let completeBarButtonItem = UIBarButtonItem()
-    private let prayContainerView = CellContainerView()
+    let editBarButtonItem = UIBarButtonItem()
+    let completeBarButtonItem = UIBarButtonItem()
+    let prayContainerView = CellContainerView()
     private let categoryLabel = PaddedLabel()
     private let titleLabel = UILabel()
-    private let prayDetailTableView: UITableView = UITableView(frame: .zero, style: .plain)
+    let prayDetailTableView: UITableView = UITableView(frame: .zero, style: .plain)
     private let dateLabel = UILabel()
-    private let prayEditorContainerView = CellContainerView()
-    private let prayEditorView = PrayEditorView()
+    let prayEditorContainerView = CellContainerView()
+    let prayEditorView = PrayEditorView()
     
     init(with prayRequest: PrayRequest) {
         self.prayRequest = prayRequest
@@ -218,7 +218,7 @@ final class PrayRequestDetailViewController: UIViewController {
     }
     
     //MARK: ButtonActions
-    private func editButtonTapped() {
+    func editButtonTapped() {
         navigationItem.rightBarButtonItems = [
             completeBarButtonItem
         ]
@@ -227,7 +227,7 @@ final class PrayRequestDetailViewController: UIViewController {
         prayEditorContainerView.isHidden = false
     }
     
-    private func completeButtonTapped() {
+    func completeButtonTapped() {
         let editedPrayRequest = prayEditorView.getEditedPrayRequest()
         
         // 변경 사항이 있을 때만 update
