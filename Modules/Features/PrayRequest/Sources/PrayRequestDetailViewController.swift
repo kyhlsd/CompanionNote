@@ -151,7 +151,7 @@ final class PrayRequestDetailViewController: UIViewController {
         categoryLabel.font = Shared.AppFonts.categoryInDetail
         categoryLabel.textColor = .white
         categoryLabel.textInsets = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
-        categoryLabel.backgroundColor = .systemBlue
+        categoryLabel.backgroundColor = prayRequest.category.color
         categoryLabel.layer.cornerRadius = 6
         categoryLabel.clipsToBounds = true
     }
@@ -248,6 +248,7 @@ final class PrayRequestDetailViewController: UIViewController {
     private func updateUI() {
         DispatchQueue.main.async {
             self.categoryLabel.text = self.prayRequest.category.rawValue
+            self.categoryLabel.backgroundColor = self.prayRequest.category.color
             self.titleLabel.attributedText = NSAttributedString(
                 string: self.prayRequest.title,
                 attributes: Shared.FontTextAttributes.titleTextAttributes

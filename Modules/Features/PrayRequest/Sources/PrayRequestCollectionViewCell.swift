@@ -94,7 +94,6 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
         categoryLabel.font = Shared.AppFonts.category
         categoryLabel.textColor = .white
         categoryLabel.textInsets = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
-        categoryLabel.backgroundColor = .systemBlue
         categoryLabel.layer.cornerRadius = 6
         categoryLabel.clipsToBounds = true
     }
@@ -125,6 +124,7 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
     func configure(with prayRequest: PrayRequest) {
         
         categoryLabel.text = prayRequest.category.rawValue
+        categoryLabel.backgroundColor = prayRequest.category.color
         
         titleLabel.attributedText = NSAttributedString(
             string: prayRequest.title,

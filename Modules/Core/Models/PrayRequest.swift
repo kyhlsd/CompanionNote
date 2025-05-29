@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 public class PrayRequest {
     public let date: Date
@@ -67,4 +68,17 @@ public enum PrayCategory: String, CaseIterable {
     case personal = "개인"
     case intercession = "중보"
     case etc = "기타"
+    
+    public var color: UIColor {
+        switch self {
+        case .church:
+            return UIColor.systemBrown
+        case .personal:
+            return UIColor.systemGreen
+        case .intercession:
+            return UIColor.systemPurple
+        case .etc:
+            return UIColor.systemPink
+        }
+    }
 }
