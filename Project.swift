@@ -69,6 +69,18 @@ let project = Project(
             ),
         
             .target(
+                name: "CoreTests",
+                destinations: [.iPhone, .iPad],
+                product: .unitTests,
+                bundleId: "io.tuist.CoreTests",
+                deploymentTargets: .iOS("16.0"),
+                infoPlist: .default,
+                sources: ["Modules/Core/**/Tests/**"],
+                resources: [],
+                dependencies: [.target(name: "Shared")]
+            ),
+        
+            .target(
                 name: "Features",
                 destinations: [.iPhone, .iPad],
                 product: .framework,
@@ -77,6 +89,21 @@ let project = Project(
                 infoPlist: .default,
                 sources: ["Modules/Features/**"],
                 resources: ["Modules/Features/**/*.xcassets"],
+                dependencies: [
+                    .target(name: "Core"),
+                    .target(name: "Shared")
+                ]
+            ),
+        
+            .target(
+                name: "FeatureTests",
+                destinations: [.iPhone, .iPad],
+                product: .unitTests,
+                bundleId: "io.tuist.FeatureTests",
+                deploymentTargets: .iOS("16.0"),
+                infoPlist: .default,
+                sources: ["Modules/Features/**/Tests/**"],
+                resources: [],
                 dependencies: [
                     .target(name: "Core"),
                     .target(name: "Shared")
