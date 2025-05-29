@@ -124,7 +124,7 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
     func configure(with prayRequest: PrayRequest) {
         
         categoryLabel.text = prayRequest.category.rawValue
-        categoryLabel.backgroundColor = prayRequest.category.color
+        categoryLabel.backgroundColor = UIColor(named: prayRequest.category.colorIdentifier, in: .module, compatibleWith: nil)
         
         titleLabel.attributedText = NSAttributedString(
             string: prayRequest.title,

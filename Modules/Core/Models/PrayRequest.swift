@@ -5,7 +5,6 @@
 //  Created by 김영훈 on 3/19/25.
 //
 
-import Foundation
 import UIKit
 
 public class PrayRequest {
@@ -69,16 +68,16 @@ public enum PrayCategory: String, CaseIterable {
     case intercession = "중보"
     case etc = "기타"
     
-    public var color: UIColor {
+    public var colorIdentifier: String {
         switch self {
         case .church:
-            return UIColor.systemBrown
+            return "CategoryRed"
         case .personal:
-            return UIColor.systemGreen
+            return  "CategoryPurple"
         case .intercession:
-            return UIColor.systemPurple
+            return "CategoryGreen"
         case .etc:
-            return UIColor.systemPink
+            return "CategoryOrange"
         }
     }
 }
