@@ -30,7 +30,7 @@ public enum TextInputUtils {
         
         // 1. 단독 자음 + 모음 → 조합 허용
         if componentCount == 1,
-           isKoreanConsonant(lastComponent),
+           (isKoreanConsonant(lastComponent) || isKoreanVowel(lastComponent)),
            isKoreanVowel(replacementText) {
             return true
         }
