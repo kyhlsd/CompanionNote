@@ -7,18 +7,18 @@ on:
 
 jobs:
     tuist-test:
-    runs-on: macos-latest
-
+      runs-on: macos-latest
+    
     steps:
-        - name: Checkout code
+      - name: Checkout code
         uses: actions/checkout@v3
             
-        - name: Install Mise
+      - name: Install Mise
         run: |
-            curl -Ls https:mise.run | bash
-            mise install
+          curl -Ls https:mise.run | bash
+          mise install
         
-        - name: Tuist install & generate
+      - name: Tuist install & generate
         run: |
           mise x -- tuist install
           mise x -- tuist generate
