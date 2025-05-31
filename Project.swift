@@ -37,6 +37,9 @@ let project = Project(
             ),
             sources: ["CompanionNote/Sources/**"],
             resources: ["CompanionNote/Resources/**"],
+            entitlements: .dictionary([
+                "com.apple.developer.applesignin": ["Default"]
+            ]),
             dependencies: [
                 .target(name: "Core"),
                 .target(name: "Features"),
