@@ -13,28 +13,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup mise
+      - name: Install Mise
         run: |
           curl -Ls https://mise.run | bash
           echo "$HOME/.local/bin" >> $GITHUB_PATH
-
-      - name: Cache Tuist dependencies
-        uses: actions/cache@v3
-        with:
-          path: .tuist/Dependencies
-          key: tuist-deps-${{ hashFiles('Tuist/Dependencies.swift') }}
-          restore-keys: |
-            tuist-deps-
-
-      - name: Install Tuist dependencies
-        run: |
           export PATH="$HOME/.local/bin:$PATH"
           mise install
-          mise x -- tuist install
 
-      - name: Generate project
+      - name: Tuist install & generate
         run: |
           export PATH="$HOME/.local/bin:$PATH"
+          mise x -- tuist install
           mise x -- tuist generate
 
       - name: Run tests
