@@ -40,7 +40,8 @@ let project = Project(
             dependencies: [
                 .target(name: "Core"),
                 .target(name: "Features"),
-                .target(name: "Shared")
+                .target(name: "Shared"),
+                .external(name: "FirebaseAuth")
             ]
         ),
         .target(

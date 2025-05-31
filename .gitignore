@@ -68,3 +68,6 @@ Derived/
 
 ### Tuist managed dependencies ###
 Tuist/.build
+
+### Firebase file ###
+CompanionNote/Resources/GoogleService-Info.plist
