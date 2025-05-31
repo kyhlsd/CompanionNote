@@ -26,6 +26,10 @@ jobs:
           mise x -- tuist install
           mise x -- tuist generate
 
+      - name: Build project
+        run: |
+          mise x -- tuist build
+
       - name: Run tests
         run: |
           export PATH="$HOME/.local/bin:$PATH"
