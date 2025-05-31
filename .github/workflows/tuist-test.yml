@@ -1,0 +1,33 @@
+name: Tuist Test on PR to develop
+
+on:
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  tuist-test:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Ruby (for Tuist if needed)
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1'
+
+      - name: Install Tuist
+        run: |
+          curl -Ls https://install.tuist.io | bash
+          echo "$HOME/.tuist/bin" >> $GITHUB_PATH
+
+      - name: Tuist fetch & generate
+        run: |
+          tuist fetch
+          tuist generate
+
+      - name: Run tests
+        run: |
+          tuist test
