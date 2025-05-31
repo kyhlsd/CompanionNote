@@ -23,9 +23,9 @@ jobs:
           curl -Ls https://install.tuist.io | bash
           echo "$HOME/.tuist/bin" >> $GITHUB_PATH
 
-      - name: Tuist fetch & generate
+      - name: Tuist install & generate
         run: |
-          tuist fetch
+          tuist install
           tuist generate
 
       - name: Run tests
