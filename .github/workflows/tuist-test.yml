@@ -1,28 +1,33 @@
 name: Tuist Test on PR to develop
 
 on:
-    pull_request:
+  pull_request:
     branches:
-        - develop
+      - develop
 
 jobs:
-    tuist-test:
-      runs-on: macos-latest
-    
+  tuist-test:
+    runs-on: macos-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-            
+
       - name: Install Mise
         run: |
-          curl -Ls https:mise.run | bash
+          curl -Ls https://mise.run | bash
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          export PATH="$HOME/.local/bin:$PATH"
           mise install
-        
+
       - name: Tuist install & generate
         run: |
+          export PATH="$HOME/.local/bin:$PATH"
           mise x -- tuist install
           mise x -- tuist generate
-        
-        - name: Run tests
+
+      - name: Run tests
         run: |
+          export PATH="$HOME/.local/bin:$PATH"
           mise x -- tuist test
+
