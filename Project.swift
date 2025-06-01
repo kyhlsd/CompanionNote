@@ -43,8 +43,7 @@ let project = Project(
             dependencies: [
                 .target(name: "Core"),
                 .target(name: "Features"),
-                .target(name: "Shared"),
-                .external(name: "FirebaseAuth")
+                .target(name: "Shared")
             ]
         ),
         .target(
@@ -103,7 +102,9 @@ let project = Project(
                 resources: ["Modules/Features/**/*.xcassets"],
                 dependencies: [
                     .target(name: "Core"),
-                    .target(name: "Shared")
+                    .target(name: "Shared"),
+                    .external(name: "FirebaseCore"),
+                    .external(name: "FirebaseFirestore")
                 ]
             ),
         
