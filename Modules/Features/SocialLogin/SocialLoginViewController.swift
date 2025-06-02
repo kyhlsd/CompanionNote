@@ -15,8 +15,9 @@ import Security
 public class SocialLoginViewController: UIViewController {
     
     var currentNonce: String?
+    let db = Firestore.firestore()
     
-    private let appleButton = ASAuthorizationAppleIDButton(authorizationButtonType: .signIn, authorizationButtonStyle: .black)
+    private let appleLoginButton = ASAuthorizationAppleIDButton(authorizationButtonType: .signIn, authorizationButtonStyle: .black)
     
     public override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,46 +26,27 @@ public class SocialLoginViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.addSubview(appleButton)
+        view.addSubview(appleLoginButton)
         
-        appleButton.translatesAutoresizingMaskIntoConstraints = false
+        appleLoginButton.translatesAutoresizingMaskIntoConstraints = false
         
         let safeArea = view.safeAreaLayoutGuide
         
         NSLayoutConstraint.activate([
-            appleButton.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: 100),
-            appleButton.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -100),
-            appleButton.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor),
-            appleButton.heightAnchor.constraint(equalToConstant: 64),
+            appleLoginButton.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: 100),
+            appleLoginButton.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -100),
+            appleLoginButton.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor),
+            appleLoginButton.heightAnchor.constraint(equalToConstant: 64),
         ])
     }
     
     private func setupButtonActions() {
-        appleButton.addAction(UIAction { [weak self] _ in
-//            Task {
-//                await self?.testFirestore()
-//            }
-            self?.testAppleLogin()
+        appleLoginButton.addAction(UIAction { [weak self] _ in
+            self?.appleLoginButtonTapped()
         }, for: .touchUpInside)
     }
     
-    private func testFirestore() async {
-        FirebaseApp.configure()
-        
-        let db = Firestore.firestore()
-        
-        do {
-            _ = try await db.collection("Test").addDocument(data: [
-            "first": "Ada",
-            "last": "Lovelace",
-            "born": 1815
-          ])
-        } catch {
-          print("Error adding document: \(error)")
-        }
-    }
-    
-    private func testAppleLogin() {
+    private func appleLoginButtonTapped() {
         let nonce = randomNonceString()
         currentNonce = nonce
         let appleIDProvider = ASAuthorizationAppleIDProvider()
@@ -137,6 +119,25 @@ public class SocialLoginViewController: UIViewController {
         
         return nil
     }
+    
+    private func checkIfUserExists(userId: String) async throws -> Bool {
+        let db = Firestore.firestore()
+        let docRef = db.collection("users").document(userId)
+        let document = try await docRef.getDocument()
+        return document.exists
+    }
+    
+    private func createUserData(userId: String) async -> Bool {
+        let data = ["userIdentifier": userId]
+        do {
+            try await db.collection("Users").document(userId).setData(data)
+            return true
+        } catch {
+            print("Error writing document: \(error.localizedDescription)")
+            return false
+        }
+    }
+
 }
 
 extension SocialLoginViewController: ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
@@ -148,8 +149,8 @@ extension SocialLoginViewController: ASAuthorizationControllerDelegate, ASAuthor
         
         if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
             let userIdentifier = appleIDCredential.user
-            // TODO: 로그인 처리, Firestore 저장
-            print(userIdentifier)
+            
+            // 최초 로그인 시 fullName, email keychain에 저장
             if let fullName = appleIDCredential.fullName,
                let email = appleIDCredential.email {
                 let formatter = PersonNameComponentsFormatter()
@@ -157,8 +158,24 @@ extension SocialLoginViewController: ASAuthorizationControllerDelegate, ASAuthor
                 saveToKeyChain(key: "userName", value: fullNameString)
                 saveToKeyChain(key: "userEmail", value: email)
             }
-            print(getFromKeychain(key: "userName"))
-            print(getFromKeychain(key: "userEmail"))
+            
+            Task {
+                let userExists = try await checkIfUserExists(userId: userIdentifier)
+                
+                var success = false
+                if userExists {
+                    success = true
+                } else {
+                    success = await createUserData(userId: userIdentifier)
+                }
+                
+                // 서버에 UserIdentifier가 저장되어 있는 경우에만 UserDefaults에 저장, 로그인 처리
+                if success {
+                    UserDefaults.standard.set(userIdentifier, forKey: "userId")
+                } else {
+                    // TODO: login 실패 처리
+                }
+            }
         }
     }
     
