@@ -10,6 +10,7 @@ import AuthenticationServices
 import CryptoKit
 import FirebaseCore
 import FirebaseFirestore
+import Security
 
 public class SocialLoginViewController: UIViewController {
     
@@ -105,23 +106,59 @@ public class SocialLoginViewController: UIViewController {
         
         return hashString
     }
+    
+    private func saveToKeyChain(key: String, value: String) {
+        guard let data = value.data(using: .utf8) else { return }
+        
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: key,
+            kSecValueData as String: data
+        ]
+        
+        SecItemDelete(query as CFDictionary)
+        SecItemAdd(query as CFDictionary, nil)
+    }
+    
+    private func getFromKeychain(key: String) -> String? {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: key,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+        
+        var dataTypeRef: AnyObject?
+        let status = SecItemCopyMatching(query as CFDictionary, &dataTypeRef)
+        
+        if status == errSecSuccess, let data = dataTypeRef as? Data {
+            return String(data: data, encoding: .utf8)
+        }
+        
+        return nil
+    }
 }
 
 extension SocialLoginViewController: ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
     public func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
         
-        guard let nonce = currentNonce else {
+        guard currentNonce != nil else {
             fatalError("Invalid state: A login callback was received, but no login request was sent.")
         }
         
         if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
             let userIdentifier = appleIDCredential.user
-            let fullName = appleIDCredential.fullName
-            let email = appleIDCredential.email
             // TODO: 로그인 처리, Firestore 저장
             print(userIdentifier)
-            print(fullName)
-            print(email)
+            if let fullName = appleIDCredential.fullName,
+               let email = appleIDCredential.email {
+                let formatter = PersonNameComponentsFormatter()
+                let fullNameString = formatter.string(from: fullName)
+                saveToKeyChain(key: "userName", value: fullNameString)
+                saveToKeyChain(key: "userEmail", value: email)
+            }
+            print(getFromKeychain(key: "userName"))
+            print(getFromKeychain(key: "userEmail"))
         }
     }
     
