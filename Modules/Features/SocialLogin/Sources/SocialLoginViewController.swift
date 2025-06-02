@@ -19,6 +19,8 @@ public class SocialLoginViewController: UIViewController {
     
     private let appleLoginButton = ASAuthorizationAppleIDButton(authorizationButtonType: .signIn, authorizationButtonStyle: .black)
     
+    private let kakaoLoginButton = UIButton()
+    
     public override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -26,23 +28,43 @@ public class SocialLoginViewController: UIViewController {
     }
     
     private func setupUI() {
+        setupKakaoLoginButton()
+        
         view.addSubview(appleLoginButton)
+        view.addSubview(kakaoLoginButton)
         
         appleLoginButton.translatesAutoresizingMaskIntoConstraints = false
+        kakaoLoginButton.translatesAutoresizingMaskIntoConstraints = false
         
         let safeArea = view.safeAreaLayoutGuide
+        let socialLoginButtonsHeight: CGFloat = 48
+        let socialLoginButtonsWidth: CGFloat = socialLoginButtonsHeight * 20.0 / 3.0
         
         NSLayoutConstraint.activate([
-            appleLoginButton.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: 100),
-            appleLoginButton.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -100),
+            appleLoginButton.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
             appleLoginButton.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor),
-            appleLoginButton.heightAnchor.constraint(equalToConstant: 64),
+            appleLoginButton.heightAnchor.constraint(equalToConstant: socialLoginButtonsHeight),
+            appleLoginButton.widthAnchor.constraint(equalToConstant: socialLoginButtonsWidth),
+            
+            kakaoLoginButton.topAnchor.constraint(equalTo: appleLoginButton.bottomAnchor, constant: 40),
+            kakaoLoginButton.heightAnchor.constraint(equalToConstant: socialLoginButtonsHeight),
+            kakaoLoginButton.widthAnchor.constraint(equalToConstant: socialLoginButtonsWidth),
+            kakaoLoginButton.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor)
         ])
+    }
+    
+    private func setupKakaoLoginButton() {
+        kakaoLoginButton.setImage(UIImage(named: "kakao_login_large_wide", in: .module, with: nil), for: .normal)
+        kakaoLoginButton.contentVerticalAlignment = .fill
+        kakaoLoginButton.contentHorizontalAlignment = .fill
     }
     
     private func setupButtonActions() {
         appleLoginButton.addAction(UIAction { [weak self] _ in
             self?.appleLoginButtonTapped()
+        }, for: .touchUpInside)
+        kakaoLoginButton.addAction(UIAction { [weak self] _ in
+            self?.kakaoLoginButtonTapped()
         }, for: .touchUpInside)
     }
     
@@ -58,6 +80,10 @@ public class SocialLoginViewController: UIViewController {
         authorizationController.delegate = self
         authorizationController.presentationContextProvider = self
         authorizationController.performRequests()
+    }
+    
+    private func kakaoLoginButtonTapped() {
+        print("kakaoLogin")
     }
     
     private func randomNonceString(length: Int = 32) -> String {
