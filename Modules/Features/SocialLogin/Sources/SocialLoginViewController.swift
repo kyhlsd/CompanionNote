@@ -19,6 +19,8 @@ public class SocialLoginViewController: UIViewController {
     var currentNonce: String?
     let db = Firestore.firestore()
     
+    private let logoImageView = UIImageView()
+    
     private let appleLoginButton = ASAuthorizationAppleIDButton(authorizationButtonType: .signIn, authorizationButtonStyle: .black)
     
     private let kakaoLoginButton = UIButton()
@@ -30,11 +32,16 @@ public class SocialLoginViewController: UIViewController {
     }
     
     private func setupUI() {
+        view.backgroundColor = UIColor(named: "BackgroundColor")
+        
+        setupLogoImageView()
         setupKakaoLoginButton()
         
+        view.addSubview(logoImageView)
         view.addSubview(appleLoginButton)
         view.addSubview(kakaoLoginButton)
         
+        logoImageView.translatesAutoresizingMaskIntoConstraints = false
         appleLoginButton.translatesAutoresizingMaskIntoConstraints = false
         kakaoLoginButton.translatesAutoresizingMaskIntoConstraints = false
         
@@ -43,16 +50,25 @@ public class SocialLoginViewController: UIViewController {
         let socialLoginButtonsWidth: CGFloat = socialLoginButtonsHeight * 20.0 / 3.0
         
         NSLayoutConstraint.activate([
+            logoImageView.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
+            logoImageView.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor, constant: -100),
+            logoImageView.heightAnchor.constraint(equalToConstant: socialLoginButtonsWidth),
+            logoImageView.widthAnchor.constraint(equalToConstant: socialLoginButtonsWidth),
+            
             appleLoginButton.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
-            appleLoginButton.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor),
+            appleLoginButton.topAnchor.constraint(equalTo: logoImageView.bottomAnchor, constant: 80),
             appleLoginButton.heightAnchor.constraint(equalToConstant: socialLoginButtonsHeight),
             appleLoginButton.widthAnchor.constraint(equalToConstant: socialLoginButtonsWidth),
             
-            kakaoLoginButton.topAnchor.constraint(equalTo: appleLoginButton.bottomAnchor, constant: 40),
+            kakaoLoginButton.topAnchor.constraint(equalTo: appleLoginButton.bottomAnchor, constant: 20),
             kakaoLoginButton.heightAnchor.constraint(equalToConstant: socialLoginButtonsHeight),
             kakaoLoginButton.widthAnchor.constraint(equalToConstant: socialLoginButtonsWidth),
             kakaoLoginButton.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor)
         ])
+    }
+    
+    private func setupLogoImageView() {
+        logoImageView.image = UIImage(named: "AppLogoImage", in: .module, with: nil)
     }
     
     private func setupKakaoLoginButton() {

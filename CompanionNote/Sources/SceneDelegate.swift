@@ -27,7 +27,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let secondViewController = SocialLoginViewController()
         firstViewController.tabBarItem = UITabBarItem(title: "신앙 일기", image: UIImage(systemName: "map"), tag: 0)
         secondViewController.tabBarItem = UITabBarItem(title: "기도 제목", image: UIImage(systemName: "map"), tag: 1)
-        setupTabBarController(with: [firstViewController, secondViewController])
+//        setupTabBarController(with: [firstViewController, secondViewController])
+        window?.rootViewController = SocialLoginViewController()
+        window?.makeKeyAndVisible()
     }
     
     // TabBarController 설정 함수
