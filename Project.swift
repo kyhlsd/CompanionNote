@@ -8,6 +8,9 @@ let project = Project(
         developmentRegion: "ko",
         textSettings: .textSettings(usesTabs: false, indentWidth: 4, tabWidth: 4)
     ),
+    packages: [
+        .package(url: "https://github.com/kakao/kakao-ios-sdk.git", from: "2.24.3"),
+    ],
     targets: [
         .target(
             name: "CompanionNote",
@@ -32,7 +35,16 @@ let project = Project(
                     "UIAppFonts": [
                         "NanumDongHwaDdoBag.ttf",
                         "IropkeBatangM.ttf"
-                    ]
+                    ],
+                    "LSApplicationQueriesSchemes": [
+                        "kakaokompassauth"
+                    ],
+                    "KAKAO_NATIVE_KEY": "$(KAKAO_NATIVE_KEY)",
+                    "CFBundleURLTypes": [[
+                        "CFBundleTypeRole": "Editor",
+                        "CFBundleURLSchemes": [ "kakao$(KAKAO_NATIVE_KEY)"
+                                              ]]
+                                        ]
                 ]
             ),
             sources: ["CompanionNote/Sources/**"],
@@ -44,7 +56,14 @@ let project = Project(
                 .target(name: "Core"),
                 .target(name: "Features"),
                 .target(name: "Shared")
-            ]
+            ],
+            settings: .settings(
+                configurations: [
+                    .debug(name: "Debug", xcconfig: .relativeToRoot("Tuist/Configurations/Debug.xcconfig")),
+                    .release(name: "Release", xcconfig: .relativeToRoot("Tuist/Configurations/Debug.xcconfig"))
+                ],
+                defaultSettings: .recommended
+            )
         ),
         .target(
             name: "CompanionNoteTests",
@@ -104,7 +123,10 @@ let project = Project(
                     .target(name: "Core"),
                     .target(name: "Shared"),
                     .external(name: "FirebaseCore"),
-                    .external(name: "FirebaseFirestore")
+                    .external(name: "FirebaseFirestore"),
+                    .package(product: "KakaoSDKCommon"),
+                    .package(product: "KakaoSDKAuth"),
+                    .package(product: "KakaoSDKUser")
                 ]
             ),
         

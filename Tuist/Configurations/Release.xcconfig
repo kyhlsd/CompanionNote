@@ -1,0 +1,14 @@
+//
+//  Release.xcconfig
+//  CompanionNote
+//
+//  Created by 김영훈 on 6/3/25.
+//
+
+// Tuist/Configurations/Release.xcconfig
+
+#include? "Secret.xcconfig"
+
+DEBUG = 0
+ENABLE_LOGGING = NO
+KAKAO_NATIVE_KEY = $(KAKAO_NATIVE_KEY)

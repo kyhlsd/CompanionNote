@@ -20,6 +20,7 @@ let package = Package(
         // Add your own dependencies here:
         // .package(url: "https://github.com/Alamofire/Alamofire", from: "5.0.0"),
         // You can read more about dependencies here: https://docs.tuist.io/documentation/tuist/dependencies
-        .package(url: "https://github.com/firebase/firebase-ios-sdk.git", from: "11.13.0")
+        .package(url: "https://github.com/firebase/firebase-ios-sdk.git", from: "11.13.0"),
+        .package(url: "https://github.com/kakao/kakao-ios-sdk.git", from: "2.24.3")
     ]
 )

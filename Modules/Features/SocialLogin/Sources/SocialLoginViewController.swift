@@ -11,6 +11,8 @@ import CryptoKit
 import FirebaseCore
 import FirebaseFirestore
 import Security
+import KakaoSDKAuth
+import KakaoSDKUser
 
 public class SocialLoginViewController: UIViewController {
     
@@ -83,7 +85,92 @@ public class SocialLoginViewController: UIViewController {
     }
     
     private func kakaoLoginButtonTapped() {
-        print("kakaoLogin")
+        Task {
+            do {
+                if UserApi.isKakaoTalkLoginAvailable() {
+                    let _ = try await loginWithKakaoTalk()
+                } else {
+                    let _ = try await loginWithKakaoAccount()
+                }
+                
+                guard AuthApi.hasToken() else {
+                    print("로그인 토큰이 존재하지 않음")
+                    return
+                }
+                
+                let user = try await fetchKakaoUser()
+                guard let rawUserId = user.id else {
+                    print("user ID가 존재하지 않음")
+                    return
+                }
+                
+                let userIdentifier = String(rawUserId)
+                let userExists = try await checkIfUserExists(userId: userIdentifier)
+                
+                var success = false
+                if userExists {
+                    success = true
+                } else {
+                    success = await createUserData(userId: userIdentifier)
+                }
+                
+                // 서버에 UserIdentifier가 저장되어 있는 경우에만 UserDefaults에 저장, 로그인 처리
+                if success {
+                    UserDefaults.standard.set(userIdentifier, forKey: "userId")
+                } else {
+                    // TODO: login 실패 처리
+                }
+                
+            } catch {
+                // TODO: 로그인 실패 처리
+                print("로그인 실패: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    // 카카오톡 로그인
+    private func loginWithKakaoTalk() async throws -> OAuthToken {
+        try await withCheckedThrowingContinuation { continuation in
+            UserApi.shared.loginWithKakaoTalk { token, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else if let token = token {
+                    continuation.resume(returning: token)
+                } else {
+                    continuation.resume(throwing: NSError(domain: "LoginError", code: -1, userInfo: nil))
+                }
+            }
+        }
+    }
+    
+    // 웹으로 카카오 로그인
+    private func loginWithKakaoAccount() async throws -> OAuthToken {
+        try await withCheckedThrowingContinuation { continuation in
+            UserApi.shared.loginWithKakaoAccount { token, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else if let token = token {
+                    continuation.resume(returning: token)
+                } else {
+                    continuation.resume(throwing: NSError(domain: "LoginError", code: -1, userInfo: nil))
+                }
+            }
+        }
+    }
+    
+    // 사용자 정보 가져오기
+    private func fetchKakaoUser() async throws -> User {
+        try await withCheckedThrowingContinuation { continuation in
+            UserApi.shared.me { user, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else if let user = user {
+                    continuation.resume(returning: user)
+                } else {
+                    continuation.resume(throwing: NSError(domain: "UserFetchError", code: -1, userInfo: nil))
+                }
+            }
+        }
     }
     
     private func randomNonceString(length: Int = 32) -> String {
