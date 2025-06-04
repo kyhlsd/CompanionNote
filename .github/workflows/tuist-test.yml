@@ -12,6 +12,18 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        
+      - name: Cache Tuist build artifacts
+      - name: Cache Tuist build artifacts
+        uses: actions/cache@v3
+        with:
+          path: |
+            .tuist/Cache
+            .build
+            DerivedData
+          key: tuist-${{ runner.os }}-${{ hashFiles('**/Project.swift', '**/Workspace.swift', '**/Tuist/Dependencies.swift') }}
+          restore-keys: |
+            tuist-${{ runner.os }}-
 
       - name: Install Mise
         run: |
@@ -35,6 +47,5 @@ jobs:
       - name: Run tests
         run: |
           export PATH="$HOME/.local/bin:$PATH"
-          export SWIFTFLAGS="-enable-experimental-feature AccessLevelOnImport"
-          mise x -- tuist test -- --swift-flags "$SWIFTFLAGS"
+          mise x -- tuist test
 
