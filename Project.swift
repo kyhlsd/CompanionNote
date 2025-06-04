@@ -58,6 +58,9 @@ let project = Project(
                 .target(name: "Shared")
             ],
             settings: .settings(
+                base: [
+                    "OTHER_SWIFT_FLAGS": "-enable-experimental-feature AccessLevelOnImport"
+                ],
                 configurations: [
                     .debug(name: "Debug", xcconfig: .relativeToRoot("Tuist/Configurations/Debug.xcconfig")),
                     .release(name: "Release", xcconfig: .relativeToRoot("Tuist/Configurations/Debug.xcconfig"))
