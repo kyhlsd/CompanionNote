@@ -23,15 +23,18 @@ jobs:
       - name: Tuist install & generate
         run: |
           export PATH="$HOME/.local/bin:$PATH"
+          export SWIFTFLAGS="-enable-experimental-feature AccessLevelOnImport"
           mise x -- tuist install
           mise x -- tuist generate
 
       - name: Build project
         run: |
-          mise x -- tuist build
+          export SWIFTFLAGS="-enable-experimental-feature AccessLevelOnImport"
+          mise x -- tuist build -- --swift-flags "$SWIFTFLAGS"
 
       - name: Run tests
         run: |
           export PATH="$HOME/.local/bin:$PATH"
-          mise x -- tuist test
+          export SWIFTFLAGS="-enable-experimental-feature AccessLevelOnImport"
+          mise x -- tuist test -- --swift-flags "$SWIFTFLAGS"
 
