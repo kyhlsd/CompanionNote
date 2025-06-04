@@ -90,7 +90,12 @@ let project = Project(
                     ])
                 ],
                 dependencies: [
-                    .target(name: "Shared")
+                    .target(name: "Shared"),
+                    .external(name: "FirebaseCore"),
+                    .external(name: "FirebaseFirestore"),
+                    .package(product: "KakaoSDKCommon"),
+                    .package(product: "KakaoSDKAuth"),
+                    .package(product: "KakaoSDKUser")
                 ]
             ),
         
@@ -121,12 +126,7 @@ let project = Project(
                 resources: ["Modules/Features/**/*.xcassets"],
                 dependencies: [
                     .target(name: "Core"),
-                    .target(name: "Shared"),
-                    .external(name: "FirebaseCore"),
-                    .external(name: "FirebaseFirestore"),
-                    .package(product: "KakaoSDKCommon"),
-                    .package(product: "KakaoSDKAuth"),
-                    .package(product: "KakaoSDKUser")
+                    .target(name: "Shared")
                 ]
             ),
         

@@ -1,5 +1,5 @@
 //
-//  AppleAuthManager.swift
+//  AppleSignInService.swift
 //  Core
 //
 //  Created by 김영훈 on 6/3/25.
@@ -9,15 +9,13 @@ import Foundation
 import AuthenticationServices
 import CryptoKit
 
-public final class AppleAuthManager: NSObject {
-    public static let shared = AppleAuthManager()
-    private override init() {}
+public final class AppleSignInService: NSObject {
     
     private var continuation: CheckedContinuation<String, Error>?
     private var currentNonce: String?
     private var presentationAnchor: ASPresentationAnchor?
     
-    public func loginAndGetUserId(presentationAnchor: ASPresentationAnchor?) async throws -> String {
+    public func signInAndGetUserId(presentationAnchor: ASPresentationAnchor?) async throws -> String {
         let nonce = randomNonceString()
         currentNonce = nonce
         
@@ -67,9 +65,9 @@ public final class AppleAuthManager: NSObject {
     }
 }
 
-extension AppleAuthManager: ASAuthorizationControllerDelegate {
+extension AppleSignInService: ASAuthorizationControllerDelegate {
     public func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
-        guard let currentNonce = self.currentNonce else {
+        guard self.currentNonce != nil else {
             continuation?.resume(throwing: NSError(domain: "AppleLogin", code: -1, userInfo: [NSLocalizedDescriptionKey: "Missing nonce"]))
             return
         }
@@ -97,8 +95,24 @@ extension AppleAuthManager: ASAuthorizationControllerDelegate {
     }
 }
 
-extension AppleAuthManager: ASAuthorizationControllerPresentationContextProviding {
+extension AppleSignInService: ASAuthorizationControllerPresentationContextProviding {
     public func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
         return presentationAnchor ?? ASPresentationAnchor()
+    }
+}
+
+protocol AppleSignInUseCase {
+    func execute(presentationAnchor: ASPresentationAnchor?) async throws -> String
+}
+
+public final class DefaultAppleSignInUseCase: AppleSignInUseCase {
+    private let signInService: AppleSignInService
+    
+    public init(signInService: AppleSignInService = AppleSignInService()) {
+        self.signInService = signInService
+    }
+    
+    public func execute(presentationAnchor: ASPresentationAnchor?) async throws -> String {
+        return try await signInService.signInAndGetUserId(presentationAnchor: presentationAnchor)
     }
 }

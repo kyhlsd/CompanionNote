@@ -7,13 +7,9 @@
 
 import UIKit
 import AuthenticationServices
-import FirebaseCore
-import FirebaseFirestore
 import Core
 
 public class SocialLoginViewController: UIViewController {
-
-    let db = Firestore.firestore()
     
     private let logoImageView = UIImageView()
     
@@ -86,10 +82,12 @@ public class SocialLoginViewController: UIViewController {
         Task {
             do {
                 guard let anchor = self.view.window else { return }
-                let userIdentifier = try await AppleAuthManager.shared.loginAndGetUserId(presentationAnchor: anchor)
+                let appleSignInUseCase = DefaultAppleSignInUseCase()
+                let userIdentifier = try await appleSignInUseCase.execute(presentationAnchor: anchor)
                 
-                let userExists = try await checkIfUserExists(userId: userIdentifier)
-                let success = userExists ? true : await createUserData(userId: userIdentifier)
+                let firestoreUseCase = DefaultFirestoreUseCase()
+                let userExists = try await firestoreUseCase.checkIfUserExists(userId: userIdentifier)
+                let success = userExists ? true : await firestoreUseCase.createUserData(userId: userIdentifier)
                 
                 // 서버에 UserIdentifier가 저장되어 있는 경우에만 UserDefaults에 저장, 로그인 처리
                 if success {
@@ -107,10 +105,12 @@ public class SocialLoginViewController: UIViewController {
     private func kakaoLoginButtonTapped() {
         Task {
             do {
-                let userIdentifier = try await KaKaoAuthManager.shared.loginAndGetUserId()
+                let kakaoSignInUseCase = DefaultKakaoSignInUseCase()
+                let userIdentifier = try await kakaoSignInUseCase.execute()
                 
-                let userExists = try await checkIfUserExists(userId: userIdentifier)
-                let success = userExists ? true : await createUserData(userId: userIdentifier)
+                let firestoreUseCase = DefaultFirestoreUseCase()
+                let userExists = try await firestoreUseCase.checkIfUserExists(userId: userIdentifier)
+                let success = userExists ? true : await firestoreUseCase.createUserData(userId: userIdentifier)
                 
                 // 서버에 UserIdentifier가 저장되어 있는 경우에만 UserDefaults에 저장, 로그인 처리
                 if success {
@@ -123,24 +123,6 @@ public class SocialLoginViewController: UIViewController {
                 // TODO: 로그인 실패 처리
                 print("카카오 로그인 실패: \(error.localizedDescription)")
             }
-        }
-    }
-    
-    private func checkIfUserExists(userId: String) async throws -> Bool {
-        let db = Firestore.firestore()
-        let docRef = db.collection("users").document(userId)
-        let document = try await docRef.getDocument()
-        return document.exists
-    }
-    
-    private func createUserData(userId: String) async -> Bool {
-        let data = ["userIdentifier": userId]
-        do {
-            try await db.collection("Users").document(userId).setData(data)
-            return true
-        } catch {
-            print("Error writing document: \(error.localizedDescription)")
-            return false
         }
     }
 }
