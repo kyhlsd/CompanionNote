@@ -84,14 +84,20 @@ public final class KakaoSignInService {
     }
 }
 
-protocol KakaoSignInUseCase {
+extension KakaoSignInService: KakaoSignInServiceProtocol {}
+
+public protocol KakaoSignInServiceProtocol {
+    func signInAndGetUserId() async throws -> String
+}
+
+public protocol KakaoSignInUseCase {
     func execute() async throws -> String
 }
 
 public final class DefaultKakaoSignInUseCase: KakaoSignInUseCase {
-    private let signInService: KakaoSignInService
+    private let signInService: KakaoSignInServiceProtocol
     
-    public init(signInService: KakaoSignInService = KakaoSignInService()) {
+    public init(signInService: KakaoSignInServiceProtocol) {
         self.signInService = signInService
     }
     

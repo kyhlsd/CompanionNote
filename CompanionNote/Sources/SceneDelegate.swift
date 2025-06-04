@@ -9,6 +9,7 @@ import UIKit
 import KakaoSDKCommon
 import KakaoSDKAuth
 import Features
+import Core
 import Shared
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
@@ -32,7 +33,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             secondViewController.tabBarItem = UITabBarItem(title: "기도 제목", image: UIImage(systemName: "map"), tag: 1)
             setupTabBarController(with: [firstViewController, secondViewController])
         } else {
-            window?.rootViewController = SocialLoginViewController()
+            let appleSignInService = AppleSignInService()
+            let appleSignInUseCase = DefaultAppleSignInUseCase(signInService: appleSignInService)
+            let kakaoSignInService = KakaoSignInService()
+            let kakaoSignInUseCase = DefaultKakaoSignInUseCase(signInService: kakaoSignInService)
+            let firestoreService = FirestoreService()
+            let firestoreUseCase = DefaultFirestoreUseCase(firestoreService: firestoreService)
+            
+            window?.rootViewController = SocialLoginViewController(appleSignInUseCase: appleSignInUseCase, kakaoSignInUseCase: kakaoSignInUseCase, firestoreUseCase: firestoreUseCase)
             window?.makeKeyAndVisible()
         }
     }

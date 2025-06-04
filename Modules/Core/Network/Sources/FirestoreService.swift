@@ -33,15 +33,22 @@ public final class FirestoreService {
     }
 }
 
-protocol FirestoreUseCase {
+extension FirestoreService: FirestoreServiceProtocol {}
+
+public protocol FirestoreServiceProtocol {
     func checkIfUserExists(userId: String) async throws -> Bool
-    func createUserData(userId: String) async throws -> Bool
+    func createUserData(userId: String) async -> Bool
+}
+
+public protocol FirestoreUseCase {
+    func checkIfUserExists(userId: String) async throws -> Bool
+    func createUserData(userId: String) async -> Bool
 }
 
 public final class DefaultFirestoreUseCase: FirestoreUseCase {
-    private let firestoreService: FirestoreService
+    private let firestoreService: FirestoreServiceProtocol
     
-    public init(firestoreService: FirestoreService = FirestoreService()) {
+    public init(firestoreService: FirestoreServiceProtocol) {
         self.firestoreService = firestoreService
     }
     

@@ -101,14 +101,20 @@ extension AppleSignInService: ASAuthorizationControllerPresentationContextProvid
     }
 }
 
-protocol AppleSignInUseCase {
+extension AppleSignInService: AppleSignInServiceProtocol {}
+
+public protocol AppleSignInServiceProtocol {
+    func signInAndGetUserId(presentationAnchor: ASPresentationAnchor?) async throws -> String
+}
+
+public protocol AppleSignInUseCase {
     func execute(presentationAnchor: ASPresentationAnchor?) async throws -> String
 }
 
 public final class DefaultAppleSignInUseCase: AppleSignInUseCase {
-    private let signInService: AppleSignInService
+    private let signInService: AppleSignInServiceProtocol
     
-    public init(signInService: AppleSignInService = AppleSignInService()) {
+    public init(signInService: AppleSignInServiceProtocol) {
         self.signInService = signInService
     }
     

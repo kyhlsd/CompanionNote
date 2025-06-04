@@ -12,6 +12,28 @@ import Shared
 
 public class SocialLoginViewController: UIViewController {
     
+    private let appleSignInUseCase: AppleSignInUseCase
+    private let kakaoSignInUseCase: KakaoSignInUseCase
+    private let firestoreUseCase: FirestoreUseCase
+    private let userDefaults: UserDefaults
+    
+    public init(
+        appleSignInUseCase: AppleSignInUseCase,
+        kakaoSignInUseCase: KakaoSignInUseCase,
+        firestoreUseCase: FirestoreUseCase,
+        userDefaults: UserDefaults = .standard
+    ) {
+        self.appleSignInUseCase = appleSignInUseCase
+        self.kakaoSignInUseCase = kakaoSignInUseCase
+        self.firestoreUseCase = firestoreUseCase
+        self.userDefaults = userDefaults
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     private let logoImageView = UIImageView()
     
     private let appleLoginButton = ASAuthorizationAppleIDButton(authorizationButtonType: .signIn, authorizationButtonStyle: .black)
@@ -79,20 +101,18 @@ public class SocialLoginViewController: UIViewController {
         }, for: .touchUpInside)
     }
     
-    private func appleLoginButtonTapped() {
+    func appleLoginButtonTapped() {
         Task {
             do {
                 guard let anchor = self.view.window else { return }
-                let appleSignInUseCase = DefaultAppleSignInUseCase()
                 let userIdentifier = try await appleSignInUseCase.execute(presentationAnchor: anchor)
                 
-                let firestoreUseCase = DefaultFirestoreUseCase()
                 let userExists = try await firestoreUseCase.checkIfUserExists(userId: userIdentifier)
                 let success = userExists ? true : await firestoreUseCase.createUserData(userId: userIdentifier)
                 
                 // 서버에 UserIdentifier가 저장되어 있는 경우에만 UserDefaults에 저장, 로그인 처리
                 if success {
-                    UserDefaults.standard.set(userIdentifier, forKey: "userId")
+                    userDefaults.set(userIdentifier, forKey: "userId")
                     presentTabBarController()
                 } else {
                     // TODO: login 실패 처리
@@ -104,19 +124,17 @@ public class SocialLoginViewController: UIViewController {
         }
     }
     
-    private func kakaoLoginButtonTapped() {
+    func kakaoLoginButtonTapped() {
         Task {
             do {
-                let kakaoSignInUseCase = DefaultKakaoSignInUseCase()
                 let userIdentifier = try await kakaoSignInUseCase.execute()
                 
-                let firestoreUseCase = DefaultFirestoreUseCase()
                 let userExists = try await firestoreUseCase.checkIfUserExists(userId: userIdentifier)
                 let success = userExists ? true : await firestoreUseCase.createUserData(userId: userIdentifier)
                 
                 // 서버에 UserIdentifier가 저장되어 있는 경우에만 UserDefaults에 저장, 로그인 처리
                 if success {
-                    UserDefaults.standard.set(userIdentifier, forKey: "userId")
+                    userDefaults.set(userIdentifier, forKey: "userId")
                     presentTabBarController()
                 } else {
                     // TODO: login 실패 처리
