@@ -8,6 +8,7 @@
 import UIKit
 import AuthenticationServices
 import Core
+import Shared
 
 public class SocialLoginViewController: UIViewController {
     
@@ -92,6 +93,7 @@ public class SocialLoginViewController: UIViewController {
                 // 서버에 UserIdentifier가 저장되어 있는 경우에만 UserDefaults에 저장, 로그인 처리
                 if success {
                     UserDefaults.standard.set(userIdentifier, forKey: "userId")
+                    presentTabBarController()
                 } else {
                     // TODO: login 실패 처리
                 }
@@ -115,6 +117,7 @@ public class SocialLoginViewController: UIViewController {
                 // 서버에 UserIdentifier가 저장되어 있는 경우에만 UserDefaults에 저장, 로그인 처리
                 if success {
                     UserDefaults.standard.set(userIdentifier, forKey: "userId")
+                    presentTabBarController()
                 } else {
                     // TODO: login 실패 처리
                 }
@@ -123,6 +126,49 @@ public class SocialLoginViewController: UIViewController {
                 // TODO: 로그인 실패 처리
                 print("카카오 로그인 실패: \(error.localizedDescription)")
             }
+        }
+    }
+    
+    private func presentTabBarController() {
+        let firstViewController = UINavigationController(rootViewController: PrayRequestViewController())
+        let secondViewController = UIViewController()
+        firstViewController.tabBarItem = UITabBarItem(title: "신앙 일기", image: UIImage(systemName: "map"), tag: 0)
+        secondViewController.tabBarItem = UITabBarItem(title: "기도 제목", image: UIImage(systemName: "map"), tag: 1)
+        setupTabBarController(with: [firstViewController, secondViewController])
+    }
+    
+    // TabBarController 설정 함수
+    private func setupTabBarController(with viewControllers: [UIViewController]) {
+        let tabBarController = UITabBarController()
+        tabBarController.viewControllers = viewControllers
+        
+        tabBarController.tabBar.isTranslucent = false
+        
+        let appearance = CustomTabBarAppearance.makeAppearance()
+        tabBarController.tabBar.standardAppearance = appearance
+        tabBarController.tabBar.scrollEdgeAppearance = appearance
+        
+        tabBarController.delegate = self
+        
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            DispatchQueue.main.async {
+                UIView.transition(with: window,
+                                  duration: 0.3,
+                                  options: .transitionCrossDissolve,
+                                  animations: {
+                    window.rootViewController = tabBarController
+                },
+                                  completion: nil)
+            }
+        }
+    }
+}
+
+extension SocialLoginViewController: UITabBarControllerDelegate {
+    public func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
+        if let navigationController = viewController as? UINavigationController {
+            navigationController.viewControllers = [navigationController.viewControllers.first].compactMap { $0 }
         }
     }
 }
