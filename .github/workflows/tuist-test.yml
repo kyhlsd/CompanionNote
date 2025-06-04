@@ -14,7 +14,6 @@ jobs:
         uses: actions/checkout@v3
         
       - name: Cache Tuist build artifacts
-      - name: Cache Tuist build artifacts
         uses: actions/cache@v3
         with:
           path: |
