@@ -46,5 +46,6 @@ jobs:
       - name: Run tests
         run: |
           export PATH="$HOME/.local/bin:$PATH"
-          mise x -- tuist test
+          export SWIFTFLAGS="-enable-experimental-feature AccessLevelOnImport"
+          mise x -- tuist test -- --swift-flags "$SWIFTFLAGS"
 
