@@ -43,7 +43,12 @@ jobs:
           export SWIFTFLAGS="-enable-experimental-feature AccessLevelOnImport"
           export OTHER_SWIFT_FLAGS="-enable-experimental-feature AccessLevelOnImport"
           mise x -- tuist build
-
+    
+      - name: Shutdown and erase all simulators
+        run: |
+          xcrun simctl shutdown all
+          xcrun simctl erase all
+            
       - name: Run tests
         run: |
           export PATH="$HOME/.local/bin:$PATH"
