@@ -41,11 +41,12 @@ jobs:
       - name: Build project
         run: |
           export SWIFTFLAGS="-enable-experimental-feature AccessLevelOnImport"
-          mise x -- tuist build -- --swift-flags "$SWIFTFLAGS"
+          export OTHER_SWIFT_FLAGS="-enable-experimental-feature AccessLevelOnImport"
+          mise x -- tuist build
 
       - name: Run tests
         run: |
           export PATH="$HOME/.local/bin:$PATH"
-          export SWIFTFLAGS="-enable-experimental-feature AccessLevelOnImport"
+          export OTHER_SWIFT_FLAGS="-enable-experimental-feature AccessLevelOnImport"
           mise x -- tuist test
 
