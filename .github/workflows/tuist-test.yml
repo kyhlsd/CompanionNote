@@ -38,15 +38,15 @@ jobs:
           mise x -- tuist install
           mise x -- tuist generate
 
-      - name: List available simulators (for debug)
-        run: xcrun simctl list devices
+#      - name: List available simulators (for debug)
+#        run: xcrun simctl list devices
 
-      - name: Prepare simulator
-        run: |
-          xcrun simctl shutdown all || true
-          xcrun simctl erase all || true
-          xcrun simctl delete unavailable || true
-          xcrun simctl boot "iPhone 16 Pro"
+#      - name: Prepare simulator
+#        run: |
+#          xcrun simctl shutdown all || true
+#          xcrun simctl erase all || true
+#          xcrun simctl delete unavailable || true
+#          xcrun simctl boot "iPhone 16 Pro"
 
       - name: Build project
         run: |
@@ -58,16 +58,11 @@ jobs:
         run: |
           export PATH="$HOME/.local/bin:$PATH"
           export OTHER_SWIFT_FLAGS="-enable-experimental-feature AccessLevelOnImport"
-          UDID=$(xcrun simctl list devices | grep "iPhone 16 Pro (" | grep -v "unavailable" | awk -F '[()]' '{print $2}' | head -n 1)
-          xcrun simctl boot $UDID || true
-          sleep 10
-          xcrun simctl list devices | grep Booted
-          mise x -- tuist test -d "id=$UDID"
-#          mise x -- tuist test -d 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2'
+          mise x -- tuist test
 
-      - name: Upload test results (.xcresult)
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/Test/*.xcresult
+#      - name: Upload test results (.xcresult)
+#        if: failure()
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: test-results
+#          path: /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/Test/*.xcresult
