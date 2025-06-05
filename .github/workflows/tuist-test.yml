@@ -10,27 +10,34 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - uses: jdx/mise-action@v2
+      
+#      - name: Checkout code
+#        uses: actions/checkout@v3
+#
+#      - name: Cache Tuist build artifacts
+#        uses: actions/cache@v3
+#        with:
+#          path: |
+#            .tuist/Cache
+#            .build
+#            DerivedData
+#          key: tuist-${{ runner.os }}-${{ hashFiles('**/Project.swift', '**/Workspace.swift', '**/Tuist/Dependencies.swift') }}
+#          restore-keys: |
+#            tuist-${{ runner.os }}-
+#          
+#      - name: Install Mise
+#        run: |
+#          curl -Ls https://mise.run | bash
+#          echo "$HOME/.local/bin" >> $GITHUB_PATH
+#          export PATH="$HOME/.local/bin:$PATH"
+#          mise install
 
-      - name: Cache Tuist build artifacts
-        uses: actions/cache@v3
-        with:
-          path: |
-            .tuist/Cache
-            .build
-            DerivedData
-          key: tuist-${{ runner.os }}-${{ hashFiles('**/Project.swift', '**/Workspace.swift', '**/Tuist/Dependencies.swift') }}
-          restore-keys: |
-            tuist-${{ runner.os }}-
-          
-      - name: Install Mise
+      - name: Install Tuist
         run: |
-          curl -Ls https://mise.run | bash
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-          export PATH="$HOME/.local/bin:$PATH"
-          mise install
-    
+          bash <(curl -Ls https://install.tuist.io)
+          
       - name: Generate Secret.xcconfig
         env:
           KAKAO_NATIVE_KEY: ${{ secrets.KAKAO_NATIVE_KEY }}
@@ -39,21 +46,33 @@ jobs:
           echo "KAKAO_NATIVE_KEY = $KAKAO_NATIVE_KEY" >> Tuist/Configurations/Secret.xcconfig
           cat Tuist/Configurations/Secret.xcconfig
     
-      - name: Tuist install & generate
+      - name: Install Dependencies
         run: |
-          export PATH="$HOME/.local/bin:$PATH"
-          export SWIFTFLAGS="-enable-experimental-feature AccessLevelOnImport"
-          mise x -- tuist install
-          mise x -- tuist generate
-
-      - name: Build project
+          tuist install
+          
+      - name: Build Project
         run: |
-          export SWIFTFLAGS="-enable-experimental-feature AccessLevelOnImport"
-          export OTHER_SWIFT_FLAGS="-enable-experimental-feature AccessLevelOnImport"
-          mise x -- tuist build
-
-      - name: Run tests
+          tuist build
+          
+      - name: Run Tests
         run: |
-          export PATH="$HOME/.local/bin:$PATH"
-          export OTHER_SWIFT_FLAGS="-enable-experimental-feature AccessLevelOnImport"
-          mise x -- tuist test -C Debug
+          tuist test
+          
+#      - name: Tuist install & generate
+#        run: |
+#          export PATH="$HOME/.local/bin:$PATH"
+#          export SWIFTFLAGS="-enable-experimental-feature AccessLevelOnImport"
+#          mise x -- tuist install
+#          mise x -- tuist generate
+#
+#      - name: Build project
+#        run: |
+#          export SWIFTFLAGS="-enable-experimental-feature AccessLevelOnImport"
+#          export OTHER_SWIFT_FLAGS="-enable-experimental-feature AccessLevelOnImport"
+#          mise x -- tuist build
+#
+#      - name: Run tests
+#        run: |
+#          export PATH="$HOME/.local/bin:$PATH"
+#          export OTHER_SWIFT_FLAGS="-enable-experimental-feature AccessLevelOnImport"
+#          mise x -- tuist test
