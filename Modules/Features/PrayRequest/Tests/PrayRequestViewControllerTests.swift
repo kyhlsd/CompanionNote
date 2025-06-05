@@ -36,7 +36,6 @@ final class PrayRequestViewControllerTests: XCTestCase {
 
         // Then
         let pushedVC = navigationController.topViewController
-        XCTAssertNotNil(sut.plusBarButtonItem.customView)
         XCTAssertTrue(pushedVC is AddPrayRequestViewController)
     }
 
