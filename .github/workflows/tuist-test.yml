@@ -46,5 +46,5 @@ jobs:
           
       - name: Run Tests
         run: |
-          tuist test --device "iPhone 14" --os "16.4"
+          tuist test --device "iPhone 15 Pro" --os "17.5"
 #          export OTHER_SWIFT_FLAGS="-enable-experimental-feature AccessLevelOnImport"
