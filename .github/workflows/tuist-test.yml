@@ -12,17 +12,17 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        
-#      - name: Cache Tuist build artifacts
-#        uses: actions/cache@v3
-#        with:
-#          path: |
-#            .tuist/Cache
-#            .build
-#            DerivedData
-#          key: tuist-${{ runner.os }}-${{ hashFiles('**/Project.swift', '**/Workspace.swift', '**/Tuist/Dependencies.swift') }}
-#          restore-keys: |
-#            tuist-${{ runner.os }}-
+
+      - name: Cache Tuist build artifacts
+        uses: actions/cache@v3
+        with:
+          path: |
+            .tuist/Cache
+            .build
+            DerivedData
+          key: tuist-${{ runner.os }}-${{ hashFiles('**/Project.swift', '**/Workspace.swift', '**/Tuist/Dependencies.swift') }}
+          restore-keys: |
+            tuist-${{ runner.os }}-
 
       - name: Install Mise
         run: |
@@ -38,22 +38,32 @@ jobs:
           mise x -- tuist install
           mise x -- tuist generate
 
+      - name: List available simulators (for debug)
+        run: xcrun simctl list devices
+
+      - name: Prepare simulator
+        run: |
+          xcrun simctl shutdown all || true
+          xcrun simctl erase all || true
+          xcrun simctl delete unavailable || true
+          xcrun simctl boot "iPhone 14"
+
       - name: Build project
         run: |
           export SWIFTFLAGS="-enable-experimental-feature AccessLevelOnImport"
           export OTHER_SWIFT_FLAGS="-enable-experimental-feature AccessLevelOnImport"
           mise x -- tuist build
-    
-      - name: Shutdown and erase all simulators
-        run: |
-          xcrun simctl shutdown all
-          xcrun simctl erase all
-          xcrun simctl delete unavailable
-            
+
       - name: Run tests
         run: |
           export PATH="$HOME/.local/bin:$PATH"
           export OTHER_SWIFT_FLAGS="-enable-experimental-feature AccessLevelOnImport"
-          export TUIST_TEST_DESTINATION="platform=iOS Simulator,name=iPhone 16,OS=18.2"
-          mise x -- tuist test --verbose
+          export TUIST_TEST_DESTINATION="platform=iOS Simulator,name=iPhone 14,OS=17.4"
+          mise x -- tuist test
 
+      - name: Upload test results (.xcresult)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/Test/*.xcresult
