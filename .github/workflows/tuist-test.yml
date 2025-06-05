@@ -41,12 +41,12 @@ jobs:
 #      - name: List available simulators (for debug)
 #        run: xcrun simctl list devices
 
-      - name: Prepare simulator
-        run: |
-          xcrun simctl shutdown all || true
-          xcrun simctl erase all || true
-          xcrun simctl delete unavailable || true
-          xcrun simctl boot "iPhone 14"
+#      - name: Prepare simulator
+#        run: |
+#          xcrun simctl shutdown all || true
+#          xcrun simctl erase all || true
+#          xcrun simctl delete unavailable || true
+#          xcrun simctl boot "iPhone 14"
 
       - name: Build project
         run: |
