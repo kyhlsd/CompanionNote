@@ -28,6 +28,11 @@ jobs:
           restore-keys: |
             tuist-${{ runner.os }}-
           
+      - name: Install Dependencies
+        run: |
+          tuist install
+          tuist generate
+          
       - name: Generate Secret.xcconfig
         env:
           KAKAO_NATIVE_KEY: ${{ secrets.KAKAO_NATIVE_KEY }}
@@ -41,10 +46,7 @@ jobs:
           GOOGLE_SERVICE_INFO_PLIST_BASE64: ${{ secrets.GOOGLESERVICE_INFO_PLIST_BASE64 }}
         run: |
           echo "$GOOGLE_SERVICE_INFO_PLIST_BASE64" | base64 --decode > CompanionNote/Resources/GoogleService-Info.plist
-    
-      - name: Install Dependencies
-        run: |
-          tuist install
+          cat CompanionNote/Resources/GoogleService-Info.plist
           
       - name: Build Project
         run: |
