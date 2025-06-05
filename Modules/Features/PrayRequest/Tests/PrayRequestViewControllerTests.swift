@@ -26,7 +26,8 @@ final class PrayRequestViewControllerTests: XCTestCase {
 
     func test_plusButtonTapped_pushesAddPrayRequestVC() {
         // Given
-        let navigationController = UINavigationController(rootViewController: sut)
+        let navigationController = UINavigationController()
+        navigationController.viewControllers = [sut]
         sut.loadViewIfNeeded()
 
         // When
@@ -34,7 +35,7 @@ final class PrayRequestViewControllerTests: XCTestCase {
         plusButton?.sendActions(for: .touchUpInside)
 
         // Then
-        let pushedVC = navigationController.topViewController
+        let pushedVC = navigationController.viewControllers.last
         XCTAssertTrue(pushedVC is AddPrayRequestViewController)
     }
 
