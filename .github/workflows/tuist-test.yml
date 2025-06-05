@@ -51,7 +51,6 @@ jobs:
           
       - name: Run Tests
         run: |
-#          export PATH="$HOME/.local/bin:$PATH"
           export OTHER_SWIFT_FLAGS="-enable-experimental-feature AccessLevelOnImport"
           tuist test
           
