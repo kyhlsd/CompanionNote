@@ -58,8 +58,7 @@ jobs:
         run: |
           export PATH="$HOME/.local/bin:$PATH"
           export OTHER_SWIFT_FLAGS="-enable-experimental-feature AccessLevelOnImport"
-          export TUIST_TEST_DESTINATION="platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2"
-          mise x -- tuist test
+          mise x -- env TUIST_TEST_DESTINATION="platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2" tuist test
 
       - name: Upload test results (.xcresult)
         if: failure()
