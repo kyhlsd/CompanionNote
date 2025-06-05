@@ -12,31 +12,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: jdx/mise-action@v2
-      
-#      - name: Checkout code
-#        uses: actions/checkout@v3
-#
-#      - name: Cache Tuist build artifacts
-#        uses: actions/cache@v3
-#        with:
-#          path: |
-#            .tuist/Cache
-#            .build
-#            DerivedData
-#          key: tuist-${{ runner.os }}-${{ hashFiles('**/Project.swift', '**/Workspace.swift', '**/Tuist/Dependencies.swift') }}
-#          restore-keys: |
-#            tuist-${{ runner.os }}-
-#          
-#      - name: Install Mise
-#        run: |
-#          curl -Ls https://mise.run | bash
-#          echo "$HOME/.local/bin" >> $GITHUB_PATH
-#          export PATH="$HOME/.local/bin:$PATH"
-#          mise install
 
       - name: Install Tuist
         run: |
           bash <(curl -Ls https://install.tuist.io)
+          
+      - name: Cache Tuist build artifacts
+        uses: actions/cache@v3
+        with:
+          path: |
+            .tuist/Cache
+            .build
+            DerivedData
+          key: tuist-${{ runner.os }}-${{ hashFiles('**/Project.swift', '**/Workspace.swift', '**/Tuist/Dependencies.swift') }}
+          restore-keys: |
+            tuist-${{ runner.os }}-
           
       - name: Generate Secret.xcconfig
         env:
@@ -57,23 +47,4 @@ jobs:
       - name: Run Tests
         run: |
           export OTHER_SWIFT_FLAGS="-enable-experimental-feature AccessLevelOnImport"
-          tuist test
-          
-#      - name: Tuist install & generate
-#        run: |
-#          export PATH="$HOME/.local/bin:$PATH"
-#          export SWIFTFLAGS="-enable-experimental-feature AccessLevelOnImport"
-#          mise x -- tuist install
-#          mise x -- tuist generate
-#
-#      - name: Build project
-#        run: |
-#          export SWIFTFLAGS="-enable-experimental-feature AccessLevelOnImport"
-#          export OTHER_SWIFT_FLAGS="-enable-experimental-feature AccessLevelOnImport"
-#          mise x -- tuist build
-#
-#      - name: Run tests
-#        run: |
-#          export PATH="$HOME/.local/bin:$PATH"
-#          export OTHER_SWIFT_FLAGS="-enable-experimental-feature AccessLevelOnImport"
-#          mise x -- tuist test
+          tuist test --device "iPhone 16 Pro" --os "18.2"
