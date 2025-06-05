@@ -56,7 +56,7 @@ jobs:
           
       - name: Run Tests
         run: |
-          export SWIFTFLAGS="-enable-experimental-feature AccessLevelOnImport"
+          export OTHER_SWIFT_FLAGS="-enable-experimental-feature AccessLevelOnImport"
           tuist test
           
 #      - name: Tuist install & generate
