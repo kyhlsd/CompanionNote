@@ -36,18 +36,21 @@ jobs:
         
       - name: Generate project
         run: |
+          export PATH="$HOME/.local/bin:$PATH"
           export SWIFTFLAGS="-enable-experimental-feature AccessLevelOnImport"
           tuist fetch
           tuist generate
           
       - name: Build project
         run: |
+          export PATH="$HOME/.local/bin:$PATH"
           export SWIFTFLAGS="-enable-experimental-feature AccessLevelOnImport"
           export OTHER_SWIFT_FLAGS="-enable-experimental-feature AccessLevelOnImport"
           tuist build
           
       - name: Run Tests
         run: |
+          export PATH="$HOME/.local/bin:$PATH"
           export OTHER_SWIFT_FLAGS="-enable-experimental-feature AccessLevelOnImport"
           tuist test
           
