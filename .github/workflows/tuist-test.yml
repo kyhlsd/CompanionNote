@@ -56,4 +56,4 @@ jobs:
         run: |
           export PATH="$HOME/.local/bin:$PATH"
           export OTHER_SWIFT_FLAGS="-enable-experimental-feature AccessLevelOnImport"
-          mise x -- tuist test
+          mise x -- tuist test -C Debug
