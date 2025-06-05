@@ -24,22 +24,15 @@ jobs:
           restore-keys: |
             tuist-${{ runner.os }}-
             
-      - name: Install Mise
+      - name: Install Mise and Tuist
         run: |
           curl -Ls https://mise.run | bash
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-          export PATH="$HOME/.local/bin:$PATH"
-          mise install
-    
-      - name: Install and run Tuist
-        run: |
-          curl -Ls https://mise.run | bash
-          export PATH="$HOME/.local/bin:$PATH"
+          eval "$(/Users/runner/.local/bin/mise activate bash)"
           mise install tuist
+          export PATH="$HOME/.local/bin:$PATH"
           export SWIFTFLAGS="-enable-experimental-feature AccessLevelOnImport"
           tuist fetch
           tuist generate
-
           
       - name: Build project
         run: |
