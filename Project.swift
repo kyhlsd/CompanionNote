@@ -14,7 +14,7 @@ let project = Project(
     targets: [
         .target(
             name: "CompanionNote",
-            destinations: [.iPhone, .iPad],
+            destinations: [.iPhone/*, .iPad*/],
             product: .app,
             bundleId: "io.tuist.CompanionNote",
             deploymentTargets: .iOS("16.0"),
@@ -79,7 +79,7 @@ let project = Project(
         
             .target(
                 name: "Core",
-                destinations: [.iPhone, .iPad],
+                destinations: [.iPhone/*, .iPad*/],
                 product: .framework,
                 bundleId: "io.tuist.CompanionNote.core",
                 deploymentTargets: .iOS("16.0"),
@@ -113,7 +113,7 @@ let project = Project(
         
             .target(
                 name: "Features",
-                destinations: [.iPhone, .iPad],
+                destinations: [.iPhone/*, .iPad*/],
                 product: .framework,
                 bundleId: "io.tuist.CompanionNote.features",
                 deploymentTargets: .iOS("16.0"),
@@ -146,7 +146,7 @@ let project = Project(
         
             .target(
                 name: "Shared",
-                destinations: [.iPhone, .iPad],
+                destinations: [.iPhone/*, .iPad*/],
                 product: .framework,
                 bundleId: "io.tuist.CompanionNote.shared",
                 deploymentTargets: .iOS("16.0"),
