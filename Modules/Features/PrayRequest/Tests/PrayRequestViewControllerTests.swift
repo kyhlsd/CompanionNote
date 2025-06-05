@@ -24,18 +24,21 @@ final class PrayRequestViewControllerTests: XCTestCase {
         super.tearDown()
     }
 
-//    func test_plusButtonTapped_pushesAddPrayRequestVC() {
-//        // Given
-//        let navigationController = UINavigationController(rootViewController: sut)
-//        sut.loadViewIfNeeded()
-//
-//        // When
-//        sut.plusButtonTapped()
-//
-//        // Then
-//        let pushedVC = navigationController.topViewController
-//        XCTAssertTrue(pushedVC is AddPrayRequestViewController)
-//    }
+    func test_plusButtonTapped_pushesAddPrayRequestVC() {
+        // Given
+        let navigationController = UINavigationController(rootViewController: sut)
+        sut.loadViewIfNeeded()
+        RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1))
+
+        // When
+        let plusButton = sut.plusBarButtonItem.customView as? UIButton
+        plusButton?.sendActions(for: .touchUpInside)
+
+        // Then
+        let pushedVC = navigationController.topViewController
+        XCTAssertNotNil(sut.plusBarButtonItem.customView)
+        XCTAssertTrue(pushedVC is AddPrayRequestViewController)
+    }
 
     func test_deleteButtonTapped_entersDeleteMode() {
         // When
