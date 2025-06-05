@@ -28,6 +28,7 @@ final class PrayRequestViewControllerTests: XCTestCase {
         // Given
         let navigationController = UINavigationController(rootViewController: sut)
         sut.loadViewIfNeeded()
+        RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1))
 
         // When
         let plusButton = sut.plusBarButtonItem.customView as? UIButton

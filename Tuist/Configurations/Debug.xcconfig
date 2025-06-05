@@ -1,0 +1,14 @@
+//
+//  Debug.xcconfig
+//  CompanionNote
+//
+//  Created by 김영훈 on 6/3/25.
+//
+
+// Tuist/Configurations/Debug.xcconfig
+
+#include? "Secret.xcconfig"
+
+DEBUG = 1
+ENABLE_LOGGING = YES
+KAKAO_NATIVE_KEY = $(KAKAO_NATIVE_KEY)

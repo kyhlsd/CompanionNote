@@ -68,3 +68,9 @@ Derived/
 
 ### Tuist managed dependencies ###
 Tuist/.build
+
+### Firebase file ###
+CompanionNote/Resources/GoogleService-Info.plist
+
+### Secret.xcconfig ###
+Tuist/Configurations/Secret.xcconfig

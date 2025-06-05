@@ -6,7 +6,11 @@
 //
 
 import UIKit
+import KakaoSDKCommon
+import KakaoSDKAuth
 import Features
+import Core
+import Shared
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -21,11 +25,24 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window = UIWindow(frame: windowScene.coordinateSpace.bounds)
         window?.windowScene = windowScene
     
-        let firstViewController = UINavigationController(rootViewController: PrayRequestViewController())
-        let secondViewController = UIViewController()
-        firstViewController.tabBarItem = UITabBarItem(title: "신앙 일기", image: UIImage(systemName: "map"), tag: 0)
-        secondViewController.tabBarItem = UITabBarItem(title: "기도 제목", image: UIImage(systemName: "map"), tag: 1)
-        setupTabBarController(with: [firstViewController, secondViewController])
+        // LogIn 확인
+        if UserDefaults.standard.string(forKey: "userId") != nil {
+            let firstViewController = UINavigationController(rootViewController: PrayRequestViewController())
+            let secondViewController = UIViewController()
+            firstViewController.tabBarItem = UITabBarItem(title: "신앙 일기", image: UIImage(systemName: "map"), tag: 0)
+            secondViewController.tabBarItem = UITabBarItem(title: "기도 제목", image: UIImage(systemName: "map"), tag: 1)
+            setupTabBarController(with: [firstViewController, secondViewController])
+        } else {
+            let appleSignInService = AppleSignInService()
+            let appleSignInUseCase = DefaultAppleSignInUseCase(signInService: appleSignInService)
+            let kakaoSignInService = KakaoSignInService()
+            let kakaoSignInUseCase = DefaultKakaoSignInUseCase(signInService: kakaoSignInService)
+            let firestoreService = FirestoreService()
+            let firestoreUseCase = DefaultFirestoreUseCase(firestoreService: firestoreService)
+            
+            window?.rootViewController = SocialLoginViewController(appleSignInUseCase: appleSignInUseCase, kakaoSignInUseCase: kakaoSignInUseCase, firestoreUseCase: firestoreUseCase)
+            window?.makeKeyAndVisible()
+        }
     }
     
     // TabBarController 설정 함수
@@ -35,29 +52,24 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         tabBarController.tabBar.isTranslucent = false
         
-        if #available(iOS 15.0, *) {
-            let appearance = UITabBarAppearance()
-            appearance.configureWithOpaqueBackground()
-            appearance.shadowColor = UIColor.lightGray
-            
-            // 선택된 탭 색상
-            appearance.stackedLayoutAppearance.selected.iconColor = UIColor(named: "SelectedTabColor")
-            appearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: UIColor(named: "SelectedTabColor") ?? UIColor.black]
-            
-            // 선택되지 않은 탭 색상
-            appearance.stackedLayoutAppearance.normal.iconColor = UIColor(named: "UnselectedTabColor")
-            appearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor(named: "UnselectedTabColor") ?? UIColor.systemGray]
-            
-            appearance.backgroundColor = UIColor(named: "TabBarColor")
-            tabBarController.tabBar.standardAppearance = appearance
-            tabBarController.tabBar.scrollEdgeAppearance = appearance
-        }
+        let appearance = CustomTabBarAppearance.makeAppearance()
+        tabBarController.tabBar.standardAppearance = appearance
+        tabBarController.tabBar.scrollEdgeAppearance = appearance
         
         tabBarController.delegate = self
         
         window?.rootViewController = tabBarController
         window?.makeKeyAndVisible()
     }
+    
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        if let url = URLContexts.first?.url {
+            if AuthApi.isKakaoTalkLoginUrl(url) {
+                _ = AuthController.handleOpenUrl(url: url)
+            }
+        }
+    }
+
 
     func sceneDidDisconnect(_ scene: UIScene) {
         // Called as the scene is being released by the system.
