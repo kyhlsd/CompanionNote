@@ -28,13 +28,15 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2'
-        
+    
       - name: Install rtx manually
         run: |
-          mkdir -p ~/.local/share/rtx/bin
-          curl -fsSL https://github.com/jdx/rtx/releases/latest/download/rtx-latest-macos-arm64 -o ~/.local/share/rtx/bin/rtx
-          chmod +x ~/.local/share/rtx/bin/rtx
+          RTX_VERSION=$(curl -s https://api.github.com/repos/jdx/rtx/releases/latest | grep tag_name | cut -d '"' -f 4)
+          curl -L "https://github.com/jdx/rtx/releases/download/${RTX_VERSION}/rtx-${RTX_VERSION}-macos-arm64.tar.gz" -o rtx.tar.gz
+          mkdir -p ~/.local/share/rtx
+          tar -xzf rtx.tar.gz -C ~/.local/share/rtx --strip-components=1
           echo "$HOME/.local/share/rtx/bin" >> $GITHUB_PATH
+
     
       - name: Install Tuist
         run: |
