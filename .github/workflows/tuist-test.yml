@@ -29,12 +29,16 @@ jobs:
         with:
           ruby-version: '3.2'
           
+      - name: Install rtx
+        uses: jdx/rtx-action@v1
+    
       - name: Install Tuist
-        run: curl -Ls https://install.tuist.io | bash
+        run: |
+          rtx install tuist@latest
+          rtx use -g tuist@latest
         
       - name: Generate project
         run: |
-          export PATH="$HOME/.local/bin:$PATH"
           export SWIFTFLAGS="-enable-experimental-feature AccessLevelOnImport"
           tuist fetch
           tuist generate
@@ -47,7 +51,7 @@ jobs:
           
       - name: Run Tests
         run: |
-          export PATH="$HOME/.local/bin:$PATH"
+#          export PATH="$HOME/.local/bin:$PATH"
           export OTHER_SWIFT_FLAGS="-enable-experimental-feature AccessLevelOnImport"
           tuist test
           
