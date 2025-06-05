@@ -23,46 +23,56 @@ jobs:
           key: tuist-${{ runner.os }}-${{ hashFiles('**/Project.swift', '**/Workspace.swift', '**/Tuist/Dependencies.swift') }}
           restore-keys: |
             tuist-${{ runner.os }}-
-
-      - name: Install Mise
-        run: |
-          curl -Ls https://mise.run | bash
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-          export PATH="$HOME/.local/bin:$PATH"
-          mise install
-
-      - name: Tuist install & generate
+            
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          
+      - name: Install Tuist
+        run: curl -Ls https://install.tuist.io | bash
+        
+      - name: Generate project
         run: |
           export PATH="$HOME/.local/bin:$PATH"
           export SWIFTFLAGS="-enable-experimental-feature AccessLevelOnImport"
-          mise x -- tuist install
-          mise x -- tuist generate
-
-#      - name: List available simulators (for debug)
-#        run: xcrun simctl list devices
-
-#      - name: Prepare simulator
-#        run: |
-#          xcrun simctl shutdown all || true
-#          xcrun simctl erase all || true
-#          xcrun simctl delete unavailable || true
-#          xcrun simctl boot "iPhone 16 Pro"
-
+          tuist install
+          tuist generate
+          
       - name: Build project
         run: |
           export SWIFTFLAGS="-enable-experimental-feature AccessLevelOnImport"
           export OTHER_SWIFT_FLAGS="-enable-experimental-feature AccessLevelOnImport"
-          mise x -- tuist build
-
-      - name: Run tests
+          tuist build
+          
+      - name: Run Tests
         run: |
           export PATH="$HOME/.local/bin:$PATH"
           export OTHER_SWIFT_FLAGS="-enable-experimental-feature AccessLevelOnImport"
-          mise x -- tuist test
-
-#      - name: Upload test results (.xcresult)
-#        if: failure()
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: test-results
-#          path: /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/Test/*.xcresult
+          tuist test
+          
+#      - name: Install Mise
+#        run: |
+#          curl -Ls https://mise.run | bash
+#          echo "$HOME/.local/bin" >> $GITHUB_PATH
+#          export PATH="$HOME/.local/bin:$PATH"
+#          mise install
+#
+#      - name: Tuist install & generate
+#        run: |
+#          export PATH="$HOME/.local/bin:$PATH"
+#          export SWIFTFLAGS="-enable-experimental-feature AccessLevelOnImport"
+#          mise x -- tuist install
+#          mise x -- tuist generate
+#
+#      - name: Build project
+#        run: |
+#          export SWIFTFLAGS="-enable-experimental-feature AccessLevelOnImport"
+#          export OTHER_SWIFT_FLAGS="-enable-experimental-feature AccessLevelOnImport"
+#          mise x -- tuist build
+#
+#      - name: Run tests
+#        run: |
+#          export PATH="$HOME/.local/bin:$PATH"
+#          export OTHER_SWIFT_FLAGS="-enable-experimental-feature AccessLevelOnImport"
+#          mise x -- tuist test
