@@ -31,15 +31,15 @@ jobs:
           export PATH="$HOME/.local/bin:$PATH"
           mise install
     
-      - name: Install Tuist
-        run: mise install tuist
-        
-      - name: Generate project
+      - name: Install and run Tuist
         run: |
+          curl -Ls https://mise.run | bash
           export PATH="$HOME/.local/bin:$PATH"
+          mise install tuist
           export SWIFTFLAGS="-enable-experimental-feature AccessLevelOnImport"
           tuist fetch
           tuist generate
+
           
       - name: Build project
         run: |
