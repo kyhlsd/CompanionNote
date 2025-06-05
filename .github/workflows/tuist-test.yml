@@ -24,24 +24,15 @@ jobs:
           restore-keys: |
             tuist-${{ runner.os }}-
             
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.2'
-    
-      - name: Install rtx manually
+      - name: Install Mise
         run: |
-          RTX_VERSION=$(curl -s https://api.github.com/repos/jdx/rtx/releases/latest | grep tag_name | cut -d '"' -f 4)
-          curl -L "https://github.com/jdx/rtx/releases/download/${RTX_VERSION}/rtx-${RTX_VERSION}-macos-arm64.tar.gz" -o rtx.tar.gz
-          mkdir -p ~/.local/share/rtx
-          tar -xzf rtx.tar.gz -C ~/.local/share/rtx --strip-components=1
-          echo "$HOME/.local/share/rtx/bin" >> $GITHUB_PATH
-
+          curl -Ls https://mise.run | bash
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          export PATH="$HOME/.local/bin:$PATH"
+          mise install
     
       - name: Install Tuist
-        run: |
-          rtx install tuist@latest
-          rtx use -g tuist@latest
+        run: mise install tuist
         
       - name: Generate project
         run: |
