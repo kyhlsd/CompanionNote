@@ -23,52 +23,29 @@ jobs:
           key: tuist-${{ runner.os }}-${{ hashFiles('**/Project.swift', '**/Workspace.swift', '**/Tuist/Dependencies.swift') }}
           restore-keys: |
             tuist-${{ runner.os }}-
-            
-      - name: Install Mise and Tuist
+          
+      - name: Install Mise
         run: |
           curl -Ls https://mise.run | bash
-          eval "$(/Users/runner/.local/bin/mise activate bash)"
-          mise install tuist
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          export PATH="$HOME/.local/bin:$PATH"
+          mise install
+
+      - name: Tuist install & generate
+        run: |
           export PATH="$HOME/.local/bin:$PATH"
           export SWIFTFLAGS="-enable-experimental-feature AccessLevelOnImport"
-          tuist fetch
-          tuist generate
-          
+          mise x -- tuist install
+          mise x -- tuist generate
+
       - name: Build project
         run: |
-          export PATH="$HOME/.local/bin:$PATH"
           export SWIFTFLAGS="-enable-experimental-feature AccessLevelOnImport"
           export OTHER_SWIFT_FLAGS="-enable-experimental-feature AccessLevelOnImport"
-          tuist build
-          
-      - name: Run Tests
+          mise x -- tuist build
+
+      - name: Run tests
         run: |
           export PATH="$HOME/.local/bin:$PATH"
           export OTHER_SWIFT_FLAGS="-enable-experimental-feature AccessLevelOnImport"
-          tuist test
-          
-#      - name: Install Mise
-#        run: |
-#          curl -Ls https://mise.run | bash
-#          echo "$HOME/.local/bin" >> $GITHUB_PATH
-#          export PATH="$HOME/.local/bin:$PATH"
-#          mise install
-#
-#      - name: Tuist install & generate
-#        run: |
-#          export PATH="$HOME/.local/bin:$PATH"
-#          export SWIFTFLAGS="-enable-experimental-feature AccessLevelOnImport"
-#          mise x -- tuist install
-#          mise x -- tuist generate
-#
-#      - name: Build project
-#        run: |
-#          export SWIFTFLAGS="-enable-experimental-feature AccessLevelOnImport"
-#          export OTHER_SWIFT_FLAGS="-enable-experimental-feature AccessLevelOnImport"
-#          mise x -- tuist build
-#
-#      - name: Run tests
-#        run: |
-#          export PATH="$HOME/.local/bin:$PATH"
-#          export OTHER_SWIFT_FLAGS="-enable-experimental-feature AccessLevelOnImport"
-#          mise x -- tuist test
+          mise x -- tuist test
