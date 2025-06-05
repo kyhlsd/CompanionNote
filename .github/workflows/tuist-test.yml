@@ -38,8 +38,8 @@ jobs:
           mise x -- tuist install
           mise x -- tuist generate
 
-      - name: List available simulators (for debug)
-        run: xcrun simctl list devices
+#      - name: List available simulators (for debug)
+#        run: xcrun simctl list devices
 
       - name: Prepare simulator
         run: |
@@ -58,7 +58,7 @@ jobs:
         run: |
           export PATH="$HOME/.local/bin:$PATH"
           export OTHER_SWIFT_FLAGS="-enable-experimental-feature AccessLevelOnImport"
-          export TUIST_TEST_DESTINATION="platform=iOS Simulator,name=iPhone 14,OS=17.4"
+          export TUIST_TEST_DESTINATION="platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2"
           mise x -- tuist test
 
       - name: Upload test results (.xcresult)
