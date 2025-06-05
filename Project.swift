@@ -60,7 +60,7 @@ let project = Project(
             settings: .settings(
                 configurations: [
                     .debug(name: "Debug", xcconfig: .relativeToRoot("Tuist/Configurations/Debug.xcconfig")),
-                    .release(name: "Release", xcconfig: .relativeToRoot("Tuist/Configurations/Debug.xcconfig"))
+                    .release(name: "Release", xcconfig: .relativeToRoot("Tuist/Configurations/Release.xcconfig"))
                 ],
                 defaultSettings: .recommended
             )
