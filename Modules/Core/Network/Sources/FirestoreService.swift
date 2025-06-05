@@ -35,6 +35,7 @@ public final class FirestoreService {
 
 extension FirestoreService: FirestoreServiceProtocol {}
 
+// MARK: Protocols
 public protocol FirestoreServiceProtocol {
     func checkIfUserExists(userId: String) async throws -> Bool
     func createUserData(userId: String) async -> Bool
@@ -45,6 +46,7 @@ public protocol FirestoreUseCase {
     func createUserData(userId: String) async -> Bool
 }
 
+// MARK: UseCase
 public final class DefaultFirestoreUseCase: FirestoreUseCase {
     private let firestoreService: FirestoreServiceProtocol
     

@@ -46,6 +46,7 @@ public class SocialLoginViewController: UIViewController {
         setupButtonActions()
     }
     
+    // MARK: Setups
     private func setupUI() {
         view.backgroundColor = UIColor(named: "BackgroundColor")
         
@@ -101,6 +102,7 @@ public class SocialLoginViewController: UIViewController {
         }, for: .touchUpInside)
     }
     
+    // MARK: Button Actions
     func appleLoginButtonTapped() {
         Task {
             do {
@@ -183,6 +185,7 @@ public class SocialLoginViewController: UIViewController {
     }
 }
 
+// MARK: Extensions
 extension SocialLoginViewController: UITabBarControllerDelegate {
     public func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
         if let navigationController = viewController as? UINavigationController {
