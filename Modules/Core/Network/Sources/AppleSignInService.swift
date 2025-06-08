@@ -65,6 +65,7 @@ public final class AppleSignInService: NSObject {
     }
 }
 
+// MARK: Extensions
 extension AppleSignInService: ASAuthorizationControllerDelegate {
     public func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
         guard self.currentNonce != nil else {
@@ -103,6 +104,7 @@ extension AppleSignInService: ASAuthorizationControllerPresentationContextProvid
 
 extension AppleSignInService: AppleSignInServiceProtocol {}
 
+// MARK: Protocols
 public protocol AppleSignInServiceProtocol {
     func signInAndGetUserId(presentationAnchor: ASPresentationAnchor?) async throws -> String
 }
@@ -111,6 +113,7 @@ public protocol AppleSignInUseCase {
     func execute(presentationAnchor: ASPresentationAnchor?) async throws -> String
 }
 
+// MARK: UseCase
 public final class DefaultAppleSignInUseCase: AppleSignInUseCase {
     private let signInService: AppleSignInServiceProtocol
     

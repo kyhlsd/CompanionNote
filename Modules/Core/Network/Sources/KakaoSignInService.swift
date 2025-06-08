@@ -86,6 +86,7 @@ public final class KakaoSignInService {
 
 extension KakaoSignInService: KakaoSignInServiceProtocol {}
 
+// MARK: Protocols
 public protocol KakaoSignInServiceProtocol {
     func signInAndGetUserId() async throws -> String
 }
@@ -94,6 +95,7 @@ public protocol KakaoSignInUseCase {
     func execute() async throws -> String
 }
 
+// MARK: UseCase
 public final class DefaultKakaoSignInUseCase: KakaoSignInUseCase {
     private let signInService: KakaoSignInServiceProtocol
     
