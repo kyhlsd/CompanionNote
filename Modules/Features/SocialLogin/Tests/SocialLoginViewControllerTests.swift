@@ -82,6 +82,152 @@ final class SocialLoginViewControllerTests: XCTestCase {
         XCTAssertEqual(mockFirestore.checkedUserId, "kakao_456")
     }
     
+    @MainActor
+    func test_appleLogin_whenSignInFails_shouldPresentLoginFailAlert() async {
+        // Given
+        final class FailingAppleSignInUseCase: AppleSignInUseCase {
+            func execute(presentationAnchor: ASPresentationAnchor?) async throws -> String {
+                throw NSError(domain: "Test", code: -1, userInfo: nil)
+            }
+        }
+
+        let testUserDefaults = UserDefaults(suiteName: "io.tuist.CompanionNote.tests")!
+        testUserDefaults.removePersistentDomain(forName: "io.tuist.CompanionNote.tests")
+
+        let sut = SpySocialLoginViewController(
+            appleSignInUseCase: FailingAppleSignInUseCase(),
+            kakaoSignInUseCase: MockKakaoSignInUseCase(),
+            firestoreUseCase: MockFirestoreUseCase(),
+            userDefaults: testUserDefaults
+        )
+
+        let window = UIWindow()
+        window.rootViewController = sut
+        window.makeKeyAndVisible()
+
+        // When
+        let expectation = XCTestExpectation(description: "Apple login should fail and alert presented")
+        Task {
+            sut.appleLoginButtonTapped()
+            try? await Task.sleep(nanoseconds: 500_000_000)
+            expectation.fulfill()
+        }
+        await fulfillment(of: [expectation], timeout: 1.0)
+
+        // Then
+        XCTAssertTrue(sut.didPresentAlert)
+    }
+
+    @MainActor
+    func test_appleLogin_whenCreateUserFails_shouldPresentLoginFailAlert() async {
+        // Given
+        let mockApple = MockAppleSignInUseCase()
+        mockApple.userId = "apple_fail_user"
+
+        let mockFirestore = MockFirestoreUseCase()
+        mockFirestore.shouldUserExist = false
+        mockFirestore.createUserResult = false  // <- 실패 유도
+
+        let testUserDefaults = UserDefaults(suiteName: "io.tuist.CompanionNote.tests")!
+        testUserDefaults.removePersistentDomain(forName: "io.tuist.CompanionNote.tests")
+
+        let sut = SpySocialLoginViewController(
+            appleSignInUseCase: mockApple,
+            kakaoSignInUseCase: MockKakaoSignInUseCase(),
+            firestoreUseCase: mockFirestore,
+            userDefaults: testUserDefaults
+        )
+
+        let window = UIWindow()
+        window.rootViewController = sut
+        window.makeKeyAndVisible()
+
+        // When
+        let expectation = XCTestExpectation(description: "Apple createUserData should fail and alert presented")
+        Task {
+            sut.appleLoginButtonTapped()
+            try? await Task.sleep(nanoseconds: 500_000_000)
+            expectation.fulfill()
+        }
+        await fulfillment(of: [expectation], timeout: 1.0)
+
+        // Then
+        XCTAssertTrue(sut.didPresentAlert)
+    }
+
+    @MainActor
+    func test_kakaoLogin_whenSignInFails_shouldPresentLoginFailAlert() async {
+        // Given
+        final class FailingKakaoSignInUseCase: KakaoSignInUseCase {
+            func execute() async throws -> String {
+                throw NSError(domain: "Test", code: -1, userInfo: nil)
+            }
+        }
+        
+        let testUserDefaults = UserDefaults(suiteName: "io.tuist.CompanionNote.tests")!
+            testUserDefaults.removePersistentDomain(forName: "io.tuist.CompanionNote.tests")
+        
+        let sut = SpySocialLoginViewController(
+            appleSignInUseCase: MockAppleSignInUseCase(),
+            kakaoSignInUseCase: FailingKakaoSignInUseCase(),
+            firestoreUseCase: MockFirestoreUseCase(),
+            userDefaults: testUserDefaults
+        )
+        
+        let window = UIWindow()
+        window.rootViewController = sut
+        window.makeKeyAndVisible()
+        
+        // When
+        let expectation = XCTestExpectation(description: "Wait for kakao login fail")
+        Task {
+            sut.kakaoLoginButtonTapped()
+            try? await Task.sleep(nanoseconds: 500_000_000)
+            expectation.fulfill()
+        }
+        await fulfillment(of: [expectation], timeout: 1.0)
+        
+        // Then
+        XCTAssertTrue(sut.didPresentAlert)
+    }
+    
+    @MainActor
+    func test_kakaoLogin_whenCreateUserFails_shouldPresentLoginFailAlert() async {
+        // Given
+        let mockKakao = MockKakaoSignInUseCase()
+        mockKakao.userId = "kakao_789"
+        let mockFirestore = MockFirestoreUseCase()
+        mockFirestore.shouldUserExist = false
+        mockFirestore.createUserResult = false
+
+        let testUserDefaults = UserDefaults(suiteName: "io.tuist.CompanionNote.tests")!
+        testUserDefaults.removePersistentDomain(forName: "io.tuist.CompanionNote.tests")
+
+        let sut = SpySocialLoginViewController(
+            appleSignInUseCase: MockAppleSignInUseCase(),
+            kakaoSignInUseCase: mockKakao,
+            firestoreUseCase: mockFirestore,
+            userDefaults: testUserDefaults
+        )
+
+        let window = UIWindow()
+        window.rootViewController = sut
+        window.makeKeyAndVisible()
+
+        // When
+        let expectation = XCTestExpectation(description: "Wait for kakao createUserData fail")
+        Task {
+            sut.kakaoLoginButtonTapped()
+            try? await Task.sleep(nanoseconds: 500_000_000)
+            expectation.fulfill()
+        }
+        await fulfillment(of: [expectation], timeout: 1.0)
+
+        // Then
+        XCTAssertTrue(sut.didPresentAlert)
+    }
+
+    
     override func tearDown() {
         UserDefaults(suiteName: "io.tuist.CompanionNote.tests")?.removePersistentDomain(forName: "io.tuist.CompanionNote.tests")
         super.tearDown()
@@ -115,5 +261,15 @@ final class MockFirestoreUseCase: FirestoreUseCase {
     func createUserData(userId: String) async -> Bool {
         checkedUserId = userId
         return createUserResult
+    }
+}
+
+final class SpySocialLoginViewController: SocialLoginViewController {
+    var didPresentAlert = false
+    
+    override func present(_ viewControllerToPresent: UIViewController, animated flag: Bool, completion: (() -> Void)? = nil) {
+        if viewControllerToPresent is UIAlertController {
+            didPresentAlert = true
+        }
     }
 }

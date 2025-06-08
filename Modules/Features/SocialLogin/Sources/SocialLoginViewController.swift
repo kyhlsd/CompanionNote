@@ -117,11 +117,10 @@ public class SocialLoginViewController: UIViewController {
                     userDefaults.set(userIdentifier, forKey: "userId")
                     presentTabBarController()
                 } else {
-                    // TODO: login 실패 처리
+                    presentLoginFailAlert()
                 }
             } catch {
-                // TODO: login 실패 처리
-                print("애플 로그인 실패: \(error.localizedDescription)")
+                presentLoginFailAlert()
             }
         }
     }
@@ -139,13 +138,35 @@ public class SocialLoginViewController: UIViewController {
                     userDefaults.set(userIdentifier, forKey: "userId")
                     presentTabBarController()
                 } else {
-                    // TODO: login 실패 처리
+                    presentLoginFailAlert()
                 }
                 
             } catch {
-                // TODO: 로그인 실패 처리
-                print("카카오 로그인 실패: \(error.localizedDescription)")
+                presentLoginFailAlert()
             }
+        }
+    }
+    
+    private func presentLoginFailAlert() {
+        let alert = UIAlertController(
+            title: nil,
+            message: "로그인에 실패했습니다.\n다시 시도해주세요.",
+            preferredStyle: .alert
+        )
+        
+        let title = NSAttributedString(
+            string: "로그인 실패",
+            attributes: [
+                .foregroundColor: UIColor.red,
+                .font: UIFont.boldSystemFont(ofSize: 17)
+            ]
+        )
+        
+        alert.setValue(title, forKey: "attributedTitle")
+        alert.addAction(UIAlertAction(title: "닫기", style: .default))
+        
+        DispatchQueue.main.async {
+            self.present(alert, animated: true)
         }
     }
     
