@@ -196,7 +196,7 @@ final public class PrayRequestViewController: UIViewController {
     
     // MARK: Button Actions
     private func plusButtonTapped() {
-        let addPrayRequestViewController = AddPrayRequestViewController()
+        let addPrayRequestViewController = AddPrayRequestViewController(viewModel: PrayRequestViewModel())
         self.navigationController?.pushViewController(addPrayRequestViewController, animated: true)
     }
     

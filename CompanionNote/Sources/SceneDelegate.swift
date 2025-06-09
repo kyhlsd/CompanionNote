@@ -38,9 +38,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             let kakaoSignInService = KakaoSignInService()
             let kakaoSignInUseCase = DefaultKakaoSignInUseCase(signInService: kakaoSignInService)
             let firestoreService = FirestoreService()
-            let firestoreUseCase = DefaultFirestoreUseCase(firestoreService: firestoreService)
+            let userRepository = UserRepositoryImpl(firestoreService: firestoreService)
+            let userUseCase = DefaultUserUseCase(userRepository: userRepository)
             
-            window?.rootViewController = SocialLoginViewController(appleSignInUseCase: appleSignInUseCase, kakaoSignInUseCase: kakaoSignInUseCase, firestoreUseCase: firestoreUseCase)
+            window?.rootViewController = SocialLoginViewController(appleSignInUseCase: appleSignInUseCase, kakaoSignInUseCase: kakaoSignInUseCase, userUseCase: userUseCase)
             window?.makeKeyAndVisible()
         }
     }

@@ -7,7 +7,7 @@
 
 import UIKit
 
-public class PrayRequest {
+public class PrayRequest: Codable {
     public let date: Date
     public var title: String
     public var items: [PrayItem]
@@ -52,7 +52,7 @@ public class PrayRequest {
     ]
 }
 
-public struct PrayItem: Equatable {
+public struct PrayItem: Equatable, Codable {
     public let name: String
     public let content: String
     
@@ -62,7 +62,7 @@ public struct PrayItem: Equatable {
     }
 }
 
-public enum PrayCategory: String, CaseIterable {
+public enum PrayCategory: String, CaseIterable, Codable {
     case church = "교회"
     case personal = "개인"
     case intercession = "중보"

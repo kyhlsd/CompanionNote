@@ -218,7 +218,7 @@ final class PrayEditorView: UIView {
         return prayItemTextView.text
     }
     
-    func getEditedPrayRequest() -> PrayRequest {
+    func getPrayRequest() -> PrayRequest {
         return PrayRequest(date: Date(), title: titleTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "", items: PrayItemUtils.convertToPrayItem(with: prayItemTextView.text), category: PrayCategory.allCases[ categorySelectorView.selectedIndex])
     }
 }

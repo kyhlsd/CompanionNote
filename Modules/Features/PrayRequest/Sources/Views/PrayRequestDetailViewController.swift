@@ -228,7 +228,7 @@ final class PrayRequestDetailViewController: UIViewController {
     }
     
     func completeButtonTapped() {
-        let editedPrayRequest = prayEditorView.getEditedPrayRequest()
+        let editedPrayRequest = prayEditorView.getPrayRequest()
         
         // 변경 사항이 있을 때만 update
         if prayRequest.title != editedPrayRequest.title || prayRequest.items != editedPrayRequest.items || prayRequest.category != editedPrayRequest.category {

@@ -14,18 +14,18 @@ public class SocialLoginViewController: UIViewController {
     
     private let appleSignInUseCase: AppleSignInUseCase
     private let kakaoSignInUseCase: KakaoSignInUseCase
-    private let firestoreUseCase: FirestoreUseCase
+    private let userUseCase: UserUseCase
     private let userDefaults: UserDefaults
     
     public init(
         appleSignInUseCase: AppleSignInUseCase,
         kakaoSignInUseCase: KakaoSignInUseCase,
-        firestoreUseCase: FirestoreUseCase,
+        userUseCase: UserUseCase,
         userDefaults: UserDefaults = .standard
     ) {
         self.appleSignInUseCase = appleSignInUseCase
         self.kakaoSignInUseCase = kakaoSignInUseCase
-        self.firestoreUseCase = firestoreUseCase
+        self.userUseCase = userUseCase
         self.userDefaults = userDefaults
         super.init(nibName: nil, bundle: nil)
     }
@@ -109,8 +109,8 @@ public class SocialLoginViewController: UIViewController {
                 guard let anchor = self.view.window else { return }
                 let userIdentifier = try await appleSignInUseCase.execute(presentationAnchor: anchor)
                 
-                let userExists = try await firestoreUseCase.checkIfUserExists(userId: userIdentifier)
-                let success = userExists ? true : await firestoreUseCase.createUserData(userId: userIdentifier)
+                let userExists = try await userUseCase.userExists(userId: userIdentifier)
+                let success = userExists ? true : await userUseCase.createUser(userId: userIdentifier)
                 
                 // 서버에 UserIdentifier가 저장되어 있는 경우에만 UserDefaults에 저장, 로그인 처리
                 if success {
@@ -130,8 +130,8 @@ public class SocialLoginViewController: UIViewController {
             do {
                 let userIdentifier = try await kakaoSignInUseCase.execute()
                 
-                let userExists = try await firestoreUseCase.checkIfUserExists(userId: userIdentifier)
-                let success = userExists ? true : await firestoreUseCase.createUserData(userId: userIdentifier)
+                let userExists = try await userUseCase.userExists(userId: userIdentifier)
+                let success = userExists ? true : await userUseCase.createUser(userId: userIdentifier)
                 
                 // 서버에 UserIdentifier가 저장되어 있는 경우에만 UserDefaults에 저장, 로그인 처리
                 if success {

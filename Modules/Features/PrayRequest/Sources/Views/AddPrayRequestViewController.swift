@@ -11,6 +11,8 @@ import Shared
 
 final class AddPrayRequestViewController: UIViewController {
     
+    private let viewModel: PrayRequestViewModel
+    
     let prayContainerView = CellContainerView()
     let prayEditorView = PrayEditorView()
     
@@ -22,6 +24,15 @@ final class AddPrayRequestViewController: UIViewController {
         setupDelegate()
         setupTapGesture()
         setupNotificationCenter()
+    }
+    
+    init(viewModel: PrayRequestViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     deinit {
@@ -47,7 +58,11 @@ final class AddPrayRequestViewController: UIViewController {
         button.titleLabel?.font = Shared.AppFonts.navBarButtonText
         button.addAction(UIAction() { [weak self] _ in
             guard let self = self else { return }
-            let _ = PrayItemUtils.convertToPrayItem(with: self.prayEditorView.getPrayItemText())
+            let prayRequest = prayEditorView.getPrayRequest()
+            Task {
+                await self.viewModel.addPrayRequest(prayRequest: prayRequest)
+                self.navigationController?.popViewController(animated: true)
+            }
         }, for: .touchUpInside)
         
         navigationItem.titleView = label

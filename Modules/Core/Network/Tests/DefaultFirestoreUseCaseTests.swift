@@ -12,58 +12,58 @@ final class DefaultFirestoreUseCaseTests: XCTestCase {
     
     func test_checkIfUserExists_returnsTrue() async throws {
         // Given
-        let mockService = MockFirestoreService()
-        mockService.shouldUserExist = true
-        let useCase = DefaultFirestoreUseCase(firestoreService: mockService)
+        let mockRepository = MockUserRepository()
+        mockRepository.shouldUserExist = true
+        let useCase = DefaultUserUseCase(userRepository: mockRepository)
         
         // When
-        let exists = try await useCase.checkIfUserExists(userId: "testUser")
+        let exists = try await useCase.userExists(userId: "testUser")
         
         // Then
         XCTAssertTrue(exists)
     }
     
     func test_checkIfUserExists_returnsFalse() async throws {
-        let mockService = MockFirestoreService()
-        mockService.shouldUserExist = false
-        let useCase = DefaultFirestoreUseCase(firestoreService: mockService)
+        let mockRepository = MockUserRepository()
+        mockRepository.shouldUserExist = false
+        let useCase = DefaultUserUseCase(userRepository: mockRepository)
         
-        let exists = try await useCase.checkIfUserExists(userId: "testUser")
+        let exists = try await useCase.userExists(userId: "testUser")
         
         XCTAssertFalse(exists)
     }
     
     func test_createUserData_returnsTrue() async {
-        let mockService = MockFirestoreService()
-        mockService.shouldCreateUserSucceed = true
-        let useCase = DefaultFirestoreUseCase(firestoreService: mockService)
+        let mockRepository = MockUserRepository()
+        mockRepository.shouldCreateUserSucceed = true
+        let useCase = DefaultUserUseCase(userRepository: mockRepository)
         
-        let result = await useCase.createUserData(userId: "testUser")
+        let result = await useCase.createUser(userId: "testUser")
         
         XCTAssertTrue(result)
     }
     
     func test_createUserData_returnsFalse() async {
-        let mockService = MockFirestoreService()
-        mockService.shouldCreateUserSucceed = false
-        let useCase = DefaultFirestoreUseCase(firestoreService: mockService)
+        let mockRepository = MockUserRepository()
+        mockRepository.shouldCreateUserSucceed = false
+        let useCase = DefaultUserUseCase(userRepository: mockRepository)
         
-        let result = await useCase.createUserData(userId: "testUser")
+        let result = await useCase.createUser(userId: "testUser")
         
         XCTAssertFalse(result)
     }
 }
 
 
-final class MockFirestoreService: FirestoreServiceProtocol {
-    var shouldUserExist = false
-    var shouldCreateUserSucceed = true
-    
-    func checkIfUserExists(userId: String) async throws -> Bool {
+final class MockUserRepository: UserRepository {
+    var shouldUserExist: Bool = false
+    var shouldCreateUserSucceed: Bool = true
+
+    func userExists(userId: String) async throws -> Bool {
         return shouldUserExist
     }
-    
-    func createUserData(userId: String) async -> Bool {
+
+    func createUser(userId: String) async -> Bool {
         return shouldCreateUserSucceed
     }
 }

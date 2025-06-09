@@ -25,7 +25,7 @@ final class SocialLoginViewControllerTests: XCTestCase {
         let sut = SocialLoginViewController(
             appleSignInUseCase: mockApple,
             kakaoSignInUseCase: MockKakaoSignInUseCase(),  // dummy
-            firestoreUseCase: mockFirestore,
+            userUseCase: mockFirestore,
             userDefaults: testUserDefaults
         )
         
@@ -63,7 +63,7 @@ final class SocialLoginViewControllerTests: XCTestCase {
         let sut = SocialLoginViewController(
             appleSignInUseCase: MockAppleSignInUseCase(),
             kakaoSignInUseCase: mockKakao,
-            firestoreUseCase: mockFirestore,
+            userUseCase: mockFirestore,
             userDefaults: testUserDefaults
         )
         
@@ -97,7 +97,7 @@ final class SocialLoginViewControllerTests: XCTestCase {
         let sut = SpySocialLoginViewController(
             appleSignInUseCase: FailingAppleSignInUseCase(),
             kakaoSignInUseCase: MockKakaoSignInUseCase(),
-            firestoreUseCase: MockFirestoreUseCase(),
+            userUseCase: MockFirestoreUseCase(),
             userDefaults: testUserDefaults
         )
 
@@ -134,7 +134,7 @@ final class SocialLoginViewControllerTests: XCTestCase {
         let sut = SpySocialLoginViewController(
             appleSignInUseCase: mockApple,
             kakaoSignInUseCase: MockKakaoSignInUseCase(),
-            firestoreUseCase: mockFirestore,
+            userUseCase: mockFirestore,
             userDefaults: testUserDefaults
         )
 
@@ -170,7 +170,7 @@ final class SocialLoginViewControllerTests: XCTestCase {
         let sut = SpySocialLoginViewController(
             appleSignInUseCase: MockAppleSignInUseCase(),
             kakaoSignInUseCase: FailingKakaoSignInUseCase(),
-            firestoreUseCase: MockFirestoreUseCase(),
+            userUseCase: MockFirestoreUseCase(),
             userDefaults: testUserDefaults
         )
         
@@ -206,7 +206,7 @@ final class SocialLoginViewControllerTests: XCTestCase {
         let sut = SpySocialLoginViewController(
             appleSignInUseCase: MockAppleSignInUseCase(),
             kakaoSignInUseCase: mockKakao,
-            firestoreUseCase: mockFirestore,
+            userUseCase: mockFirestore,
             userDefaults: testUserDefaults
         )
 
@@ -248,17 +248,17 @@ final class MockKakaoSignInUseCase: KakaoSignInUseCase {
     }
 }
 
-final class MockFirestoreUseCase: FirestoreUseCase {
+final class MockFirestoreUseCase: UserUseCase {
     var shouldUserExist = false
     var createUserResult = true
     var checkedUserId: String?
     
-    func checkIfUserExists(userId: String) async throws -> Bool {
+    func userExists(userId: String) async throws -> Bool {
         checkedUserId = userId
         return shouldUserExist
     }
 
-    func createUserData(userId: String) async -> Bool {
+    func createUser(userId: String) async -> Bool {
         checkedUserId = userId
         return createUserResult
     }

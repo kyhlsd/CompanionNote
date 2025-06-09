@@ -14,7 +14,7 @@ final class AddPrayRequestViewControllerTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        sut = AddPrayRequestViewController()
+        sut = AddPrayRequestViewController(viewModel: PrayRequestViewModel())
         sut.loadViewIfNeeded()  // viewDidLoad 호출
     }
     
