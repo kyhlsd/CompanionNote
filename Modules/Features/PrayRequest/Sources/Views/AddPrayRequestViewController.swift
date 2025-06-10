@@ -9,9 +9,9 @@ import UIKit
 import Core
 import Shared
 
-final class AddPrayRequestViewController: UIViewController {
+class AddPrayRequestViewController: UIViewController {
     
-    private let viewModel: PrayRequestViewModel
+    private let viewModel: PrayRequestViewModelProtocol
     
     let prayContainerView = CellContainerView()
     let prayEditorView = PrayEditorView()
@@ -26,7 +26,7 @@ final class AddPrayRequestViewController: UIViewController {
         setupNotificationCenter()
     }
     
-    init(viewModel: PrayRequestViewModel) {
+    init(viewModel: PrayRequestViewModelProtocol) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
@@ -60,8 +60,12 @@ final class AddPrayRequestViewController: UIViewController {
             guard let self = self else { return }
             let prayRequest = prayEditorView.getPrayRequest()
             Task {
-                await self.viewModel.addPrayRequest(prayRequest: prayRequest)
-                self.navigationController?.popViewController(animated: true)
+                do {
+                    try await self.viewModel.addPrayRequest(prayRequest: prayRequest)
+                    self.navigationController?.popViewController(animated: true)
+                } catch {
+                    self.presentErrorAlert(for: error)
+                }
             }
         }, for: .touchUpInside)
         
@@ -145,6 +149,32 @@ final class AddPrayRequestViewController: UIViewController {
 
         prayEditorView.updateBottomConstraint(animationDuration: animationDuration)
         prayEditorView.moveView(up: false, animationDuration: animationDuration)
+    }
+    
+    // MARK: Error Alert
+    func presentErrorAlert(for error: Error) {
+        let message = FirestoreErrorMapper.message(for: error)
+        
+        let alert = UIAlertController(
+            title: nil,
+            message: message,
+            preferredStyle: .alert
+        )
+        
+        let title = NSAttributedString(
+            string: "저장 실패",
+            attributes: [
+                .foregroundColor: UIColor.red,
+                .font: UIFont.boldSystemFont(ofSize: 17)
+            ]
+        )
+        
+        alert.setValue(title, forKey: "attributedTitle")
+        alert.addAction(UIAlertAction(title: "닫기", style: .default))
+        
+        DispatchQueue.main.async {
+            self.present(alert, animated: true)
+        }
     }
 }
 

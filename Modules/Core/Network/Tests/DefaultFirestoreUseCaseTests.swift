@@ -32,38 +32,18 @@ final class DefaultFirestoreUseCaseTests: XCTestCase {
         
         XCTAssertFalse(exists)
     }
-    
-    func test_createUserData_returnsTrue() async {
-        let mockRepository = MockUserRepository()
-        mockRepository.shouldCreateUserSucceed = true
-        let useCase = DefaultUserUseCase(userRepository: mockRepository)
-        
-        let result = await useCase.createUser(userId: "testUser")
-        
-        XCTAssertTrue(result)
-    }
-    
-    func test_createUserData_returnsFalse() async {
-        let mockRepository = MockUserRepository()
-        mockRepository.shouldCreateUserSucceed = false
-        let useCase = DefaultUserUseCase(userRepository: mockRepository)
-        
-        let result = await useCase.createUser(userId: "testUser")
-        
-        XCTAssertFalse(result)
-    }
 }
 
 
 final class MockUserRepository: UserRepository {
+    
     var shouldUserExist: Bool = false
-    var shouldCreateUserSucceed: Bool = true
 
     func userExists(userId: String) async throws -> Bool {
         return shouldUserExist
     }
 
-    func createUser(userId: String) async -> Bool {
-        return shouldCreateUserSucceed
+    func createUser(userId: String) async throws {
+        return
     }
 }

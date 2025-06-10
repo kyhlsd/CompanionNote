@@ -25,19 +25,23 @@ public final class FirestoreService {
         try db.collection(collection).document(document).setData(from: data)
     }
     
-    public func setDocument(collection: String, documentId: String, data: [String: Any]) async throws {
-        try await db.collection(collection).document(documentId).setData(data)
+    public func setDocument(collection: String, document: String, data: [String: Any]) async throws {
+        try await db.collection(collection).document(document).setData(data)
+    }
+    
+    public func setDocumentInCollection<T: Encodable>(firstCollection: String, firstDocument: String, secondCollection: String, secondDocument: String, data: T) async throws {
+        try db.collection(firstCollection).document(firstDocument).collection(secondCollection).document(secondDocument).setData(from: data)
     }
 }
 
 // MARK: Repositories
 public protocol UserRepository {
     func userExists(userId: String) async throws -> Bool
-    func createUser(userId: String) async -> Bool
+    func createUser(userId: String) async throws
 }
 
 public protocol PrayRequestRepository {
-    func addPrayRequest(userId: String, prayRequest: PrayRequest) async
+    func addPrayRequest(userId: String, prayRequest: PrayRequest) async throws
 }
 
 // MARK: RepositoryImplements
@@ -52,15 +56,9 @@ public final class UserRepositoryImpl: UserRepository {
         return try await firestoreService.checkIfDocumentExists(collection: "Users", document: userId)
     }
 
-    public func createUser(userId: String) async -> Bool {
+    public func createUser(userId: String) async throws {
         let data = ["userIdentifier": userId]
-        do {
-            try await firestoreService.setDocument(collection: "Users", documentId: userId, data: data)
-            return true
-        } catch {
-            print("Failed to create user: \(error)")
-            return false
-        }
+        try await firestoreService.setDocument(collection: "Users", document: userId, data: data)
     }
 }
 
@@ -71,19 +69,15 @@ public final class PrayRequestRepositoryImpl: PrayRequestRepository {
         self.firestoreService = firestoreService
     }
 
-    public func addPrayRequest(userId: String, prayRequest: PrayRequest) async {
-        do {
-            try await firestoreService.setDocument(collection: "Prayers", document: userId, data: prayRequest)
-        } catch {
-            print("Failed to add prayer request: \(error)")
-        }
+    public func addPrayRequest(userId: String, prayRequest: PrayRequest) async throws {
+        try await firestoreService.setDocumentInCollection(firstCollection: "Prayers", firstDocument: userId, secondCollection: "Prayers", secondDocument: prayRequest.uuid.uuidString, data: prayRequest)
     }
 }
 
 // MARK: UseCases
 public protocol UserUseCase {
     func userExists(userId: String) async throws -> Bool
-    func createUser(userId: String) async -> Bool
+    func createUser(userId: String) async throws
 }
 
 public final class DefaultUserUseCase: UserUseCase {
@@ -97,13 +91,13 @@ public final class DefaultUserUseCase: UserUseCase {
         return try await userRepository.userExists(userId: userId)
     }
 
-    public func createUser(userId: String) async -> Bool {
-        return await userRepository.createUser(userId: userId)
+    public func createUser(userId: String) async throws {
+        return try await userRepository.createUser(userId: userId)
     }
 }
 
 public protocol PrayRequestUseCase {
-    func addPrayRequest(userId: String, prayRequest: PrayRequest) async
+    func addPrayRequest(userId: String, prayRequest: PrayRequest) async throws
 }
 
 public final class DefaultPrayRequestUseCase: PrayRequestUseCase {
@@ -113,8 +107,8 @@ public final class DefaultPrayRequestUseCase: PrayRequestUseCase {
         self.repository = repository
     }
 
-    public func addPrayRequest(userId: String, prayRequest: PrayRequest) async {
-        await repository.addPrayRequest(userId: userId, prayRequest: prayRequest)
+    public func addPrayRequest(userId: String, prayRequest: PrayRequest) async throws {
+        try await repository.addPrayRequest(userId: userId, prayRequest: prayRequest)
     }
 }
 

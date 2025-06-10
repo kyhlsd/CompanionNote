@@ -8,7 +8,7 @@
 import Foundation
 import Core
 
-final class PrayRequestViewModel {
+final class PrayRequestViewModel: PrayRequestViewModelProtocol {
     let userIdentifier: String?
     let prayRequestUseCase: PrayRequestUseCase
     
@@ -19,9 +19,12 @@ final class PrayRequestViewModel {
         self.prayRequestUseCase = DefaultPrayRequestUseCase(repository: prayRequestRepository)
     }
     
-    func addPrayRequest(prayRequest: PrayRequest) async {
+    func addPrayRequest(prayRequest: PrayRequest) async throws {
         guard let userIdentifier = userIdentifier else { return }
-        
-        await prayRequestUseCase.addPrayRequest(userId: userIdentifier, prayRequest: prayRequest)
+        try await prayRequestUseCase.addPrayRequest(userId: userIdentifier, prayRequest: prayRequest)
     }
+}
+
+protocol PrayRequestViewModelProtocol {
+    func addPrayRequest(prayRequest: PrayRequest) async throws
 }

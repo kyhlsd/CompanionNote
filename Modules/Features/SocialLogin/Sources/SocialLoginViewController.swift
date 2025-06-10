@@ -109,15 +109,12 @@ public class SocialLoginViewController: UIViewController {
                 guard let anchor = self.view.window else { return }
                 let userIdentifier = try await appleSignInUseCase.execute(presentationAnchor: anchor)
                 
-                let userExists = try await userUseCase.userExists(userId: userIdentifier)
-                let success = userExists ? true : await userUseCase.createUser(userId: userIdentifier)
-                
                 // 서버에 UserIdentifier가 저장되어 있는 경우에만 UserDefaults에 저장, 로그인 처리
-                if success {
+                let userExists = try await userUseCase.userExists(userId: userIdentifier)
+                if userExists {
+                    try await userUseCase.createUser(userId: userIdentifier)
                     userDefaults.set(userIdentifier, forKey: "userId")
                     presentTabBarController()
-                } else {
-                    presentLoginFailAlert()
                 }
             } catch {
                 presentLoginFailAlert()
@@ -130,17 +127,13 @@ public class SocialLoginViewController: UIViewController {
             do {
                 let userIdentifier = try await kakaoSignInUseCase.execute()
                 
-                let userExists = try await userUseCase.userExists(userId: userIdentifier)
-                let success = userExists ? true : await userUseCase.createUser(userId: userIdentifier)
-                
                 // 서버에 UserIdentifier가 저장되어 있는 경우에만 UserDefaults에 저장, 로그인 처리
-                if success {
+                let userExists = try await userUseCase.userExists(userId: userIdentifier)
+                if userExists {
+                    try await userUseCase.createUser(userId: userIdentifier)
                     userDefaults.set(userIdentifier, forKey: "userId")
                     presentTabBarController()
-                } else {
-                    presentLoginFailAlert()
                 }
-                
             } catch {
                 presentLoginFailAlert()
             }

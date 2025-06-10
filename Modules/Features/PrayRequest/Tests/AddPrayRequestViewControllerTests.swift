@@ -7,6 +7,7 @@
 
 import XCTest
 @testable import Features
+@testable import Core
 
 final class AddPrayRequestViewControllerTests: XCTestCase {
     
@@ -14,7 +15,7 @@ final class AddPrayRequestViewControllerTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        sut = AddPrayRequestViewController(viewModel: PrayRequestViewModel())
+        sut = AddPrayRequestViewController(viewModel: MockViewModel())
         sut.loadViewIfNeeded()  // viewDidLoad 호출
     }
     
@@ -79,4 +80,83 @@ final class AddPrayRequestViewControllerTests: XCTestCase {
         
         // 테스트는 호출 시 에러 발생 안하는지 확인용
     }
+    
+    @MainActor
+    func test_addPrayRequest_success_shouldPopViewController() async {
+        let mockViewModel = MockViewModel()
+        mockViewModel.shouldSucceed = true
+
+        let sut = SpyAddPrayRequestViewController(viewModel: mockViewModel)
+        let spyNav = SpyNavigationController(rootViewController: sut)
+        sut.loadViewIfNeeded()
+
+        // 강제적으로 입력값이 유효하다고 설정
+        sut.prayEditorView.isAllTextsValid = true
+        sut.updateRightBarButtonEnabled()
+
+        // 버튼을 탭한 것처럼 시뮬레이션
+        let button = sut.navigationItem.rightBarButtonItem?.customView as? UIButton
+        button?.sendActions(for: .touchUpInside)
+
+        // 비동기 작업 완료 대기
+        try? await Task.sleep(nanoseconds: 100_000_000)
+
+        XCTAssertTrue(mockViewModel.addPrayRequestCalled)
+        XCTAssertTrue(spyNav.didPopViewController)
+        XCTAssertFalse(sut.errorPresented)
+    }
+    
+    @MainActor
+    func test_addPrayRequest_failure_shouldPresentErrorAlert() async {
+        let mockViewModel = MockViewModel()
+        mockViewModel.shouldSucceed = false
+
+        let sut = SpyAddPrayRequestViewController(viewModel: mockViewModel)
+        let spyNav = SpyNavigationController(rootViewController: sut)
+        sut.loadViewIfNeeded()
+
+        // 유효성 통과
+        sut.prayEditorView.isAllTextsValid = true
+        sut.updateRightBarButtonEnabled()
+
+        let button = sut.navigationItem.rightBarButtonItem?.customView as? UIButton
+        button?.sendActions(for: .touchUpInside)
+
+        try? await Task.sleep(nanoseconds: 100_000_000)
+
+        XCTAssertTrue(mockViewModel.addPrayRequestCalled)
+        XCTAssertFalse(spyNav.didPopViewController)
+        XCTAssertTrue(sut.errorPresented)
+    }
+
+    
+    final class MockViewModel: PrayRequestViewModelProtocol {
+        var shouldSucceed = true
+        var addPrayRequestCalled = false
+        
+        func addPrayRequest(prayRequest: PrayRequest) async throws {
+            addPrayRequestCalled = true
+            if !shouldSucceed {
+                throw NSError(domain: "TestError", code: 999, userInfo: nil)
+            }
+        }
+    }
+    
+    final class SpyNavigationController: UINavigationController {
+        private(set) var didPopViewController = false
+        
+        override func popViewController(animated: Bool) -> UIViewController? {
+            didPopViewController = true
+            return super.popViewController(animated: animated)
+        }
+    }
+    
+    final class SpyAddPrayRequestViewController: AddPrayRequestViewController {
+        var errorPresented = false
+        
+        override func presentErrorAlert(for error: Error) {
+            errorPresented = true
+        }
+    }
+
 }

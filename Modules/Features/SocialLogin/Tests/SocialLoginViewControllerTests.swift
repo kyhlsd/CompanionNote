@@ -258,9 +258,9 @@ final class MockFirestoreUseCase: UserUseCase {
         return shouldUserExist
     }
 
-    func createUser(userId: String) async -> Bool {
+    func createUser(userId: String) async throws {
         checkedUserId = userId
-        return createUserResult
+        return
     }
 }
 
