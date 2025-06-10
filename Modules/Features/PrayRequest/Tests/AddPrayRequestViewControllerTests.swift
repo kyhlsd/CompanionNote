@@ -140,6 +140,10 @@ final class AddPrayRequestViewControllerTests: XCTestCase {
                 throw NSError(domain: "TestError", code: 999, userInfo: nil)
             }
         }
+        
+        func fetchPrayRequests() async throws -> [Core.PrayRequest] {
+            return []
+        }
     }
     
     final class SpyNavigationController: UINavigationController {

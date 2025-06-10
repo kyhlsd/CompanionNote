@@ -164,7 +164,7 @@ public class SocialLoginViewController: UIViewController {
     }
     
     private func presentTabBarController() {
-        let firstViewController = UINavigationController(rootViewController: PrayRequestViewController())
+        let firstViewController = UINavigationController(rootViewController: PrayRequestViewController(viewModel: PrayRequestViewModel()))
         let secondViewController = UIViewController()
         firstViewController.tabBarItem = UITabBarItem(title: "신앙 일기", image: UIImage(systemName: "map"), tag: 0)
         secondViewController.tabBarItem = UITabBarItem(title: "기도 제목", image: UIImage(systemName: "map"), tag: 1)

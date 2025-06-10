@@ -15,7 +15,7 @@ final class PrayRequestViewControllerTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        sut = PrayRequestViewController()
+        sut = PrayRequestViewController(viewModel: MockViewModel())
         sut.loadViewIfNeeded()
     }
 
@@ -107,5 +107,14 @@ final class PrayRequestViewControllerTests: XCTestCase {
 
         // Then
         // TODO: 로그 확인 대신 실제 필터 적용되면 해당 부분 테스트
+    }
+    
+    final class MockViewModel: PrayRequestViewModelProtocol {
+        
+        func addPrayRequest(prayRequest: PrayRequest) async throws {}
+        
+        func fetchPrayRequests() async throws -> [Core.PrayRequest] {
+            return []
+        }
     }
 }

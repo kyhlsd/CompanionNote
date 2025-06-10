@@ -15,22 +15,31 @@ public final class FirestoreService {
     
     private let db = Firestore.firestore()
     
-    public func checkIfDocumentExists(collection: String, document: String) async throws -> Bool {
+    func checkIfDocumentExists(collection: String, document: String) async throws -> Bool {
         let docRef = db.collection(collection).document(document)
         let document = try await docRef.getDocument()
         return document.exists
     }
     
-    public func setDocument<T: Encodable>(collection: String, document: String, data: T) async throws {
+    func setDocument<T: Encodable>(collection: String, document: String, data: T) async throws {
         try db.collection(collection).document(document).setData(from: data)
     }
     
-    public func setDocument(collection: String, document: String, data: [String: Any]) async throws {
+    func setDocument(collection: String, document: String, data: [String: Any]) async throws {
         try await db.collection(collection).document(document).setData(data)
     }
     
-    public func setDocumentInCollection<T: Encodable>(firstCollection: String, firstDocument: String, secondCollection: String, secondDocument: String, data: T) async throws {
+    func setDocumentInCollection<T: Encodable>(firstCollection: String, firstDocument: String, secondCollection: String, secondDocument: String, data: T) async throws {
         try db.collection(firstCollection).document(firstDocument).collection(secondCollection).document(secondDocument).setData(from: data)
+    }
+    
+    func fetchDocumentsInCollection<T: Decodable>(firstCollection: String, document: String, secondCollection: String) async throws -> [T] {
+        let docRef = db.collection(firstCollection).document(document).collection(secondCollection)
+        let snapshot = try await docRef.getDocuments()
+        let datas: [T] = try snapshot.documents.map { document in
+            try document.data(as: T.self)
+        }
+        return datas
     }
 }
 
@@ -42,6 +51,7 @@ public protocol UserRepository {
 
 public protocol PrayRequestRepository {
     func addPrayRequest(userId: String, prayRequest: PrayRequest) async throws
+    func fetchPrayRequests(userId: String) async throws -> [PrayRequest]
 }
 
 // MARK: RepositoryImplements
@@ -72,6 +82,10 @@ public final class PrayRequestRepositoryImpl: PrayRequestRepository {
     public func addPrayRequest(userId: String, prayRequest: PrayRequest) async throws {
         try await firestoreService.setDocumentInCollection(firstCollection: "Prayers", firstDocument: userId, secondCollection: "Prayers", secondDocument: prayRequest.uuid.uuidString, data: prayRequest)
     }
+    
+    public func fetchPrayRequests(userId: String) async throws -> [PrayRequest] {
+        return try await firestoreService.fetchDocumentsInCollection(firstCollection: "Prayers", document: userId, secondCollection: "Prayers")
+    }
 }
 
 // MARK: UseCases
@@ -98,6 +112,7 @@ public final class DefaultUserUseCase: UserUseCase {
 
 public protocol PrayRequestUseCase {
     func addPrayRequest(userId: String, prayRequest: PrayRequest) async throws
+    func fetchPrayRequests(userId: String) async throws -> [PrayRequest]
 }
 
 public final class DefaultPrayRequestUseCase: PrayRequestUseCase {
@@ -109,6 +124,10 @@ public final class DefaultPrayRequestUseCase: PrayRequestUseCase {
 
     public func addPrayRequest(userId: String, prayRequest: PrayRequest) async throws {
         try await repository.addPrayRequest(userId: userId, prayRequest: prayRequest)
+    }
+    
+    public func fetchPrayRequests(userId: String) async throws -> [PrayRequest] {
+        return try await repository.fetchPrayRequests(userId: userId)
     }
 }
 

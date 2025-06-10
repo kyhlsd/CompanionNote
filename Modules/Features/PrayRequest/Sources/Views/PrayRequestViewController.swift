@@ -9,7 +9,13 @@ import UIKit
 import Core
 import Shared
 
+protocol ReloadDataDelegate: AnyObject {
+    func fetchData()
+}
+
 final public class PrayRequestViewController: UIViewController {
+    
+    private let viewModel: PrayRequestViewModelProtocol
     
     let plusBarButtonItem = UIBarButtonItem()
     let deleteBarButtonItem = UIBarButtonItem()
@@ -18,7 +24,7 @@ final public class PrayRequestViewController: UIViewController {
     private let praySearchBar = CustomSearchBar()
     let prayRequestCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     
-    private let prayRequests = PrayRequest.dummyDatas
+    private var prayRequests = [PrayRequest]()
     var isDeleteMode = false
     
     public override func viewDidLoad() {
@@ -29,13 +35,22 @@ final public class PrayRequestViewController: UIViewController {
         setupButtonActions()
         setupDelegate()
         setupTapGesture()
+        
+        fetchData()
+    }
+    
+    public init(viewModel: PrayRequestViewModelProtocol) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setupNavBarTapGesture()
-        //TODO: firestore snapshot을 쓴다면 안해도 될지도. 테스트
-        prayRequestCollectionView.reloadData()
     }
     
     public override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
@@ -196,7 +211,8 @@ final public class PrayRequestViewController: UIViewController {
     
     // MARK: Button Actions
     private func plusButtonTapped() {
-        let addPrayRequestViewController = AddPrayRequestViewController(viewModel: PrayRequestViewModel())
+        let addPrayRequestViewController = AddPrayRequestViewController(viewModel: viewModel)
+        addPrayRequestViewController.delegate = self
         self.navigationController?.pushViewController(addPrayRequestViewController, animated: true)
     }
     
@@ -228,6 +244,32 @@ final public class PrayRequestViewController: UIViewController {
     // MARK: Gesture Actions
     @objc private func dismissKeyboard() {
         view.endEditing(true)
+    }
+    
+    // MARK: Error Alert
+    func presentErrorAlert(for error: Error, title: String) {
+        let message = FirestoreErrorMapper.message(for: error)
+        
+        let alert = UIAlertController(
+            title: nil,
+            message: message,
+            preferredStyle: .alert
+        )
+        
+        let title = NSAttributedString(
+            string: title,
+            attributes: [
+                .foregroundColor: UIColor.red,
+                .font: UIFont.boldSystemFont(ofSize: 17)
+            ]
+        )
+        
+        alert.setValue(title, forKey: "attributedTitle")
+        alert.addAction(UIAlertAction(title: "닫기", style: .default))
+        
+        DispatchQueue.main.async {
+            self.present(alert, animated: true)
+        }
     }
 }
 
@@ -273,6 +315,7 @@ extension PrayRequestViewController: UICollectionViewDataSource, UICollectionVie
         } else { // 기본 모드일 때 상세보기
             let selectedPrayRequest = prayRequests[indexPath.row]
             let prayRequestDetailViewController = PrayRequestDetailViewController(with: selectedPrayRequest)
+            prayRequestDetailViewController.delegate = self
             self.navigationController?.pushViewController(prayRequestDetailViewController, animated: true)
         }
     }
@@ -296,5 +339,18 @@ extension PrayRequestViewController: SelectCategoryDelegate {
     public func didSelectCategory(_ index: Int) {
         let categories = ["전체"] + PrayCategory.allCases.map { $0.rawValue }
         print(categories[index])
+    }
+}
+
+extension PrayRequestViewController: ReloadDataDelegate {
+    func fetchData() {
+        Task {
+            do {
+                prayRequests = try await viewModel.fetchPrayRequests()
+                prayRequestCollectionView.reloadData()
+            } catch {
+                presentErrorAlert(for: error, title: "불러오기 실패")
+            }
+        }
     }
 }
