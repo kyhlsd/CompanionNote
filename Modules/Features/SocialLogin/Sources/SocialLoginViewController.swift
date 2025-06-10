@@ -14,18 +14,18 @@ public class SocialLoginViewController: UIViewController {
     
     private let appleSignInUseCase: AppleSignInUseCase
     private let kakaoSignInUseCase: KakaoSignInUseCase
-    private let firestoreUseCase: FirestoreUseCase
+    private let userUseCase: UserUseCase
     private let userDefaults: UserDefaults
     
     public init(
         appleSignInUseCase: AppleSignInUseCase,
         kakaoSignInUseCase: KakaoSignInUseCase,
-        firestoreUseCase: FirestoreUseCase,
+        userUseCase: UserUseCase,
         userDefaults: UserDefaults = .standard
     ) {
         self.appleSignInUseCase = appleSignInUseCase
         self.kakaoSignInUseCase = kakaoSignInUseCase
-        self.firestoreUseCase = firestoreUseCase
+        self.userUseCase = userUseCase
         self.userDefaults = userDefaults
         super.init(nibName: nil, bundle: nil)
     }
@@ -109,16 +109,13 @@ public class SocialLoginViewController: UIViewController {
                 guard let anchor = self.view.window else { return }
                 let userIdentifier = try await appleSignInUseCase.execute(presentationAnchor: anchor)
                 
-                let userExists = try await firestoreUseCase.checkIfUserExists(userId: userIdentifier)
-                let success = userExists ? true : await firestoreUseCase.createUserData(userId: userIdentifier)
-                
                 // 서버에 UserIdentifier가 저장되어 있는 경우에만 UserDefaults에 저장, 로그인 처리
-                if success {
-                    userDefaults.set(userIdentifier, forKey: "userId")
-                    presentTabBarController()
-                } else {
-                    presentLoginFailAlert()
+                let userExists = try await userUseCase.userExists(userId: userIdentifier)
+                if !userExists {
+                    try await userUseCase.createUser(userId: userIdentifier)
                 }
+                userDefaults.set(userIdentifier, forKey: "userId")
+                presentTabBarController()
             } catch {
                 presentLoginFailAlert()
             }
@@ -130,24 +127,20 @@ public class SocialLoginViewController: UIViewController {
             do {
                 let userIdentifier = try await kakaoSignInUseCase.execute()
                 
-                let userExists = try await firestoreUseCase.checkIfUserExists(userId: userIdentifier)
-                let success = userExists ? true : await firestoreUseCase.createUserData(userId: userIdentifier)
-                
                 // 서버에 UserIdentifier가 저장되어 있는 경우에만 UserDefaults에 저장, 로그인 처리
-                if success {
-                    userDefaults.set(userIdentifier, forKey: "userId")
-                    presentTabBarController()
-                } else {
-                    presentLoginFailAlert()
+                let userExists = try await userUseCase.userExists(userId: userIdentifier)
+                if !userExists {
+                    try await userUseCase.createUser(userId: userIdentifier)
                 }
-                
+                userDefaults.set(userIdentifier, forKey: "userId")
+                presentTabBarController()
             } catch {
                 presentLoginFailAlert()
             }
         }
     }
     
-    private func presentLoginFailAlert() {
+    func presentLoginFailAlert() {
         let alert = UIAlertController(
             title: nil,
             message: "로그인에 실패했습니다.\n다시 시도해주세요.",
@@ -170,8 +163,8 @@ public class SocialLoginViewController: UIViewController {
         }
     }
     
-    private func presentTabBarController() {
-        let firstViewController = UINavigationController(rootViewController: PrayRequestViewController())
+    func presentTabBarController() {
+        let firstViewController = UINavigationController(rootViewController: PrayRequestViewController(viewModel: PrayRequestViewModel()))
         let secondViewController = UIViewController()
         firstViewController.tabBarItem = UITabBarItem(title: "신앙 일기", image: UIImage(systemName: "map"), tag: 0)
         secondViewController.tabBarItem = UITabBarItem(title: "기도 제목", image: UIImage(systemName: "map"), tag: 1)

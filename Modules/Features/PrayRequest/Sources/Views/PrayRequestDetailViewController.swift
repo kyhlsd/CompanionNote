@@ -10,7 +10,7 @@ import Core
 import Shared
 
 final class PrayRequestDetailViewController: UIViewController {
-
+    
     let prayRequest: PrayRequest
     
     let editBarButtonItem = UIBarButtonItem()
@@ -228,14 +228,14 @@ final class PrayRequestDetailViewController: UIViewController {
     }
     
     func completeButtonTapped() {
-        let editedPrayRequest = prayEditorView.getEditedPrayRequest()
+        let editedPrayRequest = prayEditorView.getPrayRequest()
         
         // 변경 사항이 있을 때만 update
         if prayRequest.title != editedPrayRequest.title || prayRequest.items != editedPrayRequest.items || prayRequest.category != editedPrayRequest.category {
             prayRequest.updateData(title: editedPrayRequest.title, items: editedPrayRequest.items, category: editedPrayRequest.category)
-            print("수정")
             
             updateUI()
+            
         }
         
         navigationItem.rightBarButtonItems = [

@@ -15,50 +15,119 @@ public final class FirestoreService {
     
     private let db = Firestore.firestore()
     
-    public func checkIfUserExists(userId: String) async throws -> Bool {
-        let docRef = db.collection("users").document(userId)
+    func checkIfDocumentExists(collection: String, document: String) async throws -> Bool {
+        let docRef = db.collection(collection).document(document)
         let document = try await docRef.getDocument()
         return document.exists
     }
     
-    public func createUserData(userId: String) async -> Bool {
-        let data = ["userIdentifier": userId]
-        do {
-            try await db.collection("Users").document(userId).setData(data)
-            return true
-        } catch {
-            print("Error writing document: \(error.localizedDescription)")
-            return false
+    func setDocument<T: Encodable>(collection: String, document: String, data: T) async throws {
+        try db.collection(collection).document(document).setData(from: data)
+    }
+    
+    func setDocument(collection: String, document: String, data: [String: Any]) async throws {
+        try await db.collection(collection).document(document).setData(data)
+    }
+    
+    func setDocumentInCollection<T: Encodable>(firstCollection: String, firstDocument: String, secondCollection: String, secondDocument: String, data: T) async throws {
+        try db.collection(firstCollection).document(firstDocument).collection(secondCollection).document(secondDocument).setData(from: data)
+    }
+    
+    func fetchDocumentsInCollection<T: Decodable>(firstCollection: String, document: String, secondCollection: String) async throws -> [T] {
+        let docRef = db.collection(firstCollection).document(document).collection(secondCollection)
+        let snapshot = try await docRef.getDocuments()
+        let datas: [T] = try snapshot.documents.map { document in
+            try document.data(as: T.self)
         }
+        return datas
     }
 }
 
-extension FirestoreService: FirestoreServiceProtocol {}
-
-// MARK: Protocols
-public protocol FirestoreServiceProtocol {
-    func checkIfUserExists(userId: String) async throws -> Bool
-    func createUserData(userId: String) async -> Bool
+// MARK: Repositories
+public protocol UserRepository {
+    func userExists(userId: String) async throws -> Bool
+    func createUser(userId: String) async throws
 }
 
-public protocol FirestoreUseCase {
-    func checkIfUserExists(userId: String) async throws -> Bool
-    func createUserData(userId: String) async -> Bool
+public protocol PrayRequestRepository {
+    func addPrayRequest(userId: String, prayRequest: PrayRequest) async throws
+    func fetchPrayRequests(userId: String) async throws -> [PrayRequest]
 }
 
-// MARK: UseCase
-public final class DefaultFirestoreUseCase: FirestoreUseCase {
-    private let firestoreService: FirestoreServiceProtocol
-    
-    public init(firestoreService: FirestoreServiceProtocol) {
+// MARK: RepositoryImplements
+public final class UserRepositoryImpl: UserRepository {
+    private let firestoreService: FirestoreService
+
+    public init(firestoreService: FirestoreService) {
         self.firestoreService = firestoreService
     }
-    
-    public func checkIfUserExists(userId: String) async throws -> Bool {
-        return try await firestoreService.checkIfUserExists(userId: userId)
+
+    public func userExists(userId: String) async throws -> Bool {
+        return try await firestoreService.checkIfDocumentExists(collection: "Users", document: userId)
     }
-    
-    public func createUserData(userId: String) async -> Bool {
-        return await firestoreService.createUserData(userId: userId)
+
+    public func createUser(userId: String) async throws {
+        let data = ["userIdentifier": userId]
+        try await firestoreService.setDocument(collection: "Users", document: userId, data: data)
     }
 }
+
+public final class PrayRequestRepositoryImpl: PrayRequestRepository {
+    private let firestoreService: FirestoreService
+
+    public init(firestoreService: FirestoreService) {
+        self.firestoreService = firestoreService
+    }
+
+    public func addPrayRequest(userId: String, prayRequest: PrayRequest) async throws {
+        try await firestoreService.setDocumentInCollection(firstCollection: "Prayers", firstDocument: userId, secondCollection: "Prayers", secondDocument: prayRequest.uuid.uuidString, data: prayRequest)
+    }
+    
+    public func fetchPrayRequests(userId: String) async throws -> [PrayRequest] {
+        return try await firestoreService.fetchDocumentsInCollection(firstCollection: "Prayers", document: userId, secondCollection: "Prayers")
+    }
+}
+
+// MARK: UseCases
+public protocol UserUseCase {
+    func userExists(userId: String) async throws -> Bool
+    func createUser(userId: String) async throws
+}
+
+public final class DefaultUserUseCase: UserUseCase {
+    private let userRepository: UserRepository
+
+    public init(userRepository: UserRepository) {
+        self.userRepository = userRepository
+    }
+
+    public func userExists(userId: String) async throws -> Bool {
+        return try await userRepository.userExists(userId: userId)
+    }
+
+    public func createUser(userId: String) async throws {
+        return try await userRepository.createUser(userId: userId)
+    }
+}
+
+public protocol PrayRequestUseCase {
+    func addPrayRequest(userId: String, prayRequest: PrayRequest) async throws
+    func fetchPrayRequests(userId: String) async throws -> [PrayRequest]
+}
+
+public final class DefaultPrayRequestUseCase: PrayRequestUseCase {
+    private let repository: PrayRequestRepository
+
+    public init(repository: PrayRequestRepository) {
+        self.repository = repository
+    }
+
+    public func addPrayRequest(userId: String, prayRequest: PrayRequest) async throws {
+        try await repository.addPrayRequest(userId: userId, prayRequest: prayRequest)
+    }
+    
+    public func fetchPrayRequests(userId: String) async throws -> [PrayRequest] {
+        return try await repository.fetchPrayRequests(userId: userId)
+    }
+}
+

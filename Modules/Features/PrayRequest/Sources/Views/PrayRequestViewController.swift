@@ -8,8 +8,12 @@
 import UIKit
 import Core
 import Shared
+import Combine
 
-final public class PrayRequestViewController: UIViewController {
+public class PrayRequestViewController: UIViewController {
+    
+    let viewModel: PrayRequestViewModelProtocol
+    private var cancellables = Set<AnyCancellable>()
     
     let plusBarButtonItem = UIBarButtonItem()
     let deleteBarButtonItem = UIBarButtonItem()
@@ -18,7 +22,6 @@ final public class PrayRequestViewController: UIViewController {
     private let praySearchBar = CustomSearchBar()
     let prayRequestCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     
-    private let prayRequests = PrayRequest.dummyDatas
     var isDeleteMode = false
     
     public override func viewDidLoad() {
@@ -29,13 +32,23 @@ final public class PrayRequestViewController: UIViewController {
         setupButtonActions()
         setupDelegate()
         setupTapGesture()
+        
+        bindPrayRequests()
+        fetchData()
+    }
+    
+    public init(viewModel: PrayRequestViewModelProtocol) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setupNavBarTapGesture()
-        //TODO: firestore snapshot을 쓴다면 안해도 될지도. 테스트
-        prayRequestCollectionView.reloadData()
     }
     
     public override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
@@ -196,7 +209,7 @@ final public class PrayRequestViewController: UIViewController {
     
     // MARK: Button Actions
     private func plusButtonTapped() {
-        let addPrayRequestViewController = AddPrayRequestViewController()
+        let addPrayRequestViewController = AddPrayRequestViewController(viewModel: viewModel)
         self.navigationController?.pushViewController(addPrayRequestViewController, animated: true)
     }
     
@@ -229,6 +242,51 @@ final public class PrayRequestViewController: UIViewController {
     @objc private func dismissKeyboard() {
         view.endEditing(true)
     }
+    
+    private func fetchData() {
+        Task {
+            do {
+                try await viewModel.fetchPrayRequests()
+                prayRequestCollectionView.reloadData()
+            } catch {
+                presentErrorAlert(for: error, title: "불러오기 실패")
+            }
+        }
+    }
+    
+    private func bindPrayRequests() {
+        viewModel.prayRequestsPublisher
+            .sink { _ in
+                self.fetchData()
+            }
+            .store(in: &cancellables)
+    }
+    
+    // MARK: Error Alert
+    func presentErrorAlert(for error: Error, title: String) {
+        let message = FirestoreErrorMapper.message(for: error)
+        
+        let alert = UIAlertController(
+            title: nil,
+            message: message,
+            preferredStyle: .alert
+        )
+        
+        let title = NSAttributedString(
+            string: title,
+            attributes: [
+                .foregroundColor: UIColor.red,
+                .font: UIFont.boldSystemFont(ofSize: 17)
+            ]
+        )
+        
+        alert.setValue(title, forKey: "attributedTitle")
+        alert.addAction(UIAlertAction(title: "닫기", style: .default))
+        
+        DispatchQueue.main.async {
+            self.present(alert, animated: true)
+        }
+    }
 }
 
 // MARK: Extensions
@@ -249,12 +307,12 @@ extension PrayRequestViewController: UIGestureRecognizerDelegate {
 extension PrayRequestViewController: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     
     public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        prayRequests.count
+        viewModel.prayRequests.count
     }
     
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PrayRequestCell", for: indexPath) as! PrayRequestCollectionViewCell
-        let prayRequest = prayRequests[indexPath.row]
+        let prayRequest = viewModel.prayRequests[indexPath.row]
         cell.configure(with: prayRequest)
         if isDeleteMode {
             cell.enableDeleteMode()
@@ -271,7 +329,7 @@ extension PrayRequestViewController: UICollectionViewDataSource, UICollectionVie
                 cell.toggleCheckBoxState()
             }
         } else { // 기본 모드일 때 상세보기
-            let selectedPrayRequest = prayRequests[indexPath.row]
+            let selectedPrayRequest = viewModel.prayRequests[indexPath.row]
             let prayRequestDetailViewController = PrayRequestDetailViewController(with: selectedPrayRequest)
             self.navigationController?.pushViewController(prayRequestDetailViewController, animated: true)
         }

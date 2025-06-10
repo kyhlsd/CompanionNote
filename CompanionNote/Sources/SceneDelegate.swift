@@ -27,7 +27,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
         // LogIn 확인
         if UserDefaults.standard.string(forKey: "userId") != nil {
-            let firstViewController = UINavigationController(rootViewController: PrayRequestViewController())
+            let firstViewController = UINavigationController(rootViewController: PrayRequestViewController(viewModel: PrayRequestViewModel()))
             let secondViewController = UIViewController()
             firstViewController.tabBarItem = UITabBarItem(title: "신앙 일기", image: UIImage(systemName: "map"), tag: 0)
             secondViewController.tabBarItem = UITabBarItem(title: "기도 제목", image: UIImage(systemName: "map"), tag: 1)
@@ -38,9 +38,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             let kakaoSignInService = KakaoSignInService()
             let kakaoSignInUseCase = DefaultKakaoSignInUseCase(signInService: kakaoSignInService)
             let firestoreService = FirestoreService()
-            let firestoreUseCase = DefaultFirestoreUseCase(firestoreService: firestoreService)
+            let userRepository = UserRepositoryImpl(firestoreService: firestoreService)
+            let userUseCase = DefaultUserUseCase(userRepository: userRepository)
             
-            window?.rootViewController = SocialLoginViewController(appleSignInUseCase: appleSignInUseCase, kakaoSignInUseCase: kakaoSignInUseCase, firestoreUseCase: firestoreUseCase)
+            window?.rootViewController = SocialLoginViewController(appleSignInUseCase: appleSignInUseCase, kakaoSignInUseCase: kakaoSignInUseCase, userUseCase: userUseCase)
             window?.makeKeyAndVisible()
         }
     }
