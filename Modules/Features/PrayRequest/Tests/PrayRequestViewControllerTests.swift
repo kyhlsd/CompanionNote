@@ -8,6 +8,7 @@
 import XCTest
 @testable import Features
 @testable import Core
+import Combine
 
 final class PrayRequestViewControllerTests: XCTestCase {
     
@@ -62,6 +63,13 @@ final class PrayRequestViewControllerTests: XCTestCase {
     }
 
     func test_didSelectItem_inDeleteMode_togglesCheckBox() {
+        Task {
+            try await sut.viewModel.fetchPrayRequests()
+        }
+        sut.prayRequestCollectionView.reloadData()
+        sut.prayRequestCollectionView.layoutIfNeeded()
+        RunLoop.main.run(until: Date())
+        
         // Given
         sut.isDeleteMode = true
         sut.loadViewIfNeeded()
@@ -109,12 +117,41 @@ final class PrayRequestViewControllerTests: XCTestCase {
         // TODO: 로그 확인 대신 실제 필터 적용되면 해당 부분 테스트
     }
     
+    @MainActor
+    func test_fetchPrayRequests_failure_souldPresentErrorAlert() async {
+        let mockViewModel = MockViewModel()
+        mockViewModel.shouldSucceed = false
+        
+        let sut = SpyPrayRequestViewController(viewModel: mockViewModel)
+        sut.loadViewIfNeeded()
+        
+        try? await Task.sleep(nanoseconds: 100_000_000)
+        
+        XCTAssertTrue(sut.errorPresented)
+    }
+    
     final class MockViewModel: PrayRequestViewModelProtocol {
+        @Published var prayRequests = [Core.PrayRequest]()
+        var prayRequestsPublisher: Published<[Core.PrayRequest]>.Publisher { $prayRequests }
+        
+        var shouldSucceed = true
         
         func addPrayRequest(prayRequest: PrayRequest) async throws {}
         
-        func fetchPrayRequests() async throws -> [Core.PrayRequest] {
-            return []
+        func fetchPrayRequests() async throws {
+            if shouldSucceed {
+                prayRequests = [Core.PrayRequest.dummyDatas[0]]
+            } else {
+                throw NSError(domain: "TestError", code: 999, userInfo: nil)
+            }
+        }
+    }
+    
+    final class SpyPrayRequestViewController: PrayRequestViewController {
+        var errorPresented = false
+        
+        override func presentErrorAlert(for error: Error, title: String) {
+            errorPresented = true
         }
     }
 }

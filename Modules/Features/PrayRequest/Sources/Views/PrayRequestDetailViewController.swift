@@ -11,8 +11,6 @@ import Shared
 
 final class PrayRequestDetailViewController: UIViewController {
     
-    weak var delegate: ReloadDataDelegate?
-    
     let prayRequest: PrayRequest
     
     let editBarButtonItem = UIBarButtonItem()
@@ -237,7 +235,7 @@ final class PrayRequestDetailViewController: UIViewController {
             prayRequest.updateData(title: editedPrayRequest.title, items: editedPrayRequest.items, category: editedPrayRequest.category)
             
             updateUI()
-            delegate?.fetchData()
+            
         }
         
         navigationItem.rightBarButtonItems = [

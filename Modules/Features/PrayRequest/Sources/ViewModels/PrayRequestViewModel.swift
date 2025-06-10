@@ -7,10 +7,14 @@
 
 import Foundation
 import Core
+import Combine
 
 final public class PrayRequestViewModel: PrayRequestViewModelProtocol {
     let userIdentifier: String?
     let prayRequestUseCase: PrayRequestUseCase
+    
+    @Published public var prayRequests = [PrayRequest]()
+    public var prayRequestsPublisher: Published<[PrayRequest]>.Publisher { $prayRequests }
     
     public init() {
         self.userIdentifier = UserDefaults.standard.string(forKey: "userId")
@@ -24,13 +28,15 @@ final public class PrayRequestViewModel: PrayRequestViewModelProtocol {
         try await prayRequestUseCase.addPrayRequest(userId: userIdentifier, prayRequest: prayRequest)
     }
     
-    public func fetchPrayRequests() async throws -> [Core.PrayRequest] {
-        guard let userIdentifier = userIdentifier else { return [] }
-        return try await prayRequestUseCase.fetchPrayRequests(userId: userIdentifier)
+    public func fetchPrayRequests() async throws {
+        guard let userIdentifier = userIdentifier else { return }
+        prayRequests = try await prayRequestUseCase.fetchPrayRequests(userId: userIdentifier)
     }
 }
 
 public protocol PrayRequestViewModelProtocol {
     func addPrayRequest(prayRequest: PrayRequest) async throws
-    func fetchPrayRequests() async throws -> [PrayRequest]
+    func fetchPrayRequests() async throws
+    var prayRequests: [PrayRequest] { get }
+    var prayRequestsPublisher: Published<[PrayRequest]>.Publisher { get }
 }

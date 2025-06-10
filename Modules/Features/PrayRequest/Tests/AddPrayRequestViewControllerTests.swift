@@ -131,6 +131,9 @@ final class AddPrayRequestViewControllerTests: XCTestCase {
 
     
     final class MockViewModel: PrayRequestViewModelProtocol {
+        @Published var prayRequests = [Core.PrayRequest]()
+        var prayRequestsPublisher: Published<[Core.PrayRequest]>.Publisher { $prayRequests }
+        
         var shouldSucceed = true
         var addPrayRequestCalled = false
         
@@ -141,9 +144,7 @@ final class AddPrayRequestViewControllerTests: XCTestCase {
             }
         }
         
-        func fetchPrayRequests() async throws -> [Core.PrayRequest] {
-            return []
-        }
+        func fetchPrayRequests() async throws {}
     }
     
     final class SpyNavigationController: UINavigationController {

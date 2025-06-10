@@ -12,7 +12,6 @@ import Shared
 class AddPrayRequestViewController: UIViewController {
     
     private let viewModel: PrayRequestViewModelProtocol
-    weak var delegate: ReloadDataDelegate?
     
     let prayContainerView = CellContainerView()
     let prayEditorView = PrayEditorView()
@@ -63,7 +62,7 @@ class AddPrayRequestViewController: UIViewController {
             Task {
                 do {
                     try await self.viewModel.addPrayRequest(prayRequest: prayRequest)
-                    self.delegate?.fetchData()
+                    
                     self.navigationController?.popViewController(animated: true)
                 } catch {
                     self.presentErrorAlert(for: error)

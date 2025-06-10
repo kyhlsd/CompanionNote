@@ -8,14 +8,12 @@
 import UIKit
 import Core
 import Shared
+import Combine
 
-protocol ReloadDataDelegate: AnyObject {
-    func fetchData()
-}
-
-final public class PrayRequestViewController: UIViewController {
+public class PrayRequestViewController: UIViewController {
     
-    private let viewModel: PrayRequestViewModelProtocol
+    let viewModel: PrayRequestViewModelProtocol
+    private var cancellables = Set<AnyCancellable>()
     
     let plusBarButtonItem = UIBarButtonItem()
     let deleteBarButtonItem = UIBarButtonItem()
@@ -24,7 +22,6 @@ final public class PrayRequestViewController: UIViewController {
     private let praySearchBar = CustomSearchBar()
     let prayRequestCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     
-    private var prayRequests = [PrayRequest]()
     var isDeleteMode = false
     
     public override func viewDidLoad() {
@@ -36,6 +33,7 @@ final public class PrayRequestViewController: UIViewController {
         setupDelegate()
         setupTapGesture()
         
+        bindPrayRequests()
         fetchData()
     }
     
@@ -212,7 +210,6 @@ final public class PrayRequestViewController: UIViewController {
     // MARK: Button Actions
     private func plusButtonTapped() {
         let addPrayRequestViewController = AddPrayRequestViewController(viewModel: viewModel)
-        addPrayRequestViewController.delegate = self
         self.navigationController?.pushViewController(addPrayRequestViewController, animated: true)
     }
     
@@ -244,6 +241,25 @@ final public class PrayRequestViewController: UIViewController {
     // MARK: Gesture Actions
     @objc private func dismissKeyboard() {
         view.endEditing(true)
+    }
+    
+    private func fetchData() {
+        Task {
+            do {
+                try await viewModel.fetchPrayRequests()
+                prayRequestCollectionView.reloadData()
+            } catch {
+                presentErrorAlert(for: error, title: "불러오기 실패")
+            }
+        }
+    }
+    
+    private func bindPrayRequests() {
+        viewModel.prayRequestsPublisher
+            .sink { _ in
+                self.fetchData()
+            }
+            .store(in: &cancellables)
     }
     
     // MARK: Error Alert
@@ -291,12 +307,12 @@ extension PrayRequestViewController: UIGestureRecognizerDelegate {
 extension PrayRequestViewController: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     
     public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        prayRequests.count
+        viewModel.prayRequests.count
     }
     
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PrayRequestCell", for: indexPath) as! PrayRequestCollectionViewCell
-        let prayRequest = prayRequests[indexPath.row]
+        let prayRequest = viewModel.prayRequests[indexPath.row]
         cell.configure(with: prayRequest)
         if isDeleteMode {
             cell.enableDeleteMode()
@@ -313,9 +329,8 @@ extension PrayRequestViewController: UICollectionViewDataSource, UICollectionVie
                 cell.toggleCheckBoxState()
             }
         } else { // 기본 모드일 때 상세보기
-            let selectedPrayRequest = prayRequests[indexPath.row]
+            let selectedPrayRequest = viewModel.prayRequests[indexPath.row]
             let prayRequestDetailViewController = PrayRequestDetailViewController(with: selectedPrayRequest)
-            prayRequestDetailViewController.delegate = self
             self.navigationController?.pushViewController(prayRequestDetailViewController, animated: true)
         }
     }
@@ -339,18 +354,5 @@ extension PrayRequestViewController: SelectCategoryDelegate {
     public func didSelectCategory(_ index: Int) {
         let categories = ["전체"] + PrayCategory.allCases.map { $0.rawValue }
         print(categories[index])
-    }
-}
-
-extension PrayRequestViewController: ReloadDataDelegate {
-    func fetchData() {
-        Task {
-            do {
-                prayRequests = try await viewModel.fetchPrayRequests()
-                prayRequestCollectionView.reloadData()
-            } catch {
-                presentErrorAlert(for: error, title: "불러오기 실패")
-            }
-        }
     }
 }
