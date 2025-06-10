@@ -111,11 +111,11 @@ public class SocialLoginViewController: UIViewController {
                 
                 // 서버에 UserIdentifier가 저장되어 있는 경우에만 UserDefaults에 저장, 로그인 처리
                 let userExists = try await userUseCase.userExists(userId: userIdentifier)
-                if userExists {
+                if !userExists {
                     try await userUseCase.createUser(userId: userIdentifier)
-                    userDefaults.set(userIdentifier, forKey: "userId")
-                    presentTabBarController()
                 }
+                userDefaults.set(userIdentifier, forKey: "userId")
+                presentTabBarController()
             } catch {
                 presentLoginFailAlert()
             }
@@ -129,18 +129,18 @@ public class SocialLoginViewController: UIViewController {
                 
                 // 서버에 UserIdentifier가 저장되어 있는 경우에만 UserDefaults에 저장, 로그인 처리
                 let userExists = try await userUseCase.userExists(userId: userIdentifier)
-                if userExists {
+                if !userExists {
                     try await userUseCase.createUser(userId: userIdentifier)
-                    userDefaults.set(userIdentifier, forKey: "userId")
-                    presentTabBarController()
                 }
+                userDefaults.set(userIdentifier, forKey: "userId")
+                presentTabBarController()
             } catch {
                 presentLoginFailAlert()
             }
         }
     }
     
-    private func presentLoginFailAlert() {
+    func presentLoginFailAlert() {
         let alert = UIAlertController(
             title: nil,
             message: "로그인에 실패했습니다.\n다시 시도해주세요.",
@@ -163,7 +163,7 @@ public class SocialLoginViewController: UIViewController {
         }
     }
     
-    private func presentTabBarController() {
+    func presentTabBarController() {
         let firstViewController = UINavigationController(rootViewController: PrayRequestViewController(viewModel: PrayRequestViewModel()))
         let secondViewController = UIViewController()
         firstViewController.tabBarItem = UITabBarItem(title: "신앙 일기", image: UIImage(systemName: "map"), tag: 0)
