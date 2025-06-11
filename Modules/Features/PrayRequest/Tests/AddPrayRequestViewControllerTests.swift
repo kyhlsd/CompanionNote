@@ -148,6 +148,7 @@ final class AddPrayRequestViewControllerTests: XCTestCase {
         
         func fetchPrayRequests() async throws {}
         func updatePrayRequest(prayRequest: Core.PrayRequest) async throws {}
+        func deletePrayRequests(prayRequestIds: [String]) async throws {}
         func activeFetchStatus() {}
     }
     

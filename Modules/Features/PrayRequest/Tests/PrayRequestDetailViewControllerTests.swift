@@ -196,6 +196,9 @@ final class PrayRequestDetailViewControllerTests: XCTestCase {
                 throw NSError(domain: "TestError", code: 999, userInfo: nil)
             }
         }
+        
+        func deletePrayRequests(prayRequestIds: [String]) async throws {}
+        
         func activeFetchStatus() {
             shouldFetch.toggle()
         }
