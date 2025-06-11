@@ -32,7 +32,8 @@ final public class PrayRequestViewModel: PrayRequestViewModelProtocol {
     
     public func fetchPrayRequests() async throws {
         guard let userIdentifier = userIdentifier else { return }
-        prayRequests = try await prayRequestUseCase.fetchPrayRequests(userId: userIdentifier)
+        let fetchedPrayRequests = try await prayRequestUseCase.fetchPrayRequests(userId: userIdentifier)
+        prayRequests = fetchedPrayRequests.sorted { $0.date > $1.date }
     }
     
     public func updatePrayRequest(prayRequest: PrayRequest) async throws {
