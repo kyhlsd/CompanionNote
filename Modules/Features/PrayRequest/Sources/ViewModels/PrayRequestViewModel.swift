@@ -15,6 +15,8 @@ final public class PrayRequestViewModel: PrayRequestViewModelProtocol {
     
     @Published public var prayRequests = [PrayRequest]()
     public var prayRequestsPublisher: Published<[PrayRequest]>.Publisher { $prayRequests }
+    @Published public var shouldFetch = true
+    public var shouldFetchPublisher: Published<Bool>.Publisher { $shouldFetch }
     
     public init() {
         self.userIdentifier = UserDefaults.standard.string(forKey: "userId")
@@ -32,11 +34,23 @@ final public class PrayRequestViewModel: PrayRequestViewModelProtocol {
         guard let userIdentifier = userIdentifier else { return }
         prayRequests = try await prayRequestUseCase.fetchPrayRequests(userId: userIdentifier)
     }
+    
+    public func updatePrayRequest(prayRequest: PrayRequest) async throws {
+        guard let userIdentifier = userIdentifier else { return }
+        try await prayRequestUseCase.updatePrayRequest(userId: userIdentifier, prayRequest: prayRequest)
+    }
+    
+    public func activeFetchStatus() {
+        shouldFetch.toggle()
+    }
 }
 
 public protocol PrayRequestViewModelProtocol {
     func addPrayRequest(prayRequest: PrayRequest) async throws
     func fetchPrayRequests() async throws
+    func updatePrayRequest(prayRequest: PrayRequest) async throws
     var prayRequests: [PrayRequest] { get }
     var prayRequestsPublisher: Published<[PrayRequest]>.Publisher { get }
+    func activeFetchStatus()
+    var shouldFetchPublisher: Published<Bool>.Publisher { get }
 }

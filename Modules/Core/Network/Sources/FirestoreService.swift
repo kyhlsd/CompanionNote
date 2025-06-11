@@ -52,6 +52,7 @@ public protocol UserRepository {
 public protocol PrayRequestRepository {
     func addPrayRequest(userId: String, prayRequest: PrayRequest) async throws
     func fetchPrayRequests(userId: String) async throws -> [PrayRequest]
+    func updatePrayRequest(userId: String, prayRequest: PrayRequest) async throws
 }
 
 // MARK: RepositoryImplements
@@ -86,6 +87,10 @@ public final class PrayRequestRepositoryImpl: PrayRequestRepository {
     public func fetchPrayRequests(userId: String) async throws -> [PrayRequest] {
         return try await firestoreService.fetchDocumentsInCollection(firstCollection: "Prayers", document: userId, secondCollection: "Prayers")
     }
+    
+    public func updatePrayRequest(userId: String, prayRequest: PrayRequest) async throws {
+        try await firestoreService.setDocumentInCollection(firstCollection: "Prayers", firstDocument: userId, secondCollection: "Prayers", secondDocument: prayRequest.uuid.uuidString, data: prayRequest)
+    }
 }
 
 // MARK: UseCases
@@ -113,6 +118,7 @@ public final class DefaultUserUseCase: UserUseCase {
 public protocol PrayRequestUseCase {
     func addPrayRequest(userId: String, prayRequest: PrayRequest) async throws
     func fetchPrayRequests(userId: String) async throws -> [PrayRequest]
+    func updatePrayRequest(userId: String, prayRequest: PrayRequest) async throws
 }
 
 public final class DefaultPrayRequestUseCase: PrayRequestUseCase {
@@ -128,6 +134,10 @@ public final class DefaultPrayRequestUseCase: PrayRequestUseCase {
     
     public func fetchPrayRequests(userId: String) async throws -> [PrayRequest] {
         return try await repository.fetchPrayRequests(userId: userId)
+    }
+    
+    public func updatePrayRequest(userId: String, prayRequest: PrayRequest) async throws {
+        try await repository.updatePrayRequest(userId: userId, prayRequest: prayRequest)
     }
 }
 

@@ -133,6 +133,8 @@ final class PrayRequestViewControllerTests: XCTestCase {
     final class MockViewModel: PrayRequestViewModelProtocol {
         @Published var prayRequests = [Core.PrayRequest]()
         var prayRequestsPublisher: Published<[Core.PrayRequest]>.Publisher { $prayRequests }
+        @Published var shouldFetch = true
+        var shouldFetchPublisher: Published<Bool>.Publisher { $shouldFetch }
         
         var shouldSucceed = true
         
@@ -145,6 +147,9 @@ final class PrayRequestViewControllerTests: XCTestCase {
                 throw NSError(domain: "TestError", code: 999, userInfo: nil)
             }
         }
+        
+        func updatePrayRequest(prayRequest: Core.PrayRequest) async throws {}
+        func activeFetchStatus() {}
     }
     
     final class SpyPrayRequestViewController: PrayRequestViewController {

@@ -26,7 +26,7 @@ final class PrayRequestDetailViewControllerTests: XCTestCase {
             ],
             category: .personal
         )
-        sut = PrayRequestDetailViewController(with: prayRequest)
+        sut = PrayRequestDetailViewController(with: prayRequest, viewModel: PrayRequestViewModel())
         // 강제로 viewDidLoad 호출해서 뷰 계층 생성
         sut.loadViewIfNeeded()
     }

@@ -33,8 +33,7 @@ public class PrayRequestViewController: UIViewController {
         setupDelegate()
         setupTapGesture()
         
-        bindPrayRequests()
-        fetchData()
+        bindViewModel()
     }
     
     public init(viewModel: PrayRequestViewModelProtocol) {
@@ -247,17 +246,25 @@ public class PrayRequestViewController: UIViewController {
         Task {
             do {
                 try await viewModel.fetchPrayRequests()
-                prayRequestCollectionView.reloadData()
+                print("fetch data")
             } catch {
                 presentErrorAlert(for: error, title: "불러오기 실패")
             }
         }
     }
     
-    private func bindPrayRequests() {
+    private func bindViewModel() {
         viewModel.prayRequestsPublisher
-            .sink { _ in
-                self.fetchData()
+            .sink { [weak self] _ in
+                DispatchQueue.main.async {
+                    self?.prayRequestCollectionView.reloadData()
+                }
+            }
+            .store(in: &cancellables)
+        
+        viewModel.shouldFetchPublisher
+            .sink { [weak self] _ in
+                self?.fetchData()
             }
             .store(in: &cancellables)
     }
@@ -330,7 +337,7 @@ extension PrayRequestViewController: UICollectionViewDataSource, UICollectionVie
             }
         } else { // 기본 모드일 때 상세보기
             let selectedPrayRequest = viewModel.prayRequests[indexPath.row]
-            let prayRequestDetailViewController = PrayRequestDetailViewController(with: selectedPrayRequest)
+            let prayRequestDetailViewController = PrayRequestDetailViewController(with: selectedPrayRequest, viewModel: viewModel)
             self.navigationController?.pushViewController(prayRequestDetailViewController, animated: true)
         }
     }
