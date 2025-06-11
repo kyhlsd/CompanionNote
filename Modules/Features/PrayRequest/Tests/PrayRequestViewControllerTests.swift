@@ -12,11 +12,13 @@ import Combine
 
 final class PrayRequestViewControllerTests: XCTestCase {
     
-    var sut: PrayRequestViewController!
-
+    var sut: SpyPrayRequestViewController!
+    var mockViewModel: MockViewModel!
+    
     override func setUp() {
         super.setUp()
-        sut = PrayRequestViewController(viewModel: MockViewModel())
+        mockViewModel = MockViewModel()
+        sut = SpyPrayRequestViewController(viewModel: mockViewModel)
         sut.loadViewIfNeeded()
     }
 
@@ -49,26 +51,52 @@ final class PrayRequestViewControllerTests: XCTestCase {
         XCTAssertTrue(sut.navigationItem.rightBarButtonItems?.contains(sut.completeBarButtonItem) ?? false)
     }
 
-    func test_completeButtonTapped_exitsDeleteMode() {
+    @MainActor
+    func test_completeButtonTapped_successDelete() async {
         // Given
+        mockViewModel.shouldSucceed = true
         sut.isDeleteMode = true
+        sut.deleteIds = ["test1, test2, test3"]
         let completeButton = sut.completeBarButtonItem.customView as? UIButton
 
         // When
         completeButton?.sendActions(for: .touchUpInside)
-
+        try? await Task.sleep(nanoseconds: 100_000_000)
+        
         // Then
+        XCTAssertTrue(mockViewModel.didDelete)
         XCTAssertFalse(sut.isDeleteMode)
         XCTAssertTrue(sut.navigationItem.rightBarButtonItems?.contains(sut.plusBarButtonItem) ?? false)
     }
+    
+    @MainActor
+    func test_completeButtonTapped_failDelete() async {
+        // Given
+        mockViewModel.shouldSucceed = false
+        sut.isDeleteMode = true
+        sut.deleteIds = ["test1, test2, test3"]
+        let completeButton = sut.completeBarButtonItem.customView as? UIButton
+        sut.navigationItem.rightBarButtonItems = [sut.completeBarButtonItem]
 
-    func test_didSelectItem_inDeleteMode_togglesCheckBox() {
+        // When
+        completeButton?.sendActions(for: .touchUpInside)
+        try? await Task.sleep(nanoseconds: 100_000_000)
+        
+        // Then
+        XCTAssertFalse(mockViewModel.didDelete)
+        XCTAssertTrue(sut.isDeleteMode)
+        XCTAssertTrue(sut.navigationItem.rightBarButtonItems?.contains(sut.completeBarButtonItem) ?? false)
+        XCTAssertTrue(sut.errorPresented)
+    }
+
+    @MainActor
+    func test_didSelectItem_inDeleteMode_togglesCheckBox() async {
+        mockViewModel.shouldSucceed = true
         Task {
             try await sut.viewModel.fetchPrayRequests()
         }
-        sut.prayRequestCollectionView.reloadData()
         sut.prayRequestCollectionView.layoutIfNeeded()
-        RunLoop.main.run(until: Date())
+        try? await Task.sleep(nanoseconds: 100_000_000)
         
         // Given
         sut.isDeleteMode = true
@@ -93,7 +121,7 @@ final class PrayRequestViewControllerTests: XCTestCase {
 
         sut.prayRequestCollectionView.reloadData()
         sut.prayRequestCollectionView.layoutIfNeeded()
-        RunLoop.main.run(until: Date()) // 셀 생성 보장
+        try? await Task.sleep(nanoseconds: 100_000_000)
 
         let indexPath = IndexPath(row: 0, section: 0)
 
@@ -118,7 +146,7 @@ final class PrayRequestViewControllerTests: XCTestCase {
     }
     
     @MainActor
-    func test_fetchPrayRequests_failure_souldPresentErrorAlert() async {
+    func test_fetchPrayRequests_failure_shouldPresentErrorAlert() async {
         let mockViewModel = MockViewModel()
         mockViewModel.shouldSucceed = false
         
@@ -133,6 +161,8 @@ final class PrayRequestViewControllerTests: XCTestCase {
     final class MockViewModel: PrayRequestViewModelProtocol {
         @Published var prayRequests = [Core.PrayRequest]()
         var prayRequestsPublisher: Published<[Core.PrayRequest]>.Publisher { $prayRequests }
+        @Published var shouldFetch = true
+        var shouldFetchPublisher: Published<Bool>.Publisher { $shouldFetch }
         
         var shouldSucceed = true
         
@@ -145,6 +175,19 @@ final class PrayRequestViewControllerTests: XCTestCase {
                 throw NSError(domain: "TestError", code: 999, userInfo: nil)
             }
         }
+        
+        func updatePrayRequest(prayRequest: Core.PrayRequest) async throws {}
+        
+        var didDelete = false
+        
+        func deletePrayRequests(prayRequestIds: [String]) async throws {
+            if shouldSucceed {
+                didDelete = true
+            } else {
+                throw NSError(domain: "TestError", code: 999, userInfo: nil)
+            }
+        }
+        func activeFetchStatus() {}
     }
     
     final class SpyPrayRequestViewController: PrayRequestViewController {

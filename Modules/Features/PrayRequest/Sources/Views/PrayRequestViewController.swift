@@ -23,6 +23,7 @@ public class PrayRequestViewController: UIViewController {
     let prayRequestCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     
     var isDeleteMode = false
+    var deleteIds = [String]()
     
     public override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,8 +34,7 @@ public class PrayRequestViewController: UIViewController {
         setupDelegate()
         setupTapGesture()
         
-        bindPrayRequests()
-        fetchData()
+        bindViewModel()
     }
     
     public init(viewModel: PrayRequestViewModelProtocol) {
@@ -224,18 +224,25 @@ public class PrayRequestViewController: UIViewController {
     }
     
     private func completeButtonTapped() {
-        //TODO: 전체 순회할 필요없이 체크 박스 선택 시 뷰모델 배열에 uuid 추가하도록
-        for case let cell as PrayRequestCollectionViewCell in prayRequestCollectionView.visibleCells {
-            if cell.getCheckedState(), let uuid = cell.getPrayRequestUUID() {
-                print(uuid.uuidString)
+        Task {
+            do {
+                if !deleteIds.isEmpty {
+                    try await viewModel.deletePrayRequests(prayRequestIds: deleteIds)
+                }
+                deleteIds = []
+                
+                isDeleteMode = false
+                prayRequestCollectionView.reloadData()
+                navigationItem.rightBarButtonItems = [
+                    deleteBarButtonItem,
+                    plusBarButtonItem
+                ]
+                
+                viewModel.activeFetchStatus()
+            } catch {
+                presentErrorAlert(for: error, title: "삭제 실패")
             }
         }
-        isDeleteMode = false
-        prayRequestCollectionView.reloadData()
-        navigationItem.rightBarButtonItems = [
-            deleteBarButtonItem,
-            plusBarButtonItem
-        ]
     }
     
     // MARK: Gesture Actions
@@ -247,17 +254,24 @@ public class PrayRequestViewController: UIViewController {
         Task {
             do {
                 try await viewModel.fetchPrayRequests()
-                prayRequestCollectionView.reloadData()
             } catch {
                 presentErrorAlert(for: error, title: "불러오기 실패")
             }
         }
     }
     
-    private func bindPrayRequests() {
+    private func bindViewModel() {
         viewModel.prayRequestsPublisher
-            .sink { _ in
-                self.fetchData()
+            .sink { [weak self] _ in
+                DispatchQueue.main.async {
+                    self?.prayRequestCollectionView.reloadData()
+                }
+            }
+            .store(in: &cancellables)
+        
+        viewModel.shouldFetchPublisher
+            .sink { [weak self] _ in
+                self?.fetchData()
             }
             .store(in: &cancellables)
     }
@@ -314,6 +328,7 @@ extension PrayRequestViewController: UICollectionViewDataSource, UICollectionVie
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PrayRequestCell", for: indexPath) as! PrayRequestCollectionViewCell
         let prayRequest = viewModel.prayRequests[indexPath.row]
         cell.configure(with: prayRequest)
+        cell.checkBox.isUserInteractionEnabled = false
         if isDeleteMode {
             cell.enableDeleteMode()
         } else {
@@ -322,15 +337,33 @@ extension PrayRequestViewController: UICollectionViewDataSource, UICollectionVie
         return cell
     }
     
+    public func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        guard let cell = cell as? PrayRequestCollectionViewCell else { return }
+
+        if isDeleteMode {
+            cell.enableDeleteMode()
+        } else {
+            cell.disableDeleteMode()
+        }
+    }
+    
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         // 삭제 모드일 때 체크박스 토글
         if isDeleteMode {
             if let cell = collectionView.cellForItem(at: indexPath) as? PrayRequestCollectionViewCell {
                 cell.toggleCheckBoxState()
+                
+                guard let uuid = cell.getPrayRequestUUID() else { return }
+                let id = uuid.uuidString
+                if let index = deleteIds.firstIndex(of: id) {
+                    deleteIds.remove(at: index)
+                } else {
+                    deleteIds.append(id)
+                }
             }
         } else { // 기본 모드일 때 상세보기
             let selectedPrayRequest = viewModel.prayRequests[indexPath.row]
-            let prayRequestDetailViewController = PrayRequestDetailViewController(with: selectedPrayRequest)
+            let prayRequestDetailViewController = PrayRequestDetailViewController(with: selectedPrayRequest, viewModel: viewModel)
             self.navigationController?.pushViewController(prayRequestDetailViewController, animated: true)
         }
     }

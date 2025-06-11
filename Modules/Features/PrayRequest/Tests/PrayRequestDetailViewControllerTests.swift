@@ -12,21 +12,23 @@ import XCTest
 final class PrayRequestDetailViewControllerTests: XCTestCase {
     
     var prayRequest: PrayRequest!
-    var sut: PrayRequestDetailViewController!
+    var sut: SpyPrayRequestDetailViewController!
+    var mockViewModel: MockViewModel!
+    var originPrayRequest = PrayRequest(
+        date: Date(),
+        title: "Test Title",
+        items: [
+            PrayItem(name: "Name1", content: "Content1"),
+            PrayItem(name: "Name2", content: "Content2")
+        ],
+        category: .personal
+    )
     
     override func setUp() {
         super.setUp()
         
-        prayRequest = PrayRequest(
-            date: Date(),
-            title: "Test Title",
-            items: [
-                PrayItem(name: "Name1", content: "Content1"),
-                PrayItem(name: "Name2", content: "Content2")
-            ],
-            category: .personal
-        )
-        sut = PrayRequestDetailViewController(with: prayRequest)
+        mockViewModel = MockViewModel()
+        sut = SpyPrayRequestDetailViewController(with: originPrayRequest, viewModel: mockViewModel)
         // 강제로 viewDidLoad 호출해서 뷰 계층 생성
         sut.loadViewIfNeeded()
     }
@@ -48,7 +50,7 @@ final class PrayRequestDetailViewControllerTests: XCTestCase {
         XCTAssertTrue(sut.prayEditorContainerView.isHidden)
         
         // 테이블뷰의 행 개수는 prayRequest.items.count와 동일
-        XCTAssertEqual(sut.prayDetailTableView.numberOfRows(inSection: 0), prayRequest.items.count)
+        XCTAssertEqual(sut.prayDetailTableView.numberOfRows(inSection: 0), originPrayRequest.items.count)
     }
     
     func test_editButtonTapped_changesUIToEditMode() {
@@ -68,7 +70,8 @@ final class PrayRequestDetailViewControllerTests: XCTestCase {
         XCTAssertEqual(sut.prayEditorView.prayItemTextView.text, PrayItemUtils.convertFromPrayItem(with: sut.prayRequest.items))
     }
     
-    func test_completeButtonTapped_updatesPrayRequestAndUI() {
+    @MainActor
+    func test_completeButtonTapped_success_updatesPrayRequestAndUI() async {
         sut.editButtonTapped()
         
         // 가짜 편집된 PrayRequest 생성
@@ -82,10 +85,16 @@ final class PrayRequestDetailViewControllerTests: XCTestCase {
         
         sut.completeButtonTapped()
         
+        try? await Task.sleep(nanoseconds: 100_000_000)
+        
         // prayRequest가 실제로 업데이트 되었는지 확인
         XCTAssertEqual(sut.prayRequest.title, editedTitle)
         XCTAssertEqual(sut.prayRequest.items, editedItems)
         XCTAssertEqual(sut.prayRequest.category, editedCategory)
+        
+        // viewModel 동작 확인
+        XCTAssertTrue(mockViewModel.didUpdate)
+        XCTAssertTrue(mockViewModel.shouldFetch)
         
         // UI 상태가 편집 모드에서 읽기 모드로 변경됨
         XCTAssertEqual(sut.navigationItem.rightBarButtonItems?.first, sut.editBarButtonItem)
@@ -93,9 +102,52 @@ final class PrayRequestDetailViewControllerTests: XCTestCase {
         XCTAssertTrue(sut.prayEditorContainerView.isHidden)
     }
     
+    @MainActor
+    func test_completeButtonTapped_failure_updatesPrayRequestAndUI() async {
+        mockViewModel.shouldSucceed = false
+        
+        sut.editButtonTapped()
+        
+        // 가짜 편집된 PrayRequest 생성
+        let editedTitle = "Edited Title"
+        let editedItems = [PrayItem(name: "EditedName", content: "EditedContent")]
+        let editedCategory = PrayCategory.church
+        
+        sut.prayEditorView.titleTextField.text = editedTitle
+        sut.prayEditorView.prayItemTextView.text = PrayItemUtils.convertFromPrayItem(with: editedItems)
+        sut.prayEditorView.categorySelectorView.selectedIndex = PrayCategory.allCases.firstIndex(of: editedCategory)!
+        
+        sut.completeButtonTapped()
+        try? await Task.sleep(nanoseconds: 100_000_000)
+        
+        // prayRequest가 업데이트 실패했는지 확인
+        XCTAssertEqual(sut.prayRequest.title, originPrayRequest.title)
+        XCTAssertEqual(sut.prayRequest.items, originPrayRequest.items)
+        XCTAssertEqual(sut.prayRequest.category, originPrayRequest.category)
+        
+        // viewModel 동작 확인
+        XCTAssertFalse(mockViewModel.didUpdate)
+        XCTAssertFalse(mockViewModel.shouldFetch)
+        
+        // UI 상태가 편집 모드에서 읽기 모드로 변경되지 않음
+        XCTAssertEqual(sut.navigationItem.rightBarButtonItems?.first, sut.completeBarButtonItem)
+        XCTAssertTrue(sut.prayContainerView.isHidden)
+        XCTAssertFalse(sut.prayEditorContainerView.isHidden)
+    }
+    
+    @MainActor
+    func test_completeButtonTapped_failure_shouldPresentErrorAlert() async {
+        mockViewModel.shouldSucceed = false
+        
+        sut.completeButtonTapped()
+        try? await Task.sleep(nanoseconds: 100_000_000)
+        
+        XCTAssertTrue(sut.errorPresented)
+    }
+    
     func test_tableViewDataSource_numberOfRows() {
         let rows = sut.tableView(sut.prayDetailTableView, numberOfRowsInSection: 0)
-        XCTAssertEqual(rows, prayRequest.items.count)
+        XCTAssertEqual(rows, originPrayRequest.items.count)
     }
     
     func test_tableViewDataSource_cellForRow() {
@@ -104,8 +156,8 @@ final class PrayRequestDetailViewControllerTests: XCTestCase {
         
         // PrayDetailTableViewCell Configure
         XCTAssertNotNil(cell)
-        XCTAssertEqual(cell?.nameLabel.text, prayRequest.items[0].name)
-        XCTAssertEqual(cell?.contentLabel.text, prayRequest.items[0].content)
+        XCTAssertEqual(cell?.nameLabel.text, originPrayRequest.items[0].name)
+        XCTAssertEqual(cell?.contentLabel.text, originPrayRequest.items[0].content)
     }
     
     func test_updateRightBarButtonEnabled_changesCompleteButtonState() {
@@ -122,5 +174,41 @@ final class PrayRequestDetailViewControllerTests: XCTestCase {
         sut.updateRightBarButtonEnabled()
         
         XCTAssertFalse(sut.completeBarButtonItem.isEnabled)
+    }
+    
+    final class MockViewModel: PrayRequestViewModelProtocol {
+        @Published var prayRequests = [Core.PrayRequest]()
+        var prayRequestsPublisher: Published<[Core.PrayRequest]>.Publisher { $prayRequests }
+        @Published var shouldFetch = false
+        var shouldFetchPublisher: Published<Bool>.Publisher { $shouldFetch }
+        
+        var shouldSucceed = true
+        var didUpdate = false
+        
+        func addPrayRequest(prayRequest: PrayRequest) async throws {}
+        
+        func fetchPrayRequests() async throws {}
+        
+        func updatePrayRequest(prayRequest: Core.PrayRequest) async throws {
+            if shouldSucceed {
+                didUpdate = true
+            } else {
+                throw NSError(domain: "TestError", code: 999, userInfo: nil)
+            }
+        }
+        
+        func deletePrayRequests(prayRequestIds: [String]) async throws {}
+        
+        func activeFetchStatus() {
+            shouldFetch.toggle()
+        }
+    }
+    
+    final class SpyPrayRequestDetailViewController: PrayRequestDetailViewController {
+        var errorPresented = false
+        
+        override func presentErrorAlert(for error: Error) {
+            errorPresented = true
+        }
     }
 }

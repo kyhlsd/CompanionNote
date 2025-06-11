@@ -15,6 +15,8 @@ final public class PrayRequestViewModel: PrayRequestViewModelProtocol {
     
     @Published public var prayRequests = [PrayRequest]()
     public var prayRequestsPublisher: Published<[PrayRequest]>.Publisher { $prayRequests }
+    @Published public var shouldFetch = true
+    public var shouldFetchPublisher: Published<Bool>.Publisher { $shouldFetch }
     
     public init() {
         self.userIdentifier = UserDefaults.standard.string(forKey: "userId")
@@ -30,13 +32,39 @@ final public class PrayRequestViewModel: PrayRequestViewModelProtocol {
     
     public func fetchPrayRequests() async throws {
         guard let userIdentifier = userIdentifier else { return }
-        prayRequests = try await prayRequestUseCase.fetchPrayRequests(userId: userIdentifier)
+        let fetchedPrayRequests = try await prayRequestUseCase.fetchPrayRequests(userId: userIdentifier)
+        prayRequests = fetchedPrayRequests.sorted { $0.date > $1.date }
+    }
+    
+    public func updatePrayRequest(prayRequest: PrayRequest) async throws {
+        guard let userIdentifier = userIdentifier else { return }
+        try await prayRequestUseCase.updatePrayRequest(userId: userIdentifier, prayRequest: prayRequest)
+    }
+    
+    public func deletePrayRequests(prayRequestIds: [String]) async throws {
+        guard let userIdentifier = userIdentifier else { return }
+        try await withThrowingTaskGroup(of: Void.self) { group in
+            for id in prayRequestIds {
+                group.addTask {
+                    try await self.prayRequestUseCase.deletePrayRequest(userId: userIdentifier, document: id)
+                }
+            }
+            try await group.waitForAll()
+        }
+    }
+    
+    public func activeFetchStatus() {
+        shouldFetch.toggle()
     }
 }
 
 public protocol PrayRequestViewModelProtocol {
     func addPrayRequest(prayRequest: PrayRequest) async throws
     func fetchPrayRequests() async throws
+    func updatePrayRequest(prayRequest: PrayRequest) async throws
+    func deletePrayRequests(prayRequestIds: [String]) async throws
     var prayRequests: [PrayRequest] { get }
     var prayRequestsPublisher: Published<[PrayRequest]>.Publisher { get }
+    func activeFetchStatus()
+    var shouldFetchPublisher: Published<Bool>.Publisher { get }
 }

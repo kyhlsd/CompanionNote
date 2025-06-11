@@ -41,6 +41,10 @@ public final class FirestoreService {
         }
         return datas
     }
+    
+    func deleteDocumentInCollection(firstCollection: String, firstDocument: String, secondCollection: String, secondDocument: String) async throws {
+        try await db.collection(firstCollection).document(firstDocument).collection(secondCollection).document(secondDocument).delete()
+    }
 }
 
 // MARK: Repositories
@@ -52,6 +56,8 @@ public protocol UserRepository {
 public protocol PrayRequestRepository {
     func addPrayRequest(userId: String, prayRequest: PrayRequest) async throws
     func fetchPrayRequests(userId: String) async throws -> [PrayRequest]
+    func updatePrayRequest(userId: String, prayRequest: PrayRequest) async throws
+    func deletePrayRequest(userId: String, document: String) async throws
 }
 
 // MARK: RepositoryImplements
@@ -86,6 +92,14 @@ public final class PrayRequestRepositoryImpl: PrayRequestRepository {
     public func fetchPrayRequests(userId: String) async throws -> [PrayRequest] {
         return try await firestoreService.fetchDocumentsInCollection(firstCollection: "Prayers", document: userId, secondCollection: "Prayers")
     }
+    
+    public func updatePrayRequest(userId: String, prayRequest: PrayRequest) async throws {
+        try await firestoreService.setDocumentInCollection(firstCollection: "Prayers", firstDocument: userId, secondCollection: "Prayers", secondDocument: prayRequest.uuid.uuidString, data: prayRequest)
+    }
+    
+    public func deletePrayRequest(userId: String, document: String) async throws {
+        try await firestoreService.deleteDocumentInCollection(firstCollection: "Prayers", firstDocument: userId, secondCollection: "Prayers", secondDocument: document)
+    }
 }
 
 // MARK: UseCases
@@ -113,6 +127,8 @@ public final class DefaultUserUseCase: UserUseCase {
 public protocol PrayRequestUseCase {
     func addPrayRequest(userId: String, prayRequest: PrayRequest) async throws
     func fetchPrayRequests(userId: String) async throws -> [PrayRequest]
+    func updatePrayRequest(userId: String, prayRequest: PrayRequest) async throws
+    func deletePrayRequest(userId: String, document: String) async throws
 }
 
 public final class DefaultPrayRequestUseCase: PrayRequestUseCase {
@@ -128,6 +144,14 @@ public final class DefaultPrayRequestUseCase: PrayRequestUseCase {
     
     public func fetchPrayRequests(userId: String) async throws -> [PrayRequest] {
         return try await repository.fetchPrayRequests(userId: userId)
+    }
+    
+    public func updatePrayRequest(userId: String, prayRequest: PrayRequest) async throws {
+        try await repository.updatePrayRequest(userId: userId, prayRequest: prayRequest)
+    }
+    
+    public func deletePrayRequest(userId: String, document: String) async throws {
+        try await repository.deletePrayRequest(userId: userId, document: document)
     }
 }
 

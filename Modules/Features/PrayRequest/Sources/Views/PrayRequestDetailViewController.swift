@@ -9,7 +9,9 @@ import UIKit
 import Core
 import Shared
 
-final class PrayRequestDetailViewController: UIViewController {
+class PrayRequestDetailViewController: UIViewController {
+    
+    let viewModel: PrayRequestViewModelProtocol
     
     let prayRequest: PrayRequest
     
@@ -23,8 +25,9 @@ final class PrayRequestDetailViewController: UIViewController {
     let prayEditorContainerView = CellContainerView()
     let prayEditorView = PrayEditorView()
     
-    init(with prayRequest: PrayRequest) {
+    init(with prayRequest: PrayRequest, viewModel: PrayRequestViewModelProtocol) {
         self.prayRequest = prayRequest
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -232,17 +235,30 @@ final class PrayRequestDetailViewController: UIViewController {
         
         // 변경 사항이 있을 때만 update
         if prayRequest.title != editedPrayRequest.title || prayRequest.items != editedPrayRequest.items || prayRequest.category != editedPrayRequest.category {
-            prayRequest.updateData(title: editedPrayRequest.title, items: editedPrayRequest.items, category: editedPrayRequest.category)
-            
-            updateUI()
-            
+            let updatedPrayRequest = PrayRequest(date: prayRequest.date, title: editedPrayRequest.title, items: editedPrayRequest.items, category: editedPrayRequest.category, uuid: prayRequest.uuid)
+            Task {
+                do {
+                    try await viewModel.updatePrayRequest(prayRequest: updatedPrayRequest)
+                    prayRequest.updateData(title: editedPrayRequest.title, items: editedPrayRequest.items, category: editedPrayRequest.category)
+                    updateUI()
+                    self.viewModel.activeFetchStatus()
+                    
+                    navigationItem.rightBarButtonItems = [
+                        editBarButtonItem
+                    ]
+                    prayContainerView.isHidden = false
+                    prayEditorContainerView.isHidden = true
+                } catch {
+                    presentErrorAlert(for: error)
+                }
+            }
+        } else {
+            navigationItem.rightBarButtonItems = [
+                editBarButtonItem
+            ]
+            prayContainerView.isHidden = false
+            prayEditorContainerView.isHidden = true
         }
-        
-        navigationItem.rightBarButtonItems = [
-            editBarButtonItem
-        ]
-        prayContainerView.isHidden = false
-        prayEditorContainerView.isHidden = true
     }
     
     private func updateUI() {
@@ -286,6 +302,32 @@ final class PrayRequestDetailViewController: UIViewController {
 
         prayEditorView.updateBottomConstraint(animationDuration: animationDuration)
         prayEditorView.moveView(up: false, animationDuration: animationDuration)
+    }
+    
+    // MARK: Error Alert
+    func presentErrorAlert(for error: Error) {
+        let message = FirestoreErrorMapper.message(for: error)
+        
+        let alert = UIAlertController(
+            title: nil,
+            message: message,
+            preferredStyle: .alert
+        )
+        
+        let title = NSAttributedString(
+            string: "수정 실패",
+            attributes: [
+                .foregroundColor: UIColor.red,
+                .font: UIFont.boldSystemFont(ofSize: 17)
+            ]
+        )
+        
+        alert.setValue(title, forKey: "attributedTitle")
+        alert.addAction(UIAlertAction(title: "닫기", style: .default))
+        
+        DispatchQueue.main.async {
+            self.present(alert, animated: true)
+        }
     }
 }
 
