@@ -118,7 +118,7 @@ final class PrayRequestViewControllerTests: XCTestCase {
     }
     
     @MainActor
-    func test_fetchPrayRequests_failure_souldPresentErrorAlert() async {
+    func test_fetchPrayRequests_failure_shouldPresentErrorAlert() async {
         let mockViewModel = MockViewModel()
         mockViewModel.shouldSucceed = false
         

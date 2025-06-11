@@ -9,7 +9,7 @@ import UIKit
 import Core
 import Shared
 
-final class PrayRequestDetailViewController: UIViewController {
+class PrayRequestDetailViewController: UIViewController {
     
     let viewModel: PrayRequestViewModelProtocol
     
@@ -242,17 +242,23 @@ final class PrayRequestDetailViewController: UIViewController {
                     prayRequest.updateData(title: editedPrayRequest.title, items: editedPrayRequest.items, category: editedPrayRequest.category)
                     updateUI()
                     self.viewModel.activeFetchStatus()
+                    
+                    navigationItem.rightBarButtonItems = [
+                        editBarButtonItem
+                    ]
+                    prayContainerView.isHidden = false
+                    prayEditorContainerView.isHidden = true
                 } catch {
                     presentErrorAlert(for: error)
                 }
             }
+        } else {
+            navigationItem.rightBarButtonItems = [
+                editBarButtonItem
+            ]
+            prayContainerView.isHidden = false
+            prayEditorContainerView.isHidden = true
         }
-        
-        navigationItem.rightBarButtonItems = [
-            editBarButtonItem
-        ]
-        prayContainerView.isHidden = false
-        prayEditorContainerView.isHidden = true
     }
     
     private func updateUI() {
