@@ -104,7 +104,9 @@ public class SocialLoginViewController: UIViewController {
     
     // MARK: Button Actions
     func appleLoginButtonTapped() {
-        Task {
+        Task { [weak self] in
+            guard let self = self else { return }
+            
             do {
                 guard let anchor = self.view.window else { return }
                 let userIdentifier = try await appleSignInUseCase.execute(presentationAnchor: anchor)
@@ -123,7 +125,9 @@ public class SocialLoginViewController: UIViewController {
     }
     
     func kakaoLoginButtonTapped() {
-        Task {
+        Task { [weak self] in
+            guard let self = self else { return }
+            
             do {
                 let userIdentifier = try await kakaoSignInUseCase.execute()
                 

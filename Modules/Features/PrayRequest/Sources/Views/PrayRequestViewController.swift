@@ -16,9 +16,12 @@ public class PrayRequestViewController: UIViewController {
     private var searchTextSubject = PassthroughSubject<String, Never>()
     private var cancellables = Set<AnyCancellable>()
     
+    let titleBarLabelItem = UIBarButtonItem()
+    let editBarLabel = UILabel()
     let plusBarButtonItem = UIBarButtonItem()
     let deleteBarButtonItem = UIBarButtonItem()
     let completeBarButtonItem = UIBarButtonItem()
+    let cancelBarButtonItem = UIBarButtonItem()
     private let categorySelectorView = CategorySelectorView(categories: ["전체"] + PrayCategory.allCases.map { $0.rawValue }, isUnderlineVisible: true)
     let praySearchBar = CustomSearchBar()
     let prayRequestCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
@@ -61,23 +64,39 @@ public class PrayRequestViewController: UIViewController {
     
     // MARK: Setups
     private func setupNavigationBar() {
+        setupTitleBarLabelItem()
+        setupEditBarLabel()
         setupPlusBarButtonItem()
         setupDeleteBarButtonItem()
         setupCompleteBarButtonItem()
+        setupCancelBarButtonItem()
         
-        let titleLabel = UILabel()
-        titleLabel.attributedText = NSAttributedString(
-            string: "기도 제목",
-            attributes: Shared.FontTextAttributes.navBarTextAttributes
-        )
-        titleLabel.font = Shared.AppFonts.navBarTitle
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-
-        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: titleLabel)
+        navigationItem.leftBarButtonItem = titleBarLabelItem
         navigationItem.rightBarButtonItems = [
             deleteBarButtonItem,
             plusBarButtonItem
         ]
+    }
+    
+    private func setupTitleBarLabelItem() {
+        let label = UILabel()
+        label.attributedText = NSAttributedString(
+            string: "기도 제목",
+            attributes: Shared.FontTextAttributes.navBarLeftTitleAttributes
+        )
+        label.font = Shared.AppFonts.navBarLeftTitle
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
+        titleBarLabelItem.customView = label
+    }
+    
+    private func setupEditBarLabel() {
+        editBarLabel.attributedText = NSAttributedString(
+            string: "편집",
+            attributes: Shared.FontTextAttributes.navBarCenterTitleAttributes
+        )
+        editBarLabel.font = Shared.AppFonts.navBarCenterTitle
+        editBarLabel.translatesAutoresizingMaskIntoConstraints = false
     }
     
     private func setupPlusBarButtonItem() {
@@ -116,6 +135,14 @@ public class PrayRequestViewController: UIViewController {
         button.setTitleColor(UIColor.systemBlue, for: .normal)
         button.titleLabel?.font = Shared.AppFonts.navBarButtonText
         completeBarButtonItem.customView = button
+    }
+    
+    private func setupCancelBarButtonItem() {
+        let button = UIButton()
+        button.setTitle("취소", for: .normal)
+        button.setTitleColor(UIColor.systemBlue, for: .normal)
+        button.titleLabel?.font = Shared.AppFonts.navBarButtonText
+        cancelBarButtonItem.customView = button
     }
     
     private func setupUI() {
@@ -178,6 +205,13 @@ public class PrayRequestViewController: UIViewController {
                 self?.completeButtonTapped()
             }, for: .touchUpInside)
         }
+        
+        // CancelButton
+        if let button = cancelBarButtonItem.customView as? UIButton {
+            button.addAction(UIAction { [weak self] _ in
+                self?.cancelButtonTapped()
+            }, for: .touchUpInside)
+        }
     }
     
     private func setupDelegate() {
@@ -224,19 +258,22 @@ public class PrayRequestViewController: UIViewController {
             cell.enableDeleteMode()
         }
         isDeleteMode = true
+        
+        navigationItem.leftBarButtonItem = cancelBarButtonItem
         navigationItem.rightBarButtonItems = [
             completeBarButtonItem
         ]
+        navigationItem.titleView = editBarLabel
     }
     
     private func completeButtonTapped() {
-        Task {
+        Task { [weak self] in
+            guard let self = self else { return }
+            
             do {
                 if deleteIds.isEmpty {
                     isDeleteMode = false
-                    DispatchQueue.main.async { [weak self] in
-                        self?.prayRequestCollectionView.reloadData()
-                    }
+                    prayRequestCollectionView.reloadData()
                 } else {
                     try await viewModel.deletePrayRequests(prayRequestIds: deleteIds)
                     deleteIds = []
@@ -244,15 +281,35 @@ public class PrayRequestViewController: UIViewController {
                     viewModel.activeFetchStatus()
                 }
                 
+                navigationItem.leftBarButtonItem = titleBarLabelItem
                 navigationItem.rightBarButtonItems = [
                     deleteBarButtonItem,
                     plusBarButtonItem
                 ]
+                navigationItem.titleView = nil
                 
                 
             } catch {
                 presentErrorAlert(for: error, title: "삭제 실패")
             }
+        }
+    }
+    
+    private func cancelButtonTapped() {
+        Task { [weak self] in
+            guard let self = self else { return }
+            
+            deleteIds = []
+            isDeleteMode = false
+            
+            prayRequestCollectionView.reloadData()
+            
+            navigationItem.leftBarButtonItem = titleBarLabelItem
+            navigationItem.rightBarButtonItems = [
+                deleteBarButtonItem,
+                plusBarButtonItem
+            ]
+            navigationItem.titleView = nil
         }
     }
     
@@ -262,7 +319,8 @@ public class PrayRequestViewController: UIViewController {
     }
     
     private func fetchData() {
-        Task {
+        Task { [weak self] in
+            guard let self = self else { return }
             do {
                 try await viewModel.fetchPrayRequests()
                 

@@ -60,10 +60,10 @@ class PrayRequestDetailViewController: UIViewController {
         let titleLabel = UILabel()
         titleLabel.attributedText = NSAttributedString(
             string: "기도 제목",
-            attributes: Shared.FontTextAttributes.navBarTextAttributes
+            attributes: Shared.FontTextAttributes.navBarCenterTitleAttributes
         )
         
-        titleLabel.font = Shared.AppFonts.navBarTitle
+        titleLabel.font = Shared.AppFonts.navBarCenterTitle
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         
         navigationItem.titleView = titleLabel
@@ -236,7 +236,9 @@ class PrayRequestDetailViewController: UIViewController {
         // 변경 사항이 있을 때만 update
         if prayRequest.title != editedPrayRequest.title || prayRequest.items != editedPrayRequest.items || prayRequest.category != editedPrayRequest.category {
             let updatedPrayRequest = PrayRequest(date: prayRequest.date, title: editedPrayRequest.title, items: editedPrayRequest.items, category: editedPrayRequest.category, uuid: prayRequest.uuid)
-            Task {
+            Task { [weak self] in
+                guard let self = self else { return }
+                
                 do {
                     try await viewModel.updatePrayRequest(prayRequest: updatedPrayRequest)
                     prayRequest.updateData(title: editedPrayRequest.title, items: editedPrayRequest.items, category: editedPrayRequest.category)

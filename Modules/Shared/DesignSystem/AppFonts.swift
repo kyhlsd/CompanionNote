@@ -8,7 +8,8 @@
 import UIKit
 
 public enum AppFonts {
-    public static let navBarTitle: UIFont = UIFont(name: "IropkeBatangM", size: 22) ?? .systemFont(ofSize: 22)
+    public static let navBarLeftTitle: UIFont = UIFont(name: "IropkeBatangM", size: 22) ?? .systemFont(ofSize: 22)
+    public static let navBarCenterTitle: UIFont = UIFont(name: "IropkeBatangM", size: 18) ?? .systemFont(ofSize: 18)
     public static let navBarButtonText: UIFont = .systemFont(ofSize: 17, weight: .bold)
     public static let title: UIFont = UIFont(name: "IropkeBatangM", size: 20) ?? .systemFont(ofSize: 20)
     public static let body: UIFont = UIFont(name: "IropkeBatangM", size: 16) ?? .systemFont(ofSize: 16)
@@ -19,8 +20,11 @@ public enum AppFonts {
 }
 
 public enum FontTextAttributes {
-    public static let navBarTextAttributes: [NSAttributedString.Key: Any] = [
+    public static let navBarLeftTitleAttributes: [NSAttributedString.Key: Any] = [
         .strokeWidth: -2.5
+    ]
+    public static let navBarCenterTitleAttributes: [NSAttributedString.Key: Any] = [
+        .strokeWidth: -3.0
     ]
     public static let bodyTextAttributes: [NSAttributedString.Key: Any] = [
         .strokeWidth: -3.0
