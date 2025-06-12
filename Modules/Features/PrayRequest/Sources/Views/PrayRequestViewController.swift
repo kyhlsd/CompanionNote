@@ -232,19 +232,24 @@ public class PrayRequestViewController: UIViewController {
     private func completeButtonTapped() {
         Task {
             do {
-                if !deleteIds.isEmpty {
+                if deleteIds.isEmpty {
+                    isDeleteMode = false
+                    DispatchQueue.main.async { [weak self] in
+                        self?.prayRequestCollectionView.reloadData()
+                    }
+                } else {
                     try await viewModel.deletePrayRequests(prayRequestIds: deleteIds)
+                    deleteIds = []
+                    isDeleteMode = false
+                    viewModel.activeFetchStatus()
                 }
-                deleteIds = []
                 
-                isDeleteMode = false
-                prayRequestCollectionView.reloadData()
                 navigationItem.rightBarButtonItems = [
                     deleteBarButtonItem,
                     plusBarButtonItem
                 ]
                 
-                viewModel.activeFetchStatus()
+                
             } catch {
                 presentErrorAlert(for: error, title: "삭제 실패")
             }
