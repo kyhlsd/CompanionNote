@@ -45,10 +45,10 @@ class AddPrayRequestViewController: UIViewController {
         
         label.attributedText = NSAttributedString(
             string: "기도 제목 추가",
-            attributes: Shared.FontTextAttributes.navBarTextAttributes
+            attributes: Shared.FontTextAttributes.navBarCenterTitleAttributes
         )
         
-        label.font = Shared.AppFonts.navBarTitle
+        label.font = Shared.AppFonts.navBarCenterTitle
         label.translatesAutoresizingMaskIntoConstraints = false
         
         let button = UIButton()

@@ -50,6 +50,28 @@ final class PrayRequestViewControllerTests: XCTestCase {
 
         // Then
         XCTAssertTrue(sut.navigationItem.rightBarButtonItems?.contains(sut.completeBarButtonItem) ?? false)
+        XCTAssertEqual(sut.navigationItem.leftBarButtonItem, sut.cancelBarButtonItem)
+        XCTAssertEqual(sut.navigationItem.titleView, sut.editBarLabel)
+    }
+    
+    @MainActor
+    func test_cancelButtonTapped_escapeDeleteMode() async {
+        // Given
+        sut.deleteIds = ["test1"]
+        sut.isDeleteMode = true
+        
+        // When
+        let cancelButton = sut.cancelBarButtonItem.customView as? UIButton
+        cancelButton?.sendActions(for: .touchUpInside)
+        try? await Task.sleep(nanoseconds: 100_000_000)
+        
+        // Then
+        XCTAssertFalse(mockViewModel.didDelete)
+        XCTAssertTrue(sut.deleteIds.isEmpty)
+        XCTAssertFalse(sut.isDeleteMode)
+        XCTAssertTrue(sut.navigationItem.rightBarButtonItems?.contains(sut.plusBarButtonItem) ?? false)
+        XCTAssertEqual(sut.navigationItem.leftBarButtonItem, sut.titleBarLabelItem)
+        XCTAssertNil(sut.navigationItem.titleView)
     }
 
     @MainActor
@@ -68,6 +90,8 @@ final class PrayRequestViewControllerTests: XCTestCase {
         XCTAssertTrue(mockViewModel.didDelete)
         XCTAssertFalse(sut.isDeleteMode)
         XCTAssertTrue(sut.navigationItem.rightBarButtonItems?.contains(sut.plusBarButtonItem) ?? false)
+        XCTAssertEqual(sut.navigationItem.leftBarButtonItem, sut.titleBarLabelItem)
+        XCTAssertNil(sut.navigationItem.titleView)
     }
     
     @MainActor
@@ -78,7 +102,9 @@ final class PrayRequestViewControllerTests: XCTestCase {
         sut.deleteIds = ["test1, test2, test3"]
         let completeButton = sut.completeBarButtonItem.customView as? UIButton
         sut.navigationItem.rightBarButtonItems = [sut.completeBarButtonItem]
-
+        sut.navigationItem.leftBarButtonItem = sut.cancelBarButtonItem
+        sut.navigationItem.titleView = sut.editBarLabel
+        
         // When
         completeButton?.sendActions(for: .touchUpInside)
         try? await Task.sleep(nanoseconds: 100_000_000)
@@ -87,6 +113,8 @@ final class PrayRequestViewControllerTests: XCTestCase {
         XCTAssertFalse(mockViewModel.didDelete)
         XCTAssertTrue(sut.isDeleteMode)
         XCTAssertTrue(sut.navigationItem.rightBarButtonItems?.contains(sut.completeBarButtonItem) ?? false)
+        XCTAssertEqual(sut.navigationItem.leftBarButtonItem, sut.cancelBarButtonItem)
+        XCTAssertEqual(sut.navigationItem.titleView, sut.editBarLabel)
         XCTAssertTrue(sut.errorPresented)
     }
 
