@@ -13,13 +13,14 @@ import Combine
 public class PrayRequestViewController: UIViewController {
     
     let viewModel: PrayRequestViewModelProtocol
+    private var searchTextSubject = PassthroughSubject<String, Never>()
     private var cancellables = Set<AnyCancellable>()
     
     let plusBarButtonItem = UIBarButtonItem()
     let deleteBarButtonItem = UIBarButtonItem()
     let completeBarButtonItem = UIBarButtonItem()
     private let categorySelectorView = CategorySelectorView(categories: ["전체"] + PrayCategory.allCases.map { $0.rawValue }, isUnderlineVisible: true)
-    private let praySearchBar = CustomSearchBar()
+    let praySearchBar = CustomSearchBar()
     let prayRequestCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     
     var isDeleteMode = false
@@ -33,8 +34,7 @@ public class PrayRequestViewController: UIViewController {
         setupButtonActions()
         setupDelegate()
         setupTapGesture()
-        
-        bindViewModel()
+        setupBinding()
     }
     
     public init(viewModel: PrayRequestViewModelProtocol) {
@@ -184,6 +184,7 @@ public class PrayRequestViewController: UIViewController {
         prayRequestCollectionView.dataSource = self
         prayRequestCollectionView.delegate = self
         categorySelectorView.selectCategoryDelegate = self
+        praySearchBar.delegate = self
     }
     
     private func setupTapGesture() {
@@ -205,6 +206,11 @@ public class PrayRequestViewController: UIViewController {
         navBarTapGesture.name = "NavBarKeyboardDismiss"
         navBarTapGesture.cancelsTouchesInView = false
         navigationController?.navigationBar.addGestureRecognizer(navBarTapGesture)
+    }
+    
+    private func setupBinding() {
+        bindViewModel()
+        bindSearchBar()
     }
     
     // MARK: Button Actions
@@ -254,12 +260,17 @@ public class PrayRequestViewController: UIViewController {
         Task {
             do {
                 try await viewModel.fetchPrayRequests()
+                
+                if let searchText = praySearchBar.text?.trimmingCharacters(in: .whitespacesAndNewlines), !searchText.isEmpty {
+                    viewModel.updateSearchedResults(with: searchText)
+                }
             } catch {
                 presentErrorAlert(for: error, title: "불러오기 실패")
             }
         }
     }
     
+    // MARK: Bindings
     private func bindViewModel() {
         viewModel.prayRequestsPublisher
             .sink { [weak self] _ in
@@ -272,6 +283,16 @@ public class PrayRequestViewController: UIViewController {
         viewModel.shouldFetchPublisher
             .sink { [weak self] _ in
                 self?.fetchData()
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func bindSearchBar() {
+        searchTextSubject
+            .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
+            .removeDuplicates()
+            .sink { [weak self] searchText in
+                self?.viewModel.updateSearchedResults(with: searchText)
             }
             .store(in: &cancellables)
     }
@@ -387,5 +408,12 @@ extension PrayRequestViewController: SelectCategoryDelegate {
     public func didSelectCategory(_ index: Int) {
         let categories = ["전체"] + PrayCategory.allCases.map { $0.rawValue }
         print(categories[index])
+    }
+}
+
+extension PrayRequestViewController: UISearchBarDelegate {
+    public func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        let trimmed = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        searchTextSubject.send(trimmed)
     }
 }

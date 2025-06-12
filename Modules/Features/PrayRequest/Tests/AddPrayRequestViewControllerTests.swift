@@ -150,6 +150,7 @@ final class AddPrayRequestViewControllerTests: XCTestCase {
         func updatePrayRequest(prayRequest: Core.PrayRequest) async throws {}
         func deletePrayRequests(prayRequestIds: [String]) async throws {}
         func activeFetchStatus() {}
+        func updateSearchedResults(with searchText: String) {}
     }
     
     final class SpyNavigationController: UINavigationController {

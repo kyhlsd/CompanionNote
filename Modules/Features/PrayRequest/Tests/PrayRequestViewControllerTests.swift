@@ -24,6 +24,7 @@ final class PrayRequestViewControllerTests: XCTestCase {
 
     override func tearDown() {
         sut = nil
+        mockViewModel = nil
         super.tearDown()
     }
 
@@ -158,7 +159,27 @@ final class PrayRequestViewControllerTests: XCTestCase {
         XCTAssertTrue(sut.errorPresented)
     }
     
+    func test_searchPrayRequest() {
+        // Given
+        let firstItem = PrayRequest(date: Date(), title: "Test1", items: [], category: .church)
+        let secondItem = PrayRequest(date: Date(), title: "Test2", items: [], category: .church)
+        mockViewModel.totalPrayRequests = [firstItem, secondItem]
+
+        // When
+        sut.searchBar(sut.praySearchBar, textDidChange: "test2")
+        RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.4))
+
+        // Then
+        XCTAssertFalse(mockViewModel.prayRequests.contains { item in
+            item.uuid == firstItem.uuid
+        })
+        XCTAssertTrue(mockViewModel.prayRequests.contains { item in
+            item.uuid == secondItem.uuid
+        })
+    }
+    
     final class MockViewModel: PrayRequestViewModelProtocol {
+        var totalPrayRequests = [Core.PrayRequest]()
         @Published var prayRequests = [Core.PrayRequest]()
         var prayRequestsPublisher: Published<[Core.PrayRequest]>.Publisher { $prayRequests }
         @Published var shouldFetch = true
@@ -188,6 +209,18 @@ final class PrayRequestViewControllerTests: XCTestCase {
             }
         }
         func activeFetchStatus() {}
+        func updateSearchedResults(with searchText: String) {
+            guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                prayRequests = totalPrayRequests.sorted { $0.date > $1.date }
+                        return
+            }
+            
+            let filtered = totalPrayRequests.filter {
+                SearchPrayRequestUtils.matches(target: $0, keyword: searchText)
+            }
+            
+            prayRequests = filtered.sorted { $0.date > $1.date }
+        }
     }
     
     final class SpyPrayRequestViewController: PrayRequestViewController {

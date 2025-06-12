@@ -13,6 +13,7 @@ final public class PrayRequestViewModel: PrayRequestViewModelProtocol {
     let userIdentifier: String?
     let prayRequestUseCase: PrayRequestUseCase
     
+    private var totalPrayRequests = [PrayRequest]()
     @Published public var prayRequests = [PrayRequest]()
     public var prayRequestsPublisher: Published<[PrayRequest]>.Publisher { $prayRequests }
     @Published public var shouldFetch = true
@@ -32,8 +33,9 @@ final public class PrayRequestViewModel: PrayRequestViewModelProtocol {
     
     public func fetchPrayRequests() async throws {
         guard let userIdentifier = userIdentifier else { return }
-        let fetchedPrayRequests = try await prayRequestUseCase.fetchPrayRequests(userId: userIdentifier)
-        prayRequests = fetchedPrayRequests.sorted { $0.date > $1.date }
+        let fetched = try await prayRequestUseCase.fetchPrayRequests(userId: userIdentifier)
+        totalPrayRequests = fetched
+        prayRequests = fetched.sorted { $0.date > $1.date }
     }
     
     public func updatePrayRequest(prayRequest: PrayRequest) async throws {
@@ -56,6 +58,19 @@ final public class PrayRequestViewModel: PrayRequestViewModelProtocol {
     public func activeFetchStatus() {
         shouldFetch.toggle()
     }
+    
+    public func updateSearchedResults(with searchText: String) {
+        guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            prayRequests = totalPrayRequests.sorted { $0.date > $1.date }
+                    return
+        }
+        
+        let filtered = totalPrayRequests.filter {
+            SearchPrayRequestUtils.matches(target: $0, keyword: searchText)
+        }
+        
+        prayRequests = filtered.sorted { $0.date > $1.date }
+    }
 }
 
 public protocol PrayRequestViewModelProtocol {
@@ -67,4 +82,5 @@ public protocol PrayRequestViewModelProtocol {
     var prayRequestsPublisher: Published<[PrayRequest]>.Publisher { get }
     func activeFetchStatus()
     var shouldFetchPublisher: Published<Bool>.Publisher { get }
+    func updateSearchedResults(with searchText: String)
 }
