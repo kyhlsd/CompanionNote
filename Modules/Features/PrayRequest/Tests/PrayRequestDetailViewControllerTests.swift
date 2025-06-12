@@ -36,6 +36,7 @@ final class PrayRequestDetailViewControllerTests: XCTestCase {
     override func tearDown() {
         prayRequest = nil
         sut = nil
+        mockViewModel = nil
         super.tearDown()
     }
     
@@ -202,6 +203,8 @@ final class PrayRequestDetailViewControllerTests: XCTestCase {
         func activeFetchStatus() {
             shouldFetch.toggle()
         }
+        func updateSearchedResults(with searchText: String) {}
+        func updateSelectedResults(with index: Int) {}
     }
     
     final class SpyPrayRequestDetailViewController: PrayRequestDetailViewController {

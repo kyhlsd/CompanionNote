@@ -18,7 +18,9 @@ public class CheckBox: UIButton {
     private func updateImage() {
         let imageName = isChecked ? "checkmark.square" : "square"
         let image = UIImage(systemName: imageName)
-        self.configuration?.image = image
+        DispatchQueue.main.async { [weak self] in
+            self?.configuration?.image = image
+        }
     }
     
     override init(frame: CGRect) {
