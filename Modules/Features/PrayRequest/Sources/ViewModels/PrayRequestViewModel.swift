@@ -14,6 +14,7 @@ final public class PrayRequestViewModel: PrayRequestViewModelProtocol {
     let prayRequestUseCase: PrayRequestUseCase
     
     private var totalPrayRequests = [PrayRequest]()
+    private var selectedPrayRequests = [PrayRequest]()
     @Published public var prayRequests = [PrayRequest]()
     public var prayRequestsPublisher: Published<[PrayRequest]>.Publisher { $prayRequests }
     @Published public var shouldFetch = true
@@ -35,7 +36,7 @@ final public class PrayRequestViewModel: PrayRequestViewModelProtocol {
         guard let userIdentifier = userIdentifier else { return }
         let fetched = try await prayRequestUseCase.fetchPrayRequests(userId: userIdentifier)
         totalPrayRequests = fetched
-        prayRequests = fetched.sorted { $0.date > $1.date }
+//        prayRequests = fetched.sorted { $0.date > $1.date }
     }
     
     public func updatePrayRequest(prayRequest: PrayRequest) async throws {
@@ -59,13 +60,27 @@ final public class PrayRequestViewModel: PrayRequestViewModelProtocol {
         shouldFetch.toggle()
     }
     
+    public func updateSelectedResults(with index: Int) {
+        let categories = ["전체"] + PrayCategory.allCases.map { $0.rawValue }
+        guard categories.count > index, index >= 0 else { return }
+        
+        if index == 0 {
+            selectedPrayRequests = totalPrayRequests
+            return
+        }
+        
+        let categoryRawValue = categories[index]
+        let selected = totalPrayRequests.filter { $0.category.rawValue == categoryRawValue }
+        selectedPrayRequests = selected
+    }
+    
     public func updateSearchedResults(with searchText: String) {
         guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            prayRequests = totalPrayRequests.sorted { $0.date > $1.date }
+            prayRequests = selectedPrayRequests.sorted { $0.date > $1.date }
                     return
         }
         
-        let filtered = totalPrayRequests.filter {
+        let filtered = selectedPrayRequests.filter {
             SearchPrayRequestUtils.matches(target: $0, keyword: searchText)
         }
         
@@ -82,5 +97,6 @@ public protocol PrayRequestViewModelProtocol {
     var prayRequestsPublisher: Published<[PrayRequest]>.Publisher { get }
     func activeFetchStatus()
     var shouldFetchPublisher: Published<Bool>.Publisher { get }
+    func updateSelectedResults(with index: Int)
     func updateSearchedResults(with searchText: String)
 }

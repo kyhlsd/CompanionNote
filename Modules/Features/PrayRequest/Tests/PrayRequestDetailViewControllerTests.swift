@@ -204,6 +204,7 @@ final class PrayRequestDetailViewControllerTests: XCTestCase {
             shouldFetch.toggle()
         }
         func updateSearchedResults(with searchText: String) {}
+        func updateSelectedResults(with index: Int) {}
     }
     
     final class SpyPrayRequestDetailViewController: PrayRequestDetailViewController {

@@ -137,13 +137,20 @@ final class PrayRequestViewControllerTests: XCTestCase {
 
     func test_didSelectCategory_logsCorrectCategory() {
         // Given
-        let categories = ["전체"] + PrayCategory.allCases.map { $0.rawValue }
+        let firstItem = PrayRequest(date: Date(), title: "Test1", items: [], category: .church)
+        let secondItem = PrayRequest(date: Date(), title: "Test2", items: [], category: .personal)
+        mockViewModel.totalPrayRequests = [firstItem, secondItem]
 
         // When
         sut.didSelectCategory(1)
 
         // Then
-        // TODO: 로그 확인 대신 실제 필터 적용되면 해당 부분 테스트
+        XCTAssertTrue(mockViewModel.selectedPrayRequests.contains {
+            $0.uuid == firstItem.uuid
+        })
+        XCTAssertFalse(mockViewModel.selectedPrayRequests.contains {
+            $0.uuid == secondItem.uuid
+        })
     }
     
     @MainActor
@@ -180,6 +187,7 @@ final class PrayRequestViewControllerTests: XCTestCase {
     
     final class MockViewModel: PrayRequestViewModelProtocol {
         var totalPrayRequests = [Core.PrayRequest]()
+        var selectedPrayRequests = [Core.PrayRequest]()
         @Published var prayRequests = [Core.PrayRequest]()
         var prayRequestsPublisher: Published<[Core.PrayRequest]>.Publisher { $prayRequests }
         @Published var shouldFetch = true
@@ -220,6 +228,19 @@ final class PrayRequestViewControllerTests: XCTestCase {
             }
             
             prayRequests = filtered.sorted { $0.date > $1.date }
+        }
+        func updateSelectedResults(with index: Int) {
+            let categories = ["전체"] + PrayCategory.allCases.map { $0.rawValue }
+            guard categories.count > index, index >= 0 else { return }
+            
+            if index == 0 {
+                selectedPrayRequests = totalPrayRequests
+                return
+            }
+            
+            let categoryRawValue = categories[index]
+            let selected = totalPrayRequests.filter { $0.category.rawValue == categoryRawValue }
+            selectedPrayRequests = selected
         }
     }
     

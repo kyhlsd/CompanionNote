@@ -261,9 +261,8 @@ public class PrayRequestViewController: UIViewController {
             do {
                 try await viewModel.fetchPrayRequests()
                 
-                if let searchText = praySearchBar.text?.trimmingCharacters(in: .whitespacesAndNewlines), !searchText.isEmpty {
-                    viewModel.updateSearchedResults(with: searchText)
-                }
+                viewModel.updateSelectedResults(with: categorySelectorView.selectedIndex)
+                viewModel.updateSearchedResults(with: praySearchBar.text ?? "")
             } catch {
                 presentErrorAlert(for: error, title: "불러오기 실패")
             }
@@ -406,8 +405,8 @@ extension PrayRequestViewController: UICollectionViewDataSource, UICollectionVie
 
 extension PrayRequestViewController: SelectCategoryDelegate {
     public func didSelectCategory(_ index: Int) {
-        let categories = ["전체"] + PrayCategory.allCases.map { $0.rawValue }
-        print(categories[index])
+        viewModel.updateSelectedResults(with: index)
+        viewModel.updateSearchedResults(with: praySearchBar.text ?? "")
     }
 }
 
