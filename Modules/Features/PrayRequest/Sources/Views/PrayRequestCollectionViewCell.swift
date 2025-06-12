@@ -122,7 +122,6 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
     }
     
     func configure(with prayRequest: PrayRequest) {
-        
         categoryLabel.text = prayRequest.category.rawValue
         categoryLabel.backgroundColor = UIColor(named: prayRequest.category.colorIdentifier, in: .module, compatibleWith: nil)
         
@@ -134,12 +133,11 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
         dateLabel.text = DateFormatUtil.shortWithDayFormatter.string(from: prayRequest.date)
         
         prayItems = prayRequest.items
+        prayRequestUUID = prayRequest.uuid
         
-        DispatchQueue.main.async {
-            self.prayItemTableView.reloadData()
+        DispatchQueue.main.async { [weak self] in
+            self?.prayItemTableView.reloadData()
         }
-        
-        self.prayRequestUUID = prayRequest.uuid
     }
     
     func enableDeleteMode() {

@@ -262,14 +262,15 @@ class PrayRequestDetailViewController: UIViewController {
     }
     
     private func updateUI() {
-        DispatchQueue.main.async {
-            self.categoryLabel.text = self.prayRequest.category.rawValue
-            self.categoryLabel.backgroundColor = UIColor(named: self.prayRequest.category.colorIdentifier, in: .module, compatibleWith: nil)
-            self.titleLabel.attributedText = NSAttributedString(
-                string: self.prayRequest.title,
-                attributes: Shared.FontTextAttributes.titleTextAttributes
-            )
-            self.prayDetailTableView.reloadData()
+        categoryLabel.text = prayRequest.category.rawValue
+        categoryLabel.backgroundColor = UIColor(named: prayRequest.category.colorIdentifier, in: .module, compatibleWith: nil)
+        titleLabel.attributedText = NSAttributedString(
+            string: prayRequest.title,
+            attributes: Shared.FontTextAttributes.titleTextAttributes
+        )
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.prayDetailTableView.reloadData()
         }
     }
     

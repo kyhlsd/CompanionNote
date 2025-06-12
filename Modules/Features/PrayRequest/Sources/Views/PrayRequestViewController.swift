@@ -238,7 +238,6 @@ public class PrayRequestViewController: UIViewController {
                 deleteIds = []
                 
                 isDeleteMode = false
-                prayRequestCollectionView.reloadData()
                 navigationItem.rightBarButtonItems = [
                     deleteBarButtonItem,
                     plusBarButtonItem
