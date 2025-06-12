@@ -349,7 +349,8 @@ extension PrayRequestViewController: UICollectionViewDataSource, UICollectionVie
         let prayRequest = viewModel.prayRequests[indexPath.row]
         cell.configure(with: prayRequest)
         cell.checkBox.isUserInteractionEnabled = false
-        if isDeleteMode {
+        if isDeleteMode, let id = cell.getPrayRequestUUID()?.uuidString {
+            cell.checkBox.isChecked = deleteIds.contains(id)
             cell.enableDeleteMode()
         } else {
             cell.disableDeleteMode()
@@ -360,7 +361,8 @@ extension PrayRequestViewController: UICollectionViewDataSource, UICollectionVie
     public func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         guard let cell = cell as? PrayRequestCollectionViewCell else { return }
 
-        if isDeleteMode {
+        if isDeleteMode, let id = cell.getPrayRequestUUID()?.uuidString {
+            cell.checkBox.isChecked = deleteIds.contains(id)
             cell.enableDeleteMode()
         } else {
             cell.disableDeleteMode()
@@ -369,17 +371,16 @@ extension PrayRequestViewController: UICollectionViewDataSource, UICollectionVie
     
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         // 삭제 모드일 때 체크박스 토글
-        if isDeleteMode {
-            if let cell = collectionView.cellForItem(at: indexPath) as? PrayRequestCollectionViewCell {
-                cell.toggleCheckBoxState()
-                
-                guard let uuid = cell.getPrayRequestUUID() else { return }
-                let id = uuid.uuidString
-                if let index = deleteIds.firstIndex(of: id) {
-                    deleteIds.remove(at: index)
-                } else {
-                    deleteIds.append(id)
-                }
+        if isDeleteMode,
+           let cell = collectionView.cellForItem(at: indexPath) as? PrayRequestCollectionViewCell,
+           let id = cell.getPrayRequestUUID()?.uuidString {
+            
+            cell.toggleCheckBoxState()
+            
+            if deleteIds.contains(id) {
+                deleteIds.removeAll { $0 == id }
+            } else {
+                deleteIds.append(id)
             }
         } else { // 기본 모드일 때 상세보기
             let selectedPrayRequest = viewModel.prayRequests[indexPath.row]
