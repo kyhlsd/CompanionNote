@@ -25,9 +25,14 @@ public class PrayRequestViewController: UIViewController {
     private let categorySelectorView = CategorySelectorView(categories: ["전체"] + PrayCategory.allCases.map { $0.rawValue }, isUnderlineVisible: true)
     let praySearchBar = CustomSearchBar()
     let prayRequestCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    private let emptyView = UIView()
+    private let emptyImageView = UIImageView()
     
     var isDeleteMode = false
     var deleteIds = [String]()
+    
+    private var imageWidthConstraint: NSLayoutConstraint!
+    private var imageHeightConstraint: NSLayoutConstraint!
     
     public override func viewDidLoad() {
         super.viewDidLoad()
@@ -60,6 +65,11 @@ public class PrayRequestViewController: UIViewController {
         coordinator.animate(alongsideTransition: { _ in
             self.prayRequestCollectionView.collectionViewLayout.invalidateLayout()
         })
+    }
+    
+    public override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        resizeEmptyImage()
     }
     
     // MARK: Setups
@@ -147,16 +157,19 @@ public class PrayRequestViewController: UIViewController {
     
     private func setupUI() {
         setupPrayRequestCollectionVIew()
+        setupEmptyView()
         
         view.backgroundColor = UIColor(named: "BackgroundColor")
         
         view.addSubview(categorySelectorView)
         view.addSubview(praySearchBar)
         view.addSubview(prayRequestCollectionView)
+        view.addSubview(emptyView)
         
         categorySelectorView.translatesAutoresizingMaskIntoConstraints = false
         praySearchBar.translatesAutoresizingMaskIntoConstraints = false
         prayRequestCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        emptyView.translatesAutoresizingMaskIntoConstraints = false
         
         let sidePadding = Constants.sidePadding
         let innerPadding = Constants.innerPadding
@@ -176,12 +189,54 @@ public class PrayRequestViewController: UIViewController {
             prayRequestCollectionView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -sidePadding),
             prayRequestCollectionView.topAnchor.constraint(equalTo: praySearchBar.bottomAnchor, constant: innerPadding),
             prayRequestCollectionView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor),
+            
+            emptyView.leadingAnchor.constraint(equalTo: prayRequestCollectionView.leadingAnchor),
+            emptyView.trailingAnchor.constraint(equalTo: prayRequestCollectionView.trailingAnchor),
+            emptyView.topAnchor.constraint(equalTo: prayRequestCollectionView.topAnchor),
+            emptyView.bottomAnchor.constraint(equalTo: prayRequestCollectionView.bottomAnchor)
         ])
     }
     
     private func setupPrayRequestCollectionVIew() {
         prayRequestCollectionView.backgroundColor = .clear
         prayRequestCollectionView.register(PrayRequestCollectionViewCell.self, forCellWithReuseIdentifier: "PrayRequestCell")
+    }
+    
+    private func setupEmptyView() {
+        let label = UILabel()
+        label.text = "기도 제목이 없습니다\n상단의 +버튼으로 추가할 수 있습니다"
+        label.font = AppFonts.body
+        label.textAlignment = .center
+        label.numberOfLines = 0
+        
+        emptyImageView.image = UIImage(named: "EmptyImage", in: .module, with: nil)
+        emptyImageView.contentMode = .scaleAspectFit
+        
+        emptyView.addSubview(emptyImageView)
+        emptyView.addSubview(label)
+        emptyView.isHidden = true
+        
+        emptyImageView.translatesAutoresizingMaskIntoConstraints = false
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
+        if view.bounds.width < view.bounds.height { // 세로 모드
+            imageWidthConstraint = emptyImageView.widthAnchor.constraint(equalTo: emptyView.widthAnchor, multiplier: 0.7)
+            imageHeightConstraint = emptyImageView.heightAnchor.constraint(equalTo: emptyImageView.widthAnchor)
+        } else { // 가로 모드
+            imageHeightConstraint = emptyImageView.heightAnchor.constraint(equalTo: emptyView.heightAnchor, multiplier: 0.7)
+            imageWidthConstraint = emptyImageView.widthAnchor.constraint(equalTo: emptyImageView.heightAnchor)
+        }
+        
+        NSLayoutConstraint.activate([
+            imageWidthConstraint,
+            imageHeightConstraint,
+            emptyImageView.centerXAnchor.constraint(equalTo: emptyView.centerXAnchor),
+            emptyImageView.centerYAnchor.constraint(equalTo: emptyView.centerYAnchor, constant: -56),
+            
+            label.centerXAnchor.constraint(equalTo: emptyView.centerXAnchor),
+            label.topAnchor.constraint(equalTo: emptyImageView.bottomAnchor)
+        ])
+        
     }
     
     private func setupButtonActions() {
@@ -318,27 +373,17 @@ public class PrayRequestViewController: UIViewController {
         view.endEditing(true)
     }
     
-    private func fetchData() {
-        Task { [weak self] in
-            guard let self = self else { return }
-            do {
-                try await viewModel.fetchPrayRequests()
-                
-                viewModel.updateSelectedResults(with: categorySelectorView.selectedIndex)
-                viewModel.updateSearchedResults(with: praySearchBar.text ?? "")
-            } catch {
-                presentErrorAlert(for: error, title: "불러오기 실패")
-            }
-        }
-    }
-    
     // MARK: Bindings
     private func bindViewModel() {
         viewModel.prayRequestsPublisher
             .sink { [weak self] _ in
+                guard let self = self else { return }
+                
                 DispatchQueue.main.async {
-                    self?.prayRequestCollectionView.reloadData()
+                    self.prayRequestCollectionView.reloadData()
                 }
+                
+                self.emptyView.isHidden = !self.viewModel.prayRequests.isEmpty
             }
             .store(in: &cancellables)
         
@@ -358,6 +403,38 @@ public class PrayRequestViewController: UIViewController {
             }
             .store(in: &cancellables)
     }
+    
+    private func fetchData() {
+        Task { [weak self] in
+            guard let self = self else { return }
+            do {
+                try await viewModel.fetchPrayRequests()
+                
+                viewModel.updateSelectedResults(with: categorySelectorView.selectedIndex)
+                viewModel.updateSearchedResults(with: praySearchBar.text ?? "")
+            } catch {
+                presentErrorAlert(for: error, title: "불러오기 실패")
+            }
+        }
+    }
+    
+    func resizeEmptyImage() {
+        imageWidthConstraint.isActive = false
+        imageHeightConstraint.isActive = false
+        
+        if view.bounds.width < view.bounds.height { // 세로 모드
+            imageWidthConstraint = emptyImageView.widthAnchor.constraint(equalTo: emptyView.widthAnchor, multiplier: 0.7)
+            imageHeightConstraint = emptyImageView.heightAnchor.constraint(equalTo: emptyImageView.widthAnchor)
+        } else { // 가로 모드
+            imageHeightConstraint = emptyImageView.heightAnchor.constraint(equalTo: emptyView.heightAnchor, multiplier: 0.7)
+            imageWidthConstraint = emptyImageView.widthAnchor.constraint(equalTo: emptyImageView.heightAnchor)
+        }
+        
+        imageWidthConstraint.isActive = true
+        imageHeightConstraint.isActive = true
+    }
+    
+    
     
     // MARK: Error Alert
     func presentErrorAlert(for error: Error, title: String) {
