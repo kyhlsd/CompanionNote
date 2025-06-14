@@ -381,9 +381,8 @@ public class PrayRequestViewController: UIViewController {
                 
                 DispatchQueue.main.async {
                     self.prayRequestCollectionView.reloadData()
+                    self.emptyView.isHidden = !self.viewModel.prayRequests.isEmpty
                 }
-                
-                self.emptyView.isHidden = !self.viewModel.prayRequests.isEmpty
             }
             .store(in: &cancellables)
         
