@@ -27,6 +27,7 @@ public class PrayRequestViewController: UIViewController {
     let prayRequestCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let emptyView = UIView()
     private let emptyImageView = UIImageView()
+    private let indicatorView = IndicatorView()
     
     var isDeleteMode = false
     var deleteIds = [String]()
@@ -165,11 +166,13 @@ public class PrayRequestViewController: UIViewController {
         view.addSubview(praySearchBar)
         view.addSubview(prayRequestCollectionView)
         view.addSubview(emptyView)
+        view.addSubview(indicatorView)
         
         categorySelectorView.translatesAutoresizingMaskIntoConstraints = false
         praySearchBar.translatesAutoresizingMaskIntoConstraints = false
         prayRequestCollectionView.translatesAutoresizingMaskIntoConstraints = false
         emptyView.translatesAutoresizingMaskIntoConstraints = false
+        indicatorView.translatesAutoresizingMaskIntoConstraints = false
         
         let sidePadding = Constants.sidePadding
         let innerPadding = Constants.innerPadding
@@ -193,7 +196,10 @@ public class PrayRequestViewController: UIViewController {
             emptyView.leadingAnchor.constraint(equalTo: prayRequestCollectionView.leadingAnchor),
             emptyView.trailingAnchor.constraint(equalTo: prayRequestCollectionView.trailingAnchor),
             emptyView.topAnchor.constraint(equalTo: prayRequestCollectionView.topAnchor),
-            emptyView.bottomAnchor.constraint(equalTo: prayRequestCollectionView.bottomAnchor)
+            emptyView.bottomAnchor.constraint(equalTo: prayRequestCollectionView.bottomAnchor),
+            
+            indicatorView.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
+            indicatorView.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor),
         ])
     }
     
@@ -236,7 +242,6 @@ public class PrayRequestViewController: UIViewController {
             label.centerXAnchor.constraint(equalTo: emptyView.centerXAnchor),
             label.topAnchor.constraint(equalTo: emptyImageView.bottomAnchor)
         ])
-        
     }
     
     private func setupButtonActions() {
@@ -330,6 +335,7 @@ public class PrayRequestViewController: UIViewController {
                     isDeleteMode = false
                     prayRequestCollectionView.reloadData()
                 } else {
+                    indicatorView.startAnimating()
                     try await viewModel.deletePrayRequests(prayRequestIds: deleteIds)
                     deleteIds = []
                     isDeleteMode = false
@@ -346,6 +352,7 @@ public class PrayRequestViewController: UIViewController {
                 
             } catch {
                 presentErrorAlert(for: error, title: "삭제 실패")
+                indicatorView.stopAnimating()
             }
         }
     }
@@ -406,6 +413,7 @@ public class PrayRequestViewController: UIViewController {
     private func fetchData() {
         Task { [weak self] in
             guard let self = self else { return }
+            indicatorView.startAnimating()
             do {
                 try await viewModel.fetchPrayRequests()
                 
@@ -414,6 +422,7 @@ public class PrayRequestViewController: UIViewController {
             } catch {
                 presentErrorAlert(for: error, title: "불러오기 실패")
             }
+            indicatorView.stopAnimating()
         }
     }
     
