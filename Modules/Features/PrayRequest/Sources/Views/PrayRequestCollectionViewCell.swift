@@ -9,9 +9,11 @@ import UIKit
 import Core
 import Shared
 
+protocol DeleteItemDelegate: AnyObject {
+    func deleteItem(at cell: PrayRequestCollectionViewCell)
+}
+
 final class PrayRequestCollectionViewCell: UICollectionViewCell {
-    
-    private var prayRequestUUID: UUID?
     
     private let cellContainerView = CellContainerView()
     let categoryLabel = PaddedLabel()
@@ -19,18 +21,32 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
     let prayItemTableView = UITableView(frame: .zero, style: .plain)
     let dateLabel = UILabel()
     let checkBox = CheckBox()
+    private let actionView = UIView()
+    
+    private var isSwiped = false
+    private var originalCenter: CGPoint = .zero
+    private let maxSwipeTranslation: CGFloat = 60
+    weak var delegate: DeleteItemDelegate?
     
     var dateLabelTrailingConstraint: NSLayoutConstraint!
     var prayItems: [PrayItem] = []
     
     override init(frame: CGRect = .zero) {
         super.init(frame: frame)
-        
+        clipsToBounds = true
+        checkBox.isUserInteractionEnabled = false
         setupUI()
+        setupSwipeGesture()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        resetAction()
+        delegate = nil
     }
     
     // MARK: Setups
@@ -39,11 +55,12 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
         setupTitleLabel()
         setupPrayItemTableView()
         setupDateLabel()
-        setupCheckBox()
+        setupActionView()
         
         backgroundColor = .clear
         selectedBackgroundView = UIView()
         
+        contentView.addSubview(actionView)
         contentView.addSubview(cellContainerView)
         cellContainerView.addSubview(categoryLabel)
         cellContainerView.addSubview(titleLabel)
@@ -51,6 +68,7 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
         cellContainerView.addSubview(checkBox)
         cellContainerView.addSubview(prayItemTableView)
         
+        actionView.translatesAutoresizingMaskIntoConstraints = false
         cellContainerView.translatesAutoresizingMaskIntoConstraints = false
         categoryLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -58,10 +76,16 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
         dateLabel.translatesAutoresizingMaskIntoConstraints = false
         checkBox.translatesAutoresizingMaskIntoConstraints = false
         
+        
         let innerPadding = Constants.innerPadding
         let scrolledCellBottomPadding = Constants.scrolledCellBottomPadding
         
         NSLayoutConstraint.activate([
+            actionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            actionView.widthAnchor.constraint(equalToConstant: maxSwipeTranslation),
+            actionView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            actionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            
             cellContainerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             cellContainerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             cellContainerView.topAnchor.constraint(equalTo: contentView.topAnchor),
@@ -73,14 +97,14 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
             
             titleLabel.leadingAnchor.constraint(equalTo: categoryLabel.trailingAnchor, constant: 8),
             titleLabel.topAnchor.constraint(equalTo: cellContainerView.topAnchor, constant: innerPadding - 4), // Font 여백에 따른 조정
-
+            
             dateLabel.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
             
             checkBox.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -innerPadding + 4), // Font 여백에 따른 조정
             checkBox.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
             checkBox.heightAnchor.constraint(equalToConstant: 24),
             checkBox.widthAnchor.constraint(equalToConstant: 24),
-
+            
             prayItemTableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 6),
             prayItemTableView.leadingAnchor.constraint(equalTo: cellContainerView.leadingAnchor, constant: innerPadding),
             prayItemTableView.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -innerPadding),
@@ -101,7 +125,7 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
     private func setupTitleLabel() {
         titleLabel.font = Shared.AppFonts.body
     }
-   
+    
     private func setupPrayItemTableView() {
         prayItemTableView.isScrollEnabled = false
         prayItemTableView.isUserInteractionEnabled = false
@@ -117,8 +141,116 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
         dateLabel.textColor = .gray
     }
     
-    private func setupCheckBox() {
-        checkBox.isHidden = true
+    private func setupActionView() {
+        actionView.layer.maskedCorners = [
+            .layerMaxXMinYCorner,
+            .layerMaxXMaxYCorner
+        ]
+        actionView.layer.cornerRadius = 8
+        actionView.clipsToBounds = true
+        let button = UIButton()
+        let image = UIImage(systemName: "trash")?
+            .withConfiguration(UIImage.SymbolConfiguration(weight: .semibold))
+        button.setImage(image, for: .normal)
+        button.tintColor = .white
+        button.backgroundColor = .systemRed
+        button.addAction(UIAction { [weak self] _ in
+            guard let self = self else { return }
+            delegate?.deleteItem(at: self)
+        }, for: .touchUpInside)
+        
+        button.translatesAutoresizingMaskIntoConstraints = false
+        actionView.addSubview(button)
+        
+        NSLayoutConstraint.activate([
+            button.leadingAnchor.constraint(equalTo: actionView.leadingAnchor),
+            button.trailingAnchor.constraint(equalTo: actionView.trailingAnchor),
+            button.topAnchor.constraint(equalTo: actionView.topAnchor),
+            button.bottomAnchor.constraint(equalTo: actionView.bottomAnchor)
+        ])
+    }
+    
+    private func setupSwipeGesture() {
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
+        panGesture.delegate = self
+        cellContainerView.addGestureRecognizer(panGesture)
+    }
+    
+    // MARK: Gesture Actions
+    @objc private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
+        let translation = gesture.translation(in: cellContainerView)
+        switch gesture.state {
+        case .began:
+            originalCenter = cellContainerView.center
+        case .changed:
+            if isSwiped { // 이미 열려있으면 오른쪽으로만 밀어서 닫도록 허용
+                if translation.x > 0 {
+                    let limited = min(translation.x, maxSwipeTranslation)
+                    cellContainerView.transform = CGAffineTransform(translationX: limited - maxSwipeTranslation, y: 0)
+                }
+            } else {
+                // 열려있지 않으면 왼쪽으로만 허용
+                if translation.x < 0 {
+                    let limited = max(translation.x, -maxSwipeTranslation)
+                    cellContainerView.transform = CGAffineTransform(translationX: limited, y: 0)
+                }
+            }
+            
+            updateCornerMask()
+            
+        case .ended, .cancelled:
+            let threshold = maxSwipeTranslation / 2
+            if isSwiped {
+                // 열려있는 상태에서 오른쪽으로 절반 이상 밀면 닫힘
+                if translation.x > threshold {
+                    resetAction()
+                } else {
+                    openAction()
+                }
+            } else {
+                // 닫힌 상태에서 왼쪽으로 충분히 밀면 열림
+                if -translation.x > threshold {
+                    openAction()
+                } else {
+                    resetAction()
+                }
+            }
+        default:
+            break
+        }
+    }
+    
+    private func openAction() {
+        UIView.animate(withDuration: 0.2) { [weak self] in
+            guard let self = self else { return }
+            cellContainerView.transform = CGAffineTransform(translationX: -maxSwipeTranslation, y: 0)
+        }
+        isSwiped = true
+        updateCornerMask()
+    }
+    
+    private func resetAction() {
+        UIView.animate(withDuration: 0.2) { [weak self] in
+            self?.cellContainerView.transform = .identity
+        }
+        isSwiped = false
+        updateCornerMask(isSwiping: false)
+    }
+    
+    private func updateCornerMask(isSwiping: Bool = true) {
+        if isSwiping {
+            cellContainerView.layer.maskedCorners = [
+                .layerMinXMinYCorner,
+                .layerMinXMaxYCorner
+            ]
+        } else {
+            cellContainerView.layer.maskedCorners = [
+                .layerMinXMinYCorner,
+                .layerMaxXMinYCorner,
+                .layerMinXMaxYCorner,
+                .layerMaxXMaxYCorner
+            ]
+        }
     }
     
     func configure(with prayRequest: PrayRequest) {
@@ -133,39 +265,34 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
         dateLabel.text = DateFormatUtil.shortWithDayFormatter.string(from: prayRequest.date)
         
         prayItems = prayRequest.items
-        prayRequestUUID = prayRequest.uuid
         
         DispatchQueue.main.async { [weak self] in
             self?.prayItemTableView.reloadData()
         }
     }
     
-    func enableDeleteMode() {
+    func setChecked(_ isChecked: Bool) {
+        checkBox.isChecked = isChecked
+    }
+    
+    func setDeleteMode(_ enabled: Bool) {
+        enabled ? enableDeleteMode() : disableDeleteMode()
+    }
+    
+    private func enableDeleteMode() {
         checkBox.isHidden = false
         dateLabelTrailingConstraint.isActive = false
         dateLabelTrailingConstraint = dateLabel.trailingAnchor.constraint(equalTo: checkBox.leadingAnchor, constant: -4)
         dateLabelTrailingConstraint.isActive = true
     }
     
-    func disableDeleteMode() {
+    private func disableDeleteMode() {
         checkBox.isHidden = true
         checkBox.isChecked = false
         dateLabelTrailingConstraint.isActive = false
         let innerPadding = Constants.innerPadding
         dateLabelTrailingConstraint = dateLabel.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -innerPadding)
         dateLabelTrailingConstraint.isActive = true
-    }
-    
-    func toggleCheckBoxState() {
-        checkBox.isChecked.toggle()
-    }
-    
-    func getCheckedState() -> Bool {
-        return checkBox.isChecked
-    }
-    
-    func getPrayRequestUUID() -> UUID? {
-        return self.prayRequestUUID
     }
 }
 
@@ -180,5 +307,22 @@ extension PrayRequestCollectionViewCell: UITableViewDataSource, UITableViewDeleg
         let prayItem = prayItems[indexPath.row]
         cell.configure(with: prayItem)
         return cell
+    }
+}
+
+extension PrayRequestCollectionViewCell: UIGestureRecognizerDelegate {
+    // 수평 제스처만 허용
+    override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        if let pan = gestureRecognizer as? UIPanGestureRecognizer {
+            let velocity = pan.velocity(in: self)
+            return abs(velocity.x) > abs(velocity.y)
+        }
+        return true
+    }
+    
+    // CollectionView 스크롤과 동시에 허용
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+                           shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
     }
 }

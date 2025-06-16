@@ -37,6 +37,8 @@ final class PrayDetailTableViewCell: UITableViewCell {
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         contentLabel.translatesAutoresizingMaskIntoConstraints = false
         
+        let scrollBarPadding = Constants.scrollBarPadding
+        
         NSLayoutConstraint.activate([
             nameLabel.topAnchor.constraint(equalTo: contentView.topAnchor),
             nameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
@@ -44,7 +46,7 @@ final class PrayDetailTableViewCell: UITableViewCell {
             
             contentLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor),
             contentLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            contentLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            contentLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -scrollBarPadding),
             contentLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20)
         ])
     }

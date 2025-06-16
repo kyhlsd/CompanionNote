@@ -56,6 +56,11 @@ final public class PrayRequestViewModel: PrayRequestViewModelProtocol {
         }
     }
     
+    public func deletePrayRequest(prayRequestId: String) async throws {
+        guard let userIdentifier = userIdentifier else { return }
+        try await self.prayRequestUseCase.deletePrayRequest(userId: userIdentifier, document: prayRequestId)
+    }
+    
     public func activeFetchStatus() {
         shouldFetch.toggle()
     }
@@ -93,6 +98,7 @@ public protocol PrayRequestViewModelProtocol {
     func fetchPrayRequests() async throws
     func updatePrayRequest(prayRequest: PrayRequest) async throws
     func deletePrayRequests(prayRequestIds: [String]) async throws
+    func deletePrayRequest(prayRequestId: String) async throws
     var prayRequests: [PrayRequest] { get }
     var prayRequestsPublisher: Published<[PrayRequest]>.Publisher { get }
     func activeFetchStatus()

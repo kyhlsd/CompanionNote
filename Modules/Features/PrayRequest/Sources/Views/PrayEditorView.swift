@@ -202,18 +202,6 @@ final class PrayEditorView: UIView {
         }
     }
     
-    func moveView(up: Bool, animationDuration: TimeInterval) {
-        //        PrayItemLabel이 가장 위에 오도록 움직여야 하는 값
-        let offset = categoryLabel.frame.height + 4 + categorySelectorView.frame.height +  titleLabel.frame.height + 4 + titleTextField.frame.height + 16
-        UIView.animate(withDuration: animationDuration) {
-            self.transform = up ? CGAffineTransform(translationX: 0, y: -offset) : .identity
-        }
-    }
-    
-    func getTextViewHeight() -> CGFloat {
-        return prayItemTextView.frame.height
-    }
-    
     func getPrayItemText() -> String {
         return prayItemTextView.text
     }

@@ -15,6 +15,7 @@ class AddPrayRequestViewController: UIViewController {
     
     let prayContainerView = CellContainerView()
     let prayEditorView = PrayEditorView()
+    private let indicatorView = IndicatorView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -60,6 +61,7 @@ class AddPrayRequestViewController: UIViewController {
             guard let self = self else { return }
             let prayRequest = prayEditorView.getPrayRequest()
             Task {
+                self.indicatorView.startAnimating()
                 do {
                     try await self.viewModel.addPrayRequest(prayRequest: prayRequest)
                     self.viewModel.activeFetchStatus()
@@ -67,6 +69,7 @@ class AddPrayRequestViewController: UIViewController {
                 } catch {
                     self.presentErrorAlert(for: error)
                 }
+                self.indicatorView.stopAnimating()
             }
         }, for: .touchUpInside)
         
@@ -80,9 +83,11 @@ class AddPrayRequestViewController: UIViewController {
 
         view.addSubview(prayContainerView)
         prayContainerView.addSubview(prayEditorView)
+        view.addSubview(indicatorView)
         
         prayContainerView.translatesAutoresizingMaskIntoConstraints = false
         prayEditorView.translatesAutoresizingMaskIntoConstraints = false
+        indicatorView.translatesAutoresizingMaskIntoConstraints = false
         
         let sidePadding = Constants.sidePadding
         let topPadding = Constants.topPadding
@@ -98,7 +103,10 @@ class AddPrayRequestViewController: UIViewController {
             prayEditorView.leadingAnchor.constraint(equalTo: prayContainerView.leadingAnchor, constant: innerPadding),
             prayEditorView.trailingAnchor.constraint(equalTo: prayContainerView.trailingAnchor, constant: -innerPadding),
             prayEditorView.topAnchor.constraint(equalTo: prayContainerView.topAnchor, constant: innerPadding),
-            prayEditorView.bottomAnchor.constraint(equalTo: prayContainerView.bottomAnchor, constant: -innerPadding)
+            prayEditorView.bottomAnchor.constraint(equalTo: prayContainerView.bottomAnchor, constant: -innerPadding),
+            
+            indicatorView.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
+            indicatorView.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor)
         ])
     }
     
@@ -136,12 +144,7 @@ class AddPrayRequestViewController: UIViewController {
         let tabBarHeight = tabBarController?.tabBar.frame.height ?? 0
         let safeOffset = keyboardHeight - tabBarHeight
         
-        let textViewHeight = prayEditorView.getTextViewHeight()
-        if textViewHeight > 160 {
-            prayEditorView.updateBottomConstraint(with: safeOffset, animationDuration: animationDuration)
-        } else if prayEditorView.isTextViewFirstResponder {
-            prayEditorView.moveView(up: true, animationDuration: animationDuration)
-        }
+        prayEditorView.updateBottomConstraint(with: safeOffset, animationDuration: animationDuration)
     }
 
     @objc func handleKeyboardWillHide(_ notification: Notification) {
@@ -149,7 +152,6 @@ class AddPrayRequestViewController: UIViewController {
               let animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else { return }
 
         prayEditorView.updateBottomConstraint(animationDuration: animationDuration)
-        prayEditorView.moveView(up: false, animationDuration: animationDuration)
     }
     
     // MARK: Error Alert

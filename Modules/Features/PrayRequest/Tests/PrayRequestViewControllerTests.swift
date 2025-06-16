@@ -244,6 +244,7 @@ final class PrayRequestViewControllerTests: XCTestCase {
                 throw NSError(domain: "TestError", code: 999, userInfo: nil)
             }
         }
+        func deletePrayRequest(prayRequestId: String) async throws {}
         func activeFetchStatus() {}
         func updateSearchedResults(with searchText: String) {
             guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {

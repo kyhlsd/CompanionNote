@@ -24,6 +24,7 @@ class PrayRequestDetailViewController: UIViewController {
     private let dateLabel = UILabel()
     let prayEditorContainerView = CellContainerView()
     let prayEditorView = PrayEditorView()
+    private let indicatorView = IndicatorView()
     
     init(with prayRequest: PrayRequest, viewModel: PrayRequestViewModelProtocol) {
         self.prayRequest = prayRequest
@@ -101,6 +102,7 @@ class PrayRequestDetailViewController: UIViewController {
         prayContainerView.addSubview(prayDetailTableView)
         view.addSubview(prayEditorContainerView)
         prayEditorContainerView.addSubview(prayEditorView)
+        view.addSubview(indicatorView)
         
         let sidePadding = Constants.sidePadding
         
@@ -111,9 +113,11 @@ class PrayRequestDetailViewController: UIViewController {
         dateLabel.translatesAutoresizingMaskIntoConstraints = false
         prayEditorContainerView.translatesAutoresizingMaskIntoConstraints = false
         prayEditorView.translatesAutoresizingMaskIntoConstraints = false
+        indicatorView.translatesAutoresizingMaskIntoConstraints = false
 
         let topPadding = Constants.topPadding
         let innerPadding = Constants.innerPadding
+        let scrollBarPadding = Constants.scrollBarPadding
         let safeArea = view.safeAreaLayoutGuide
 
         NSLayoutConstraint.activate([
@@ -134,7 +138,7 @@ class PrayRequestDetailViewController: UIViewController {
             
             prayDetailTableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
             prayDetailTableView.leadingAnchor.constraint(equalTo: prayContainerView.leadingAnchor, constant: innerPadding),
-            prayDetailTableView.trailingAnchor.constraint(equalTo: prayContainerView.trailingAnchor, constant: -innerPadding),
+            prayDetailTableView.trailingAnchor.constraint(equalTo: prayContainerView.trailingAnchor, constant: -innerPadding + scrollBarPadding),
             prayDetailTableView.bottomAnchor.constraint(equalTo: prayContainerView.bottomAnchor, constant: -4),
             
             prayEditorContainerView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: topPadding),
@@ -145,7 +149,10 @@ class PrayRequestDetailViewController: UIViewController {
             prayEditorView.leadingAnchor.constraint(equalTo: prayEditorContainerView.leadingAnchor, constant: innerPadding),
             prayEditorView.trailingAnchor.constraint(equalTo: prayEditorContainerView.trailingAnchor, constant: -innerPadding),
             prayEditorView.topAnchor.constraint(equalTo: prayEditorContainerView.topAnchor, constant: innerPadding),
-            prayEditorView.bottomAnchor.constraint(equalTo: prayEditorContainerView.bottomAnchor, constant: -innerPadding)
+            prayEditorView.bottomAnchor.constraint(equalTo: prayEditorContainerView.bottomAnchor, constant: -innerPadding),
+            
+            indicatorView.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
+            indicatorView.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor)
         ])
     }
     
@@ -239,6 +246,7 @@ class PrayRequestDetailViewController: UIViewController {
             Task { [weak self] in
                 guard let self = self else { return }
                 
+                indicatorView.startAnimating()
                 do {
                     try await viewModel.updatePrayRequest(prayRequest: updatedPrayRequest)
                     prayRequest.updateData(title: editedPrayRequest.title, items: editedPrayRequest.items, category: editedPrayRequest.category)
@@ -253,6 +261,7 @@ class PrayRequestDetailViewController: UIViewController {
                 } catch {
                     presentErrorAlert(for: error)
                 }
+                indicatorView.stopAnimating()
             }
         } else {
             navigationItem.rightBarButtonItems = [
@@ -291,12 +300,7 @@ class PrayRequestDetailViewController: UIViewController {
         let tabBarHeight = tabBarController?.tabBar.frame.height ?? 0
         let safeOffset = keyboardHeight - tabBarHeight
         
-        let textViewHeight = prayEditorView.getTextViewHeight()
-        if textViewHeight > 160 {
-            prayEditorView.updateBottomConstraint(with: safeOffset, animationDuration: animationDuration)
-        } else if prayEditorView.isTextViewFirstResponder {
-            prayEditorView.moveView(up: true, animationDuration: animationDuration)
-        }
+        prayEditorView.updateBottomConstraint(with: safeOffset, animationDuration: animationDuration)
     }
 
     @objc private func handleKeyboardWillHide(_ notification: Notification) {
@@ -304,7 +308,6 @@ class PrayRequestDetailViewController: UIViewController {
               let animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else { return }
 
         prayEditorView.updateBottomConstraint(animationDuration: animationDuration)
-        prayEditorView.moveView(up: false, animationDuration: animationDuration)
     }
     
     // MARK: Error Alert
