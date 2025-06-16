@@ -21,7 +21,7 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
     
     private var isSwiped = false
     private var originalCenter: CGPoint = .zero
-    private let maxSwipeTranslation: CGFloat = 106
+    private let maxSwipeTranslation: CGFloat = 60
     
     var dateLabelTrailingConstraint: NSLayoutConstraint!
     var prayItems: [PrayItem] = []
@@ -75,9 +75,9 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
         
         NSLayoutConstraint.activate([
             actionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-                actionView.widthAnchor.constraint(equalToConstant: maxSwipeTranslation),
-                actionView.topAnchor.constraint(equalTo: contentView.topAnchor),
-                actionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            actionView.widthAnchor.constraint(equalToConstant: maxSwipeTranslation),
+            actionView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            actionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
             
             cellContainerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             cellContainerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
@@ -90,14 +90,14 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
             
             titleLabel.leadingAnchor.constraint(equalTo: categoryLabel.trailingAnchor, constant: 8),
             titleLabel.topAnchor.constraint(equalTo: cellContainerView.topAnchor, constant: innerPadding - 4), // Font 여백에 따른 조정
-
+            
             dateLabel.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
             
             checkBox.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -innerPadding + 4), // Font 여백에 따른 조정
             checkBox.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
             checkBox.heightAnchor.constraint(equalToConstant: 24),
             checkBox.widthAnchor.constraint(equalToConstant: 24),
-
+            
             prayItemTableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 6),
             prayItemTableView.leadingAnchor.constraint(equalTo: cellContainerView.leadingAnchor, constant: innerPadding),
             prayItemTableView.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -innerPadding),
@@ -118,7 +118,7 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
     private func setupTitleLabel() {
         titleLabel.font = Shared.AppFonts.body
     }
-   
+    
     private func setupPrayItemTableView() {
         prayItemTableView.isScrollEnabled = false
         prayItemTableView.isUserInteractionEnabled = false
@@ -135,10 +135,17 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
     }
     
     private func setupActionView() {
+        actionView.layer.maskedCorners = [
+            .layerMaxXMinYCorner,
+            .layerMaxXMaxYCorner
+        ]
+        actionView.layer.cornerRadius = 8
+        actionView.clipsToBounds = true
         let button = UIButton()
         let image = UIImage(systemName: "trash")?
-            .withConfiguration(UIImage.SymbolConfiguration(weight: .regular))
+            .withConfiguration(UIImage.SymbolConfiguration(weight: .semibold))
         button.setImage(image, for: .normal)
+        button.tintColor = .white
         button.backgroundColor = .systemRed
         button.translatesAutoresizingMaskIntoConstraints = false
         actionView.addSubview(button)
@@ -176,6 +183,9 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
                     cellContainerView.transform = CGAffineTransform(translationX: limited, y: 0)
                 }
             }
+            
+            updateCornerMask()
+            
         case .ended, .cancelled:
             let threshold = maxSwipeTranslation / 2
             if isSwiped {
@@ -204,6 +214,7 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
             cellContainerView.transform = CGAffineTransform(translationX: -maxSwipeTranslation, y: 0)
         }
         isSwiped = true
+        updateCornerMask()
     }
     
     private func resetAction() {
@@ -211,6 +222,23 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
             self?.cellContainerView.transform = .identity
         }
         isSwiped = false
+        updateCornerMask(isSwiping: false)
+    }
+    
+    private func updateCornerMask(isSwiping: Bool = true) {
+        if isSwiping {
+            cellContainerView.layer.maskedCorners = [
+                .layerMinXMinYCorner,
+                .layerMinXMaxYCorner
+            ]
+        } else {
+            cellContainerView.layer.maskedCorners = [
+                .layerMinXMinYCorner,
+                .layerMaxXMinYCorner,
+                .layerMinXMaxYCorner,
+                .layerMaxXMaxYCorner
+            ]
+        }
     }
     
     func configure(with prayRequest: PrayRequest) {
@@ -279,7 +307,7 @@ extension PrayRequestCollectionViewCell: UIGestureRecognizerDelegate {
         }
         return true
     }
-
+    
     // CollectionView 스크롤과 동시에 허용
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
                            shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
