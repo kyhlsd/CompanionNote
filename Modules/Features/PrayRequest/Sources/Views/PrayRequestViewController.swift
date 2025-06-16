@@ -57,6 +57,11 @@ public class PrayRequestViewController: UIViewController {
         setupNavBarTapGesture()
     }
     
+    public override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        removeNavBarTapGesture()
+    }
+    
     public override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
         
@@ -285,6 +290,14 @@ public class PrayRequestViewController: UIViewController {
         navBarTapGesture.name = "NavBarKeyboardDismiss"
         navBarTapGesture.cancelsTouchesInView = false
         navigationController?.navigationBar.addGestureRecognizer(navBarTapGesture)
+    }
+    
+    private func removeNavBarTapGesture() {
+        if let recognizers = navigationController?.navigationBar.gestureRecognizers {
+            recognizers
+                .filter { $0.name == "NavBarKeyboardDismiss" }
+                .forEach { navigationController?.navigationBar.removeGestureRecognizer($0) }
+        }
     }
     
     private func setupBinding() {
