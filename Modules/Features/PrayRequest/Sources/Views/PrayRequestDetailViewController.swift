@@ -113,6 +113,7 @@ class PrayRequestDetailViewController: UIViewController {
         dateLabel.translatesAutoresizingMaskIntoConstraints = false
         prayEditorContainerView.translatesAutoresizingMaskIntoConstraints = false
         prayEditorView.translatesAutoresizingMaskIntoConstraints = false
+        indicatorView.translatesAutoresizingMaskIntoConstraints = false
 
         let topPadding = Constants.topPadding
         let innerPadding = Constants.innerPadding

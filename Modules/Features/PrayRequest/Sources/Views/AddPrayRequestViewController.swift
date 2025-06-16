@@ -105,8 +105,8 @@ class AddPrayRequestViewController: UIViewController {
             prayEditorView.topAnchor.constraint(equalTo: prayContainerView.topAnchor, constant: innerPadding),
             prayEditorView.bottomAnchor.constraint(equalTo: prayContainerView.bottomAnchor, constant: -innerPadding),
             
-            indicatorView.centerXAnchor.constraint(equalTo: indicatorView.centerXAnchor),
-            indicatorView.centerYAnchor.constraint(equalTo: indicatorView.centerYAnchor)
+            indicatorView.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
+            indicatorView.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor)
         ])
     }
     
