@@ -9,6 +9,10 @@ import UIKit
 import Core
 import Shared
 
+protocol DeleteItemDelegate: AnyObject {
+    func deleteItem(at cell: PrayRequestCollectionViewCell)
+}
+
 final class PrayRequestCollectionViewCell: UICollectionViewCell {
     
     private let cellContainerView = CellContainerView()
@@ -22,6 +26,7 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
     private var isSwiped = false
     private var originalCenter: CGPoint = .zero
     private let maxSwipeTranslation: CGFloat = 60
+    weak var delegate: DeleteItemDelegate?
     
     var dateLabelTrailingConstraint: NSLayoutConstraint!
     var prayItems: [PrayItem] = []
@@ -41,6 +46,7 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         resetAction()
+        delegate = nil
     }
     
     // MARK: Setups
@@ -148,6 +154,11 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
         button.setImage(image, for: .normal)
         button.tintColor = .white
         button.backgroundColor = .systemRed
+        button.addAction(UIAction { [weak self] _ in
+            guard let self = self else { return }
+            delegate?.deleteItem(at: self)
+        }, for: .touchUpInside)
+        
         button.translatesAutoresizingMaskIntoConstraints = false
         actionView.addSubview(button)
         

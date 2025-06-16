@@ -199,6 +199,7 @@ final class PrayRequestDetailViewControllerTests: XCTestCase {
         }
         
         func deletePrayRequests(prayRequestIds: [String]) async throws {}
+        func deletePrayRequest(prayRequestId: String) async throws {}
         
         func activeFetchStatus() {
             shouldFetch.toggle()

@@ -248,6 +248,7 @@ public class PrayRequestViewController: UIViewController {
             cell.configure(with: prayRequest)
             cell.setChecked(self.deleteIds.contains(item.uuid.uuidString))
             cell.setDeleteMode(self.isDeleteMode)
+            cell.delegate = self
             return cell
         }
     }
@@ -505,6 +506,7 @@ extension PrayRequestViewController: UICollectionViewDelegate, UICollectionViewD
         
         cell.setChecked(deleteIds.contains(item.uuid.uuidString))
         cell.setDeleteMode(isDeleteMode)
+        cell.delegate = self
     }
     
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -587,5 +589,26 @@ extension PrayRequestViewController: UISearchBarDelegate {
     public func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         let trimmed = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         searchTextSubject.send(trimmed)
+    }
+}
+
+extension PrayRequestViewController: DeleteItemDelegate {
+    func deleteItem(at cell: PrayRequestCollectionViewCell) {
+        guard let indexPath = prayRequestCollectionView.indexPath(for: cell),
+              let item = dataSource?.itemIdentifier(for: indexPath) else { return }
+        let id = item.uuid.uuidString
+
+        Task {
+            do {
+                indicatorView.startAnimating()
+                try await viewModel.deletePrayRequest(prayRequestId: id)
+                
+                deleteIds.removeAll { $0 == id }
+                viewModel.activeFetchStatus()
+            } catch {
+                presentErrorAlert(for: error, title: "삭제 실패")
+                indicatorView.stopAnimating()
+            }
+        }
     }
 }
