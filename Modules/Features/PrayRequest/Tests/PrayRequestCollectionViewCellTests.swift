@@ -51,16 +51,15 @@ final class PrayRequestCollectionViewCellTests: XCTestCase {
         XCTAssertEqual(cell.categoryLabel.text, request.category.rawValue)
         XCTAssertEqual(cell.titleLabel.attributedText?.string, request.title)
         XCTAssertEqual(cell.prayItems.count, items.count)
-        XCTAssertEqual(cell.getPrayRequestUUID(), request.uuid)
         XCTAssertEqual(cell.dateLabel.text, DateFormatUtil.shortWithDayFormatter.string(from: request.date))
     }
 
     func test_enableDeleteMode_showsCheckboxAndAdjustsLayout() {
         // Given
-        cell.disableDeleteMode() // 처음은 기본 상태
+        cell.setDeleteMode(false) // 처음은 기본 상태
 
         // When
-        cell.enableDeleteMode()
+        cell.setDeleteMode(true)
 
         // Then
         XCTAssertFalse(cell.checkBox.isHidden)
@@ -81,10 +80,10 @@ final class PrayRequestCollectionViewCellTests: XCTestCase {
 
     func test_disableDeleteMode_hidesCheckboxAndResetsLayout() {
         // Given
-        cell.enableDeleteMode()
+        cell.setDeleteMode(true)
 
         // When
-        cell.disableDeleteMode()
+        cell.setDeleteMode(false)
 
         // Then
         XCTAssertTrue(cell.checkBox.isHidden)
@@ -93,15 +92,13 @@ final class PrayRequestCollectionViewCellTests: XCTestCase {
 
     func test_toggleCheckBoxState_togglesChecked() {
         // 초기 상태
-        XCTAssertFalse(cell.getCheckedState())
+        XCTAssertFalse(cell.checkBox.isChecked)
 
-        // 토글 1회
-        cell.toggleCheckBoxState()
-        XCTAssertTrue(cell.getCheckedState())
+        cell.setChecked(true)
+        XCTAssertTrue(cell.checkBox.isChecked)
 
-        // 토글 2회
-        cell.toggleCheckBoxState()
-        XCTAssertFalse(cell.getCheckedState())
+        cell.setChecked(false)
+        XCTAssertFalse(cell.checkBox.isChecked)
     }
 
     func test_tableView_hasCorrectNumberOfRows() {

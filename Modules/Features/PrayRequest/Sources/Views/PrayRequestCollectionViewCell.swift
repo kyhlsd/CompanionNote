@@ -11,8 +11,6 @@ import Shared
 
 final class PrayRequestCollectionViewCell: UICollectionViewCell {
     
-    private var prayRequestUUID: UUID?
-    
     private let cellContainerView = CellContainerView()
     let categoryLabel = PaddedLabel()
     let titleLabel = UILabel()
@@ -25,7 +23,7 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
     
     override init(frame: CGRect = .zero) {
         super.init(frame: frame)
-        
+        checkBox.isUserInteractionEnabled = false
         setupUI()
     }
     
@@ -39,7 +37,6 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
         setupTitleLabel()
         setupPrayItemTableView()
         setupDateLabel()
-        setupCheckBox()
         
         backgroundColor = .clear
         selectedBackgroundView = UIView()
@@ -117,10 +114,6 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
         dateLabel.textColor = .gray
     }
     
-    private func setupCheckBox() {
-        checkBox.isHidden = true
-    }
-    
     func configure(with prayRequest: PrayRequest) {
         categoryLabel.text = prayRequest.category.rawValue
         categoryLabel.backgroundColor = UIColor(named: prayRequest.category.colorIdentifier, in: .module, compatibleWith: nil)
@@ -133,21 +126,28 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
         dateLabel.text = DateFormatUtil.shortWithDayFormatter.string(from: prayRequest.date)
         
         prayItems = prayRequest.items
-        prayRequestUUID = prayRequest.uuid
         
         DispatchQueue.main.async { [weak self] in
             self?.prayItemTableView.reloadData()
         }
     }
     
-    func enableDeleteMode() {
+    func setChecked(_ isChecked: Bool) {
+        checkBox.isChecked = isChecked
+    }
+    
+    func setDeleteMode(_ enabled: Bool) {
+        enabled ? enableDeleteMode() : disableDeleteMode()
+    }
+    
+    private func enableDeleteMode() {
         checkBox.isHidden = false
         dateLabelTrailingConstraint.isActive = false
         dateLabelTrailingConstraint = dateLabel.trailingAnchor.constraint(equalTo: checkBox.leadingAnchor, constant: -4)
         dateLabelTrailingConstraint.isActive = true
     }
     
-    func disableDeleteMode() {
+    private func disableDeleteMode() {
         checkBox.isHidden = true
         checkBox.isChecked = false
         dateLabelTrailingConstraint.isActive = false
@@ -156,17 +156,9 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
         dateLabelTrailingConstraint.isActive = true
     }
     
-    func toggleCheckBoxState() {
-        checkBox.isChecked.toggle()
-    }
-    
-    func getCheckedState() -> Bool {
-        return checkBox.isChecked
-    }
-    
-    func getPrayRequestUUID() -> UUID? {
-        return self.prayRequestUUID
-    }
+//    func getCheckedState() -> Bool {
+//        return checkBox.isChecked
+//    }
 }
 
 // MARK: Extensions

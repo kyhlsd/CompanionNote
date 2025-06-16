@@ -46,13 +46,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return false
     }
     
-    func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            // iPad는 모든 방향 허용
-            return .all
-        } else {
-            // iPhone은 세로만 허용
-            return .portrait
-        }
-    }
+//    func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
+//        if UIDevice.current.userInterfaceIdiom == .pad {
+//            // iPad는 모든 방향 허용
+//            return .all
+//        } else {
+//            // iPhone은 세로만 허용
+//            return .portrait
+//        }
+//    }
 }

@@ -7,7 +7,7 @@
 
 import UIKit
 
-public class PrayRequest: Codable {
+public class PrayRequest: Codable, Hashable {
     public let date: Date
     public var title: String
     public var items: [PrayItem]
@@ -26,6 +26,14 @@ public class PrayRequest: Codable {
         self.title = title
         self.items = items
         self.category = category
+    }
+    
+    public static func == (lhs: PrayRequest, rhs: PrayRequest) -> Bool {
+        return lhs.uuid == rhs.uuid
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(uuid)
     }
     
     public static let dummyDatas = [
