@@ -15,7 +15,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        print("launching")
         FirebaseApp.configure()
         if let kakaoNativeKey = Bundle.main.object(forInfoDictionaryKey: "KAKAO_NATIVE_KEY") as? String {
             KakaoSDK.initSDK(appKey: kakaoNativeKey)
@@ -45,5 +44,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         
         return false
+    }
+    
+    func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            // iPad는 모든 방향 허용
+            return .all
+        } else {
+            // iPhone은 세로만 허용
+            return .portrait
+        }
     }
 }

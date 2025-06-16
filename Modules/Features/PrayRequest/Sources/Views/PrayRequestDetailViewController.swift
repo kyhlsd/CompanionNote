@@ -298,12 +298,7 @@ class PrayRequestDetailViewController: UIViewController {
         let tabBarHeight = tabBarController?.tabBar.frame.height ?? 0
         let safeOffset = keyboardHeight - tabBarHeight
         
-        let textViewHeight = prayEditorView.getTextViewHeight()
-        if textViewHeight > 160 {
-            prayEditorView.updateBottomConstraint(with: safeOffset, animationDuration: animationDuration)
-        } else if prayEditorView.isTextViewFirstResponder {
-            prayEditorView.moveView(up: true, animationDuration: animationDuration)
-        }
+        prayEditorView.updateBottomConstraint(with: safeOffset, animationDuration: animationDuration)
     }
 
     @objc private func handleKeyboardWillHide(_ notification: Notification) {
@@ -311,7 +306,6 @@ class PrayRequestDetailViewController: UIViewController {
               let animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else { return }
 
         prayEditorView.updateBottomConstraint(animationDuration: animationDuration)
-        prayEditorView.moveView(up: false, animationDuration: animationDuration)
     }
     
     // MARK: Error Alert

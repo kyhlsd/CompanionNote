@@ -32,9 +32,6 @@ public class PrayRequestViewController: UIViewController {
     var isDeleteMode = false
     var deleteIds = [String]()
     
-    private var imageWidthConstraint: NSLayoutConstraint!
-    private var imageHeightConstraint: NSLayoutConstraint!
-    
     public override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -66,11 +63,6 @@ public class PrayRequestViewController: UIViewController {
         coordinator.animate(alongsideTransition: { _ in
             self.prayRequestCollectionView.collectionViewLayout.invalidateLayout()
         })
-    }
-    
-    public override func viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
-        resizeEmptyImage()
     }
     
     // MARK: Setups
@@ -225,17 +217,9 @@ public class PrayRequestViewController: UIViewController {
         emptyImageView.translatesAutoresizingMaskIntoConstraints = false
         label.translatesAutoresizingMaskIntoConstraints = false
         
-        if view.bounds.width < view.bounds.height { // 세로 모드
-            imageWidthConstraint = emptyImageView.widthAnchor.constraint(equalTo: emptyView.widthAnchor, multiplier: 0.7)
-            imageHeightConstraint = emptyImageView.heightAnchor.constraint(equalTo: emptyImageView.widthAnchor)
-        } else { // 가로 모드
-            imageHeightConstraint = emptyImageView.heightAnchor.constraint(equalTo: emptyView.heightAnchor, multiplier: 0.7)
-            imageWidthConstraint = emptyImageView.widthAnchor.constraint(equalTo: emptyImageView.heightAnchor)
-        }
-        
         NSLayoutConstraint.activate([
-            imageWidthConstraint,
-            imageHeightConstraint,
+            emptyImageView.widthAnchor.constraint(equalTo: emptyView.widthAnchor, multiplier: 0.7),
+            emptyImageView.heightAnchor.constraint(equalTo: emptyImageView.widthAnchor),
             emptyImageView.centerXAnchor.constraint(equalTo: emptyView.centerXAnchor),
             emptyImageView.centerYAnchor.constraint(equalTo: emptyView.centerYAnchor, constant: -56),
             
@@ -425,24 +409,6 @@ public class PrayRequestViewController: UIViewController {
             indicatorView.stopAnimating()
         }
     }
-    
-    func resizeEmptyImage() {
-        imageWidthConstraint.isActive = false
-        imageHeightConstraint.isActive = false
-        
-        if view.bounds.width < view.bounds.height { // 세로 모드
-            imageWidthConstraint = emptyImageView.widthAnchor.constraint(equalTo: emptyView.widthAnchor, multiplier: 0.7)
-            imageHeightConstraint = emptyImageView.heightAnchor.constraint(equalTo: emptyImageView.widthAnchor)
-        } else { // 가로 모드
-            imageHeightConstraint = emptyImageView.heightAnchor.constraint(equalTo: emptyView.heightAnchor, multiplier: 0.7)
-            imageWidthConstraint = emptyImageView.widthAnchor.constraint(equalTo: emptyImageView.heightAnchor)
-        }
-        
-        imageWidthConstraint.isActive = true
-        imageHeightConstraint.isActive = true
-    }
-    
-    
     
     // MARK: Error Alert
     func presentErrorAlert(for error: Error, title: String) {
