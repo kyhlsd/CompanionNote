@@ -28,6 +28,7 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
     
     override init(frame: CGRect = .zero) {
         super.init(frame: frame)
+        clipsToBounds = true
         checkBox.isUserInteractionEnabled = false
         setupUI()
         setupSwipeGesture()
