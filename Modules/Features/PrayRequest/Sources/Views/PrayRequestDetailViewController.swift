@@ -116,6 +116,7 @@ class PrayRequestDetailViewController: UIViewController {
 
         let topPadding = Constants.topPadding
         let innerPadding = Constants.innerPadding
+        let scrollBarPadding = Constants.scrollBarPadding
         let safeArea = view.safeAreaLayoutGuide
 
         NSLayoutConstraint.activate([
@@ -136,7 +137,7 @@ class PrayRequestDetailViewController: UIViewController {
             
             prayDetailTableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
             prayDetailTableView.leadingAnchor.constraint(equalTo: prayContainerView.leadingAnchor, constant: innerPadding),
-            prayDetailTableView.trailingAnchor.constraint(equalTo: prayContainerView.trailingAnchor, constant: -innerPadding),
+            prayDetailTableView.trailingAnchor.constraint(equalTo: prayContainerView.trailingAnchor, constant: -innerPadding + scrollBarPadding),
             prayDetailTableView.bottomAnchor.constraint(equalTo: prayContainerView.bottomAnchor, constant: -4),
             
             prayEditorContainerView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: topPadding),

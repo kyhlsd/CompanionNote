@@ -167,6 +167,7 @@ public class PrayRequestViewController: UIViewController {
         indicatorView.translatesAutoresizingMaskIntoConstraints = false
         
         let sidePadding = Constants.sidePadding
+        let scrollBarPadding = Constants.scrollBarPadding
         let innerPadding = Constants.innerPadding
         let safeArea = view.safeAreaLayoutGuide
         
@@ -181,7 +182,7 @@ public class PrayRequestViewController: UIViewController {
             praySearchBar.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -sidePadding),
             
             prayRequestCollectionView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: sidePadding),
-            prayRequestCollectionView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -sidePadding),
+            prayRequestCollectionView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -sidePadding + scrollBarPadding),
             prayRequestCollectionView.topAnchor.constraint(equalTo: praySearchBar.bottomAnchor, constant: innerPadding),
             prayRequestCollectionView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor),
             
@@ -505,7 +506,7 @@ extension PrayRequestViewController: UICollectionViewDataSource, UICollectionVie
     
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let frameWidth = collectionView.frame.width
-        let width = frameWidth < 600 ? frameWidth : (frameWidth - Constants.innerPadding) / 2
+        let width = frameWidth < 600 ? frameWidth - Constants.scrollBarPadding : (frameWidth - Constants.scrollBarPadding - Constants.innerPadding) / 2
         return CGSize(width: width, height: 106)
     }
     
@@ -516,6 +517,38 @@ extension PrayRequestViewController: UICollectionViewDataSource, UICollectionVie
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         return Constants.innerPadding
     }
+    
+    public func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        insetForSectionAt section: Int
+    ) -> UIEdgeInsets {
+
+        let frameWidth = collectionView.frame.width
+
+        // 현재 셀 너비 계산 로직과 동일하게 맞춤
+        let itemWidth: CGFloat
+        let numberOfItemsInRow: Int
+
+        if frameWidth < 600 {
+            itemWidth = frameWidth - Constants.scrollBarPadding
+            numberOfItemsInRow = 1
+        } else {
+            itemWidth = (frameWidth - Constants.scrollBarPadding - Constants.innerPadding) / 2
+            numberOfItemsInRow = 2
+        }
+
+        let totalItemWidth = CGFloat(numberOfItemsInRow) * itemWidth
+        let totalSpacingWidth = CGFloat(max(numberOfItemsInRow - 1, 0)) * Constants.innerPadding
+
+        let totalContentWidth = totalItemWidth + totalSpacingWidth
+
+        // 남는 공간을 좌우 inset으로 나눔
+        let inset = max((frameWidth - totalContentWidth), 0)
+
+        return UIEdgeInsets(top: 0, left: 0, bottom: 0, right: inset)
+    }
+
 }
 
 extension PrayRequestViewController: SelectCategoryDelegate {
