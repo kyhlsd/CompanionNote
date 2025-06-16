@@ -15,7 +15,7 @@ jobs:
 
       - name: Install Tuist
         run: |
-          bash <(curl -Ls https://install.tuist.io)
+          curl -Ls https://get.tuist.io | bash
           
       - name: Cache Tuist build artifacts
         uses: actions/cache@v3
