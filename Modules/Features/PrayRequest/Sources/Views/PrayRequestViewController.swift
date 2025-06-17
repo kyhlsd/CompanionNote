@@ -474,7 +474,6 @@ public class PrayRequestViewController: UIViewController {
                 }
                 self.deleteIds.removeAll()
                 self.isDeleteMode = false
-                self.viewModel.activeFetchStatus()
                 
                 UIView.animate(withDuration: 0.2) { [weak self] in
                     guard let self = self else { return }
@@ -488,8 +487,8 @@ public class PrayRequestViewController: UIViewController {
             }
             catch {
                 presentErrorAlert(for: error, title: "삭제 실패")
-                indicatorView.stopAnimating()
             }
+            indicatorView.stopAnimating()
         }
     }
     
@@ -565,6 +564,7 @@ extension PrayRequestViewController: UICollectionViewDelegate, UICollectionViewD
         } else { // 기본 모드일 때 상세보기
             let selectedPrayRequest = viewModel.prayRequests[indexPath.row]
             let prayRequestDetailViewController = PrayRequestDetailViewController(with: selectedPrayRequest, viewModel: viewModel)
+            prayRequestDetailViewController.delegate = self
             self.navigationController?.pushViewController(prayRequestDetailViewController, animated: true)
         }
     }
@@ -637,17 +637,17 @@ extension PrayRequestViewController: PrayRequestCellDelegate {
               let item = dataSource?.itemIdentifier(for: indexPath) else { return }
         let id = item.uuid.uuidString
 
-        Task {
+        Task { [weak self] in
+            guard let self = self else { return }
             do {
                 indicatorView.startAnimating()
-                try await viewModel.deletePrayRequest(prayRequestId: id)
+                try await viewModel.deletePrayRequest(prayRequestId: item.uuid)
                 
                 deleteIds.removeAll { $0 == id }
-                viewModel.activeFetchStatus()
             } catch {
                 presentErrorAlert(for: error, title: "삭제 실패")
-                indicatorView.stopAnimating()
             }
+            indicatorView.stopAnimating()
         }
     }
     
@@ -657,16 +657,24 @@ extension PrayRequestViewController: PrayRequestCellDelegate {
         let id = item.uuid.uuidString
         let toggledIsPinned = !item.isPinned
         
-        Task {
+        Task { [weak self] in
+            guard let self = self else { return }
             do {
                 indicatorView.startAnimating()
                 try await viewModel.setIsPinned(prayRequestId: id, isPinned: toggledIsPinned)
                 cell.setPinButton(toggledIsPinned)
                 item.isPinned = toggledIsPinned
             } catch {
-                presentErrorAlert(for: error, title: "고정 실패")
+                presentErrorAlert(for: error, title: "상단 고정 실패")
             }
             indicatorView.stopAnimating()
         }
+    }
+}
+
+extension PrayRequestViewController: SetIsPinnedDelegate {
+    func setIsPinned(prayRequest: PrayRequest) {
+        guard let indexPath = dataSource?.indexPath(for: prayRequest), let cell = prayRequestCollectionView.cellForItem(at: indexPath) as? PrayRequestCollectionViewCell else { return }
+        cell.setPinButton(prayRequest.isPinned)
     }
 }

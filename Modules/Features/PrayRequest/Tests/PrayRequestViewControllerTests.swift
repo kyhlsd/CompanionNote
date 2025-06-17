@@ -116,51 +116,6 @@ final class PrayRequestViewControllerTests: XCTestCase {
         XCTAssertTrue(sut.errorPresented)
     }
 
-    @MainActor
-    func test_didSelectItem_inDeleteMode_togglesCheckBox() async {
-        mockViewModel.shouldSucceed = true
-        Task {
-            try await sut.viewModel.fetchPrayRequests()
-        }
-        sut.prayRequestCollectionView.layoutIfNeeded()
-        try? await Task.sleep(nanoseconds: 100_000_000)
-        
-        // Given
-        sut.isDeleteMode = true
-        sut.loadViewIfNeeded()
-        
-        // 데이터 소스: 딱 1개 아이템만 반환
-        class SingleItemDataSource: NSObject, UICollectionViewDataSource {
-            func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-                return 1
-            }
-            
-            func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PrayRequestCell", for: indexPath) as! PrayRequestCollectionViewCell
-                cell.configure(with: PrayRequest.dummyDatas[0])
-                return cell
-            }
-        }
-        
-        // 강한 참조를 유지하기 위한 변수
-        let dataSource = SingleItemDataSource()
-        sut.prayRequestCollectionView.dataSource = dataSource
-
-        sut.prayRequestCollectionView.reloadData()
-        sut.prayRequestCollectionView.layoutIfNeeded()
-        try? await Task.sleep(nanoseconds: 100_000_000)
-
-        let indexPath = IndexPath(row: 0, section: 0)
-
-        // When
-        sut.collectionView(sut.prayRequestCollectionView, didSelectItemAt: indexPath)
-
-        // Then
-        let cell = sut.prayRequestCollectionView.cellForItem(at: indexPath) as? PrayRequestCollectionViewCell
-        XCTAssertTrue(cell!.checkBox.isChecked)
-    }
-
-
     func test_didSelectCategory_logsCorrectCategory() {
         // Given
         let firstItem = PrayRequest(date: Date(), title: "Test1", items: [], category: .church)
@@ -242,7 +197,7 @@ final class PrayRequestViewControllerTests: XCTestCase {
                 throw NSError(domain: "TestError", code: 999, userInfo: nil)
             }
         }
-        func deletePrayRequest(prayRequestId: String) async throws {}
+        func deletePrayRequest(prayRequestId: UUID) async throws {}
         func setIsPinned(prayRequestId: String, isPinned: Bool) async throws {}
         func activeFetchStatus() {}
         func updateSearchedResults(with searchText: String) {

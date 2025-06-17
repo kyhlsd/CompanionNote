@@ -9,6 +9,10 @@ import UIKit
 import Core
 import Shared
 
+protocol SetIsPinnedDelegate: AnyObject {
+    func setIsPinned(prayRequest: PrayRequest)
+}
+
 class PrayRequestDetailViewController: UIViewController {
     
     let viewModel: PrayRequestViewModelProtocol
@@ -22,9 +26,14 @@ class PrayRequestDetailViewController: UIViewController {
     private let titleLabel = UILabel()
     let prayDetailTableView: UITableView = UITableView(frame: .zero, style: .plain)
     private let dateLabel = UILabel()
+    private let pinButton = UIButton()
+    private let deleteButton = UIButton()
+    private let shareButton = UIButton()
     let prayEditorContainerView = CellContainerView()
     let prayEditorView = PrayEditorView()
     private let indicatorView = IndicatorView()
+    
+    weak var delegate: SetIsPinnedDelegate?
     
     init(with prayRequest: PrayRequest, viewModel: PrayRequestViewModelProtocol) {
         self.prayRequest = prayRequest
@@ -92,6 +101,9 @@ class PrayRequestDetailViewController: UIViewController {
         setupCategoryLabel()
         setupTitleLabel()
         setupDateLabel()
+        setupPinButton()
+        setupDeleteButton()
+        setupShareButton()
         setupPrayDetailTableView()
         setupPrayEditorContainerView()
         
@@ -99,6 +111,9 @@ class PrayRequestDetailViewController: UIViewController {
         prayContainerView.addSubview(categoryLabel)
         prayContainerView.addSubview(titleLabel)
         prayContainerView.addSubview(dateLabel)
+        prayContainerView.addSubview(pinButton)
+        prayContainerView.addSubview(deleteButton)
+        prayContainerView.addSubview(shareButton)
         prayContainerView.addSubview(prayDetailTableView)
         view.addSubview(prayEditorContainerView)
         prayEditorContainerView.addSubview(prayEditorView)
@@ -111,6 +126,9 @@ class PrayRequestDetailViewController: UIViewController {
         prayDetailTableView.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         dateLabel.translatesAutoresizingMaskIntoConstraints = false
+        pinButton.translatesAutoresizingMaskIntoConstraints = false
+        deleteButton.translatesAutoresizingMaskIntoConstraints = false
+        shareButton.translatesAutoresizingMaskIntoConstraints = false
         prayEditorContainerView.translatesAutoresizingMaskIntoConstraints = false
         prayEditorView.translatesAutoresizingMaskIntoConstraints = false
         indicatorView.translatesAutoresizingMaskIntoConstraints = false
@@ -132,11 +150,26 @@ class PrayRequestDetailViewController: UIViewController {
             
             titleLabel.leadingAnchor.constraint(equalTo: categoryLabel.trailingAnchor, constant: 8),
             titleLabel.topAnchor.constraint(equalTo: prayContainerView.topAnchor, constant: innerPadding),
-
-            dateLabel.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
+            
+            pinButton.trailingAnchor.constraint(equalTo: deleteButton.leadingAnchor, constant: -4),
+            pinButton.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
+            pinButton.widthAnchor.constraint(equalToConstant: 28),
+            pinButton.heightAnchor.constraint(equalToConstant: 28),
+            
+            deleteButton.trailingAnchor.constraint(equalTo: shareButton.leadingAnchor, constant: -4),
+            deleteButton.bottomAnchor.constraint(equalTo: pinButton.bottomAnchor),
+            deleteButton.widthAnchor.constraint(equalToConstant: 28),
+            deleteButton.heightAnchor.constraint(equalToConstant: 28),
+            
+            shareButton.trailingAnchor.constraint(equalTo: prayContainerView.trailingAnchor, constant: -innerPadding),
+            shareButton.bottomAnchor.constraint(equalTo: pinButton.bottomAnchor),
+            shareButton.widthAnchor.constraint(equalToConstant: 28),
+            shareButton.heightAnchor.constraint(equalToConstant: 28),
+            
+            dateLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 12),
             dateLabel.trailingAnchor.constraint(equalTo: prayContainerView.trailingAnchor, constant: -innerPadding),
             
-            prayDetailTableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
+            prayDetailTableView.topAnchor.constraint(equalTo: dateLabel.bottomAnchor, constant: 12),
             prayDetailTableView.leadingAnchor.constraint(equalTo: prayContainerView.leadingAnchor, constant: innerPadding),
             prayDetailTableView.trailingAnchor.constraint(equalTo: prayContainerView.trailingAnchor, constant: -innerPadding + scrollBarPadding),
             prayDetailTableView.bottomAnchor.constraint(equalTo: prayContainerView.bottomAnchor, constant: -4),
@@ -154,6 +187,20 @@ class PrayRequestDetailViewController: UIViewController {
             indicatorView.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
             indicatorView.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor)
         ])
+    }
+    
+    private func setupPinButton() {
+        pinButton.setImage(UIImage(systemName: prayRequest.isPinned ? "pin.fill" : "pin"), for: .normal)
+    }
+    
+    private func setupDeleteButton() {
+        deleteButton.setImage(UIImage(systemName: "trash"), for: .normal)
+        deleteButton.tintColor = .darkGray
+    }
+    
+    private func setupShareButton() {
+        shareButton.setImage(UIImage(systemName: "square.and.arrow.up"), for: .normal)
+        shareButton.tintColor = .darkGray
     }
     
     private func setupCategoryLabel() {
@@ -204,6 +251,21 @@ class PrayRequestDetailViewController: UIViewController {
                 self?.completeButtonTapped()
             }, for: .touchUpInside)
         }
+        
+        // Pin Button
+        pinButton.addAction(UIAction { [weak self] _ in
+            self?.pinButtonTapped()
+        }, for: .touchUpInside)
+        
+        // Delete Button
+        deleteButton.addAction(UIAction { [weak self] _ in
+            self?.deleteButtonTapped()
+        }, for: .touchUpInside)
+        
+        // Share Button
+        shareButton.addAction(UIAction { [weak self] _ in
+            self?.shareButtonTapped()
+        }, for: .touchUpInside)
     }
     
     private func setupDelegate() {
@@ -259,7 +321,7 @@ class PrayRequestDetailViewController: UIViewController {
                     prayContainerView.isHidden = false
                     prayEditorContainerView.isHidden = true
                 } catch {
-                    presentErrorAlert(for: error)
+                    presentErrorAlert(for: error, title: "수정 실패")
                 }
                 indicatorView.stopAnimating()
             }
@@ -272,6 +334,44 @@ class PrayRequestDetailViewController: UIViewController {
         }
     }
     
+    private func deleteButtonTapped() {
+        let alert = UIAlertController(
+            title: "항목 삭제",
+            message: "삭제 항목은 되돌릴 수 없습니다.\n항목을 삭제하시겠습니까?",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "삭제", style: .destructive) { [weak self] _ in
+            self?.deletePrayRequest()
+        })
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.present(alert, animated: true)
+        }
+    }
+    
+    private func pinButtonTapped() {
+        let toggledIsPinned = !prayRequest.isPinned
+        Task { [weak self] in
+            guard let self = self else { return }
+            do {
+                indicatorView.startAnimating()
+                try await viewModel.setIsPinned(prayRequestId: prayRequest.uuid.uuidString, isPinned: toggledIsPinned)
+                pinButton.imageView?.image = UIImage(systemName: toggledIsPinned ? "pin.fill" : "pin")
+                prayRequest.isPinned = toggledIsPinned
+                delegate?.setIsPinned(prayRequest: prayRequest)
+            } catch {
+                presentErrorAlert(for: error, title: "상단 고정 실패")
+            }
+            indicatorView.stopAnimating()
+        }
+    }
+    
+    private func shareButtonTapped() {
+        // TODO: 공유 기능
+        print("share")
+    }
+    
     private func updateUI() {
         categoryLabel.text = prayRequest.category.rawValue
         categoryLabel.backgroundColor = UIColor(named: prayRequest.category.colorIdentifier, in: .module, compatibleWith: nil)
@@ -282,6 +382,20 @@ class PrayRequestDetailViewController: UIViewController {
         
         DispatchQueue.main.async { [weak self] in
             self?.prayDetailTableView.reloadData()
+        }
+    }
+    
+    private func deletePrayRequest() {
+        Task { [weak self] in
+            guard let self = self else { return }
+            do {
+                indicatorView.startAnimating()
+                try await viewModel.deletePrayRequest(prayRequestId: prayRequest.uuid)
+                navigationController?.popViewController(animated: true)
+            } catch {
+                presentErrorAlert(for: error, title: "삭제 실패")
+            }
+            indicatorView.stopAnimating()
         }
     }
     
@@ -311,7 +425,7 @@ class PrayRequestDetailViewController: UIViewController {
     }
     
     // MARK: Error Alert
-    func presentErrorAlert(for error: Error) {
+    func presentErrorAlert(for error: Error, title: String) {
         let message = FirestoreErrorMapper.message(for: error)
         
         let alert = UIAlertController(
@@ -321,7 +435,7 @@ class PrayRequestDetailViewController: UIViewController {
         )
         
         let title = NSAttributedString(
-            string: "수정 실패",
+            string: title,
             attributes: [
                 .foregroundColor: UIColor.red,
                 .font: UIFont.boldSystemFont(ofSize: 17)
