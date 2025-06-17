@@ -291,23 +291,13 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
     }
     
     func setDeleteMode(_ enabled: Bool) {
-        enabled ? enableDeleteMode() : disableDeleteMode()
+        checkBox.isHidden = !enabled
+        pinButton.isHidden = enabled
     }
     
     func setPinButton(_ isPinned: Bool) {
         let image = UIImage(systemName: isPinned ? "pin.fill" : "pin")
         pinButton.imageView?.image = image
-    }
-    
-    private func enableDeleteMode() {
-        checkBox.isHidden = false
-        pinButton.isHidden = true
-    }
-    
-    private func disableDeleteMode() {
-        checkBox.isHidden = true
-        checkBox.isChecked = false
-        pinButton.isHidden = false
     }
 }
 
