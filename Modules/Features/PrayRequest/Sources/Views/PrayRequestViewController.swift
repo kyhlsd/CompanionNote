@@ -336,11 +336,14 @@ public class PrayRequestViewController: UIViewController {
             cell.setDeleteMode(true)
         }
         
-        navigationItem.leftBarButtonItem = cancelBarButtonItem
-        navigationItem.rightBarButtonItems = [
-            completeBarButtonItem
-        ]
-        navigationItem.titleView = editBarLabel
+        UIView.animate(withDuration: 0.2) { [weak self] in
+            guard let self = self else { return }
+            navigationItem.leftBarButtonItem = cancelBarButtonItem
+            navigationItem.rightBarButtonItems = [
+                completeBarButtonItem
+            ]
+            navigationItem.titleView = editBarLabel
+        }
     }
     
     private func completeButtonTapped() {
@@ -349,12 +352,15 @@ public class PrayRequestViewController: UIViewController {
             for case let cell as PrayRequestCollectionViewCell in prayRequestCollectionView.visibleCells {
                 cell.setDeleteMode(false)
             }
-            navigationItem.leftBarButtonItem = titleBarLabelItem
-            navigationItem.rightBarButtonItems = [
-                deleteBarButtonItem,
-                plusBarButtonItem
-            ]
-            navigationItem.titleView = nil
+            UIView.animate(withDuration: 0.2) { [weak self] in
+                guard let self = self else { return }
+                navigationItem.leftBarButtonItem = titleBarLabelItem
+                navigationItem.rightBarButtonItems = [
+                    deleteBarButtonItem,
+                    plusBarButtonItem
+                ]
+                navigationItem.titleView = nil
+            }
         } else {
             presentDeleteAlert()
         }
@@ -371,12 +377,15 @@ public class PrayRequestViewController: UIViewController {
                 cell.setDeleteMode(false)
             }
             
-            navigationItem.leftBarButtonItem = titleBarLabelItem
-            navigationItem.rightBarButtonItems = [
-                deleteBarButtonItem,
-                plusBarButtonItem
-            ]
-            navigationItem.titleView = nil
+            UIView.animate(withDuration: 0.2) { [weak self] in
+                guard let self = self else { return }
+                navigationItem.leftBarButtonItem = titleBarLabelItem
+                navigationItem.rightBarButtonItems = [
+                    deleteBarButtonItem,
+                    plusBarButtonItem
+                ]
+                navigationItem.titleView = nil
+            }
         }
     }
     
@@ -467,12 +476,15 @@ public class PrayRequestViewController: UIViewController {
                 self.isDeleteMode = false
                 self.viewModel.activeFetchStatus()
                 
-                navigationItem.leftBarButtonItem = titleBarLabelItem
-                navigationItem.rightBarButtonItems = [
-                    deleteBarButtonItem,
-                    plusBarButtonItem
-                ]
-                navigationItem.titleView = nil
+                UIView.animate(withDuration: 0.2) { [weak self] in
+                    guard let self = self else { return }
+                    navigationItem.leftBarButtonItem = titleBarLabelItem
+                    navigationItem.rightBarButtonItems = [
+                        deleteBarButtonItem,
+                        plusBarButtonItem
+                    ]
+                    navigationItem.titleView = nil
+                }
             }
             catch {
                 presentErrorAlert(for: error, title: "삭제 실패")
