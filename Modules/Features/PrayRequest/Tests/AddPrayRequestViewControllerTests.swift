@@ -154,6 +154,7 @@ final class AddPrayRequestViewControllerTests: XCTestCase {
         func activeFetchStatus() {}
         func updateSearchedResults(with searchText: String) {}
         func updateSelectedResults(with index: Int) {}
+        func sortPrayRequests() {}
         
     }
     

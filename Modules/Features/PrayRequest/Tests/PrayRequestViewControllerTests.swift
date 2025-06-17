@@ -225,6 +225,7 @@ final class PrayRequestViewControllerTests: XCTestCase {
             let selected = totalPrayRequests.filter { $0.category.rawValue == categoryRawValue }
             selectedPrayRequests = selected
         }
+        func sortPrayRequests() {}
     }
     
     final class SpyPrayRequestViewController: PrayRequestViewController {

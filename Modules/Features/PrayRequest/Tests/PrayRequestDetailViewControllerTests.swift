@@ -207,6 +207,7 @@ final class PrayRequestDetailViewControllerTests: XCTestCase {
         }
         func updateSearchedResults(with searchText: String) {}
         func updateSelectedResults(with index: Int) {}
+        func sortPrayRequests() {}
     }
     
     final class SpyPrayRequestDetailViewController: PrayRequestDetailViewController {

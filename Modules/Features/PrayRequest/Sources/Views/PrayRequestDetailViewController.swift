@@ -359,6 +359,10 @@ class PrayRequestDetailViewController: UIViewController {
                 try await viewModel.setIsPinned(prayRequestId: prayRequest.uuid.uuidString, isPinned: toggledIsPinned)
                 pinButton.imageView?.image = UIImage(systemName: toggledIsPinned ? "pin.fill" : "pin")
                 prayRequest.isPinned = toggledIsPinned
+                if let index = viewModel.prayRequests.firstIndex(of: prayRequest) {
+                    viewModel.prayRequests[index].isPinned = toggledIsPinned
+                    viewModel.sortPrayRequests()
+                }
                 delegate?.setIsPinned(prayRequest: prayRequest)
             } catch {
                 presentErrorAlert(for: error, title: "상단 고정 실패")

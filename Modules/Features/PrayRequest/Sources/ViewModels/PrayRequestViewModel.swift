@@ -99,6 +99,10 @@ final public class PrayRequestViewModel: PrayRequestViewModelProtocol {
         prayRequests = filtered.sorted { sortCondition(firstItem: $0, secondItem: $1) }
     }
     
+    public func sortPrayRequests() {
+        prayRequests.sort { sortCondition(firstItem: $0, secondItem: $1) }
+    }
+    
     private func sortCondition(firstItem: PrayRequest, secondItem: PrayRequest) -> Bool {
         if firstItem.isPinned == secondItem.isPinned {
             return firstItem.date > secondItem.date
@@ -121,4 +125,5 @@ public protocol PrayRequestViewModelProtocol {
     var shouldFetchPublisher: Published<Bool>.Publisher { get }
     func updateSelectedResults(with index: Int)
     func updateSearchedResults(with searchText: String)
+    func sortPrayRequests()
 }

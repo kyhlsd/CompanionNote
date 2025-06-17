@@ -676,5 +676,6 @@ extension PrayRequestViewController: SetIsPinnedDelegate {
     func setIsPinned(prayRequest: PrayRequest) {
         guard let indexPath = dataSource?.indexPath(for: prayRequest), let cell = prayRequestCollectionView.cellForItem(at: indexPath) as? PrayRequestCollectionViewCell else { return }
         cell.setPinButton(prayRequest.isPinned)
+
     }
 }
