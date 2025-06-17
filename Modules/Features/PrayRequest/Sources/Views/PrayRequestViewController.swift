@@ -343,38 +343,19 @@ public class PrayRequestViewController: UIViewController {
     }
     
     private func completeButtonTapped() {
-        Task { [weak self] in
-            guard let self = self else { return }
-            
-            do {
-                if deleteIds.isEmpty {
-                    isDeleteMode = false
-                    for case let cell as PrayRequestCollectionViewCell in prayRequestCollectionView.visibleCells {
-                        cell.setDeleteMode(false)
-                    }
-                } else {
-                    indicatorView.startAnimating()
-                    try await viewModel.deletePrayRequests(prayRequestIds: deleteIds)
-                    for case let cell as PrayRequestCollectionViewCell in prayRequestCollectionView.visibleCells {
-                        cell.setDeleteMode(false)
-                    }
-                    deleteIds = []
-                    isDeleteMode = false
-                    viewModel.activeFetchStatus()
-                }
-                
-                navigationItem.leftBarButtonItem = titleBarLabelItem
-                navigationItem.rightBarButtonItems = [
-                    deleteBarButtonItem,
-                    plusBarButtonItem
-                ]
-                navigationItem.titleView = nil
-                
-                
-            } catch {
-                presentErrorAlert(for: error, title: "삭제 실패")
-                indicatorView.stopAnimating()
+        if deleteIds.isEmpty {
+            isDeleteMode = false
+            for case let cell as PrayRequestCollectionViewCell in prayRequestCollectionView.visibleCells {
+                cell.setDeleteMode(false)
             }
+            navigationItem.leftBarButtonItem = titleBarLabelItem
+            navigationItem.rightBarButtonItems = [
+                deleteBarButtonItem,
+                plusBarButtonItem
+            ]
+            navigationItem.titleView = nil
+        } else {
+            presentDeleteAlert()
         }
     }
     
@@ -456,6 +437,49 @@ public class PrayRequestViewController: UIViewController {
         dataSource?.apply(snapshot, animatingDifferences: animatingDifferences)
     }
     
+    private func presentDeleteAlert() {
+        let alert = UIAlertController(
+            title: "항목 삭제",
+            message: "삭제 항목은 되돌릴 수 없습니다.\n\(deleteIds.count)개 항목을 삭제하시겠습니까?",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "삭제", style: .destructive) { [weak self] _ in
+            self?.deletePrayRequests()
+        })
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.present(alert, animated: true)
+        }
+    }
+    
+    func deletePrayRequests() {
+        Task { [weak self] in
+            guard let self = self else { return }
+            do {
+                self.indicatorView.startAnimating()
+                try await self.viewModel.deletePrayRequests(prayRequestIds: self.deleteIds)
+                for case let cell as PrayRequestCollectionViewCell in self.prayRequestCollectionView.visibleCells {
+                    cell.setDeleteMode(false)
+                }
+                self.deleteIds.removeAll()
+                self.isDeleteMode = false
+                self.viewModel.activeFetchStatus()
+                
+                navigationItem.leftBarButtonItem = titleBarLabelItem
+                navigationItem.rightBarButtonItems = [
+                    deleteBarButtonItem,
+                    plusBarButtonItem
+                ]
+                navigationItem.titleView = nil
+            }
+            catch {
+                presentErrorAlert(for: error, title: "삭제 실패")
+                indicatorView.stopAnimating()
+            }
+        }
+    }
+    
     // MARK: Error Alert
     func presentErrorAlert(for error: Error, title: String) {
         let message = FirestoreErrorMapper.message(for: error)
@@ -477,8 +501,8 @@ public class PrayRequestViewController: UIViewController {
         alert.setValue(title, forKey: "attributedTitle")
         alert.addAction(UIAlertAction(title: "닫기", style: .default))
         
-        DispatchQueue.main.async {
-            self.present(alert, animated: true)
+        DispatchQueue.main.async { [weak self] in
+            self?.present(alert, animated: true)
         }
     }
 }

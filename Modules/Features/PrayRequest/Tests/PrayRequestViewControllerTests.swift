@@ -80,10 +80,9 @@ final class PrayRequestViewControllerTests: XCTestCase {
         mockViewModel.shouldSucceed = true
         sut.isDeleteMode = true
         sut.deleteIds = ["test1, test2, test3"]
-        let completeButton = sut.completeBarButtonItem.customView as? UIButton
 
         // When
-        completeButton?.sendActions(for: .touchUpInside)
+        sut.deletePrayRequests()
         try? await Task.sleep(nanoseconds: 100_000_000)
         
         // Then
@@ -100,13 +99,12 @@ final class PrayRequestViewControllerTests: XCTestCase {
         mockViewModel.shouldSucceed = false
         sut.isDeleteMode = true
         sut.deleteIds = ["test1, test2, test3"]
-        let completeButton = sut.completeBarButtonItem.customView as? UIButton
         sut.navigationItem.rightBarButtonItems = [sut.completeBarButtonItem]
         sut.navigationItem.leftBarButtonItem = sut.cancelBarButtonItem
         sut.navigationItem.titleView = sut.editBarLabel
         
         // When
-        completeButton?.sendActions(for: .touchUpInside)
+        sut.deletePrayRequests()
         try? await Task.sleep(nanoseconds: 100_000_000)
         
         // Then
