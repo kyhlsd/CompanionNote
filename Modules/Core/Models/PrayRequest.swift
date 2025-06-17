@@ -12,13 +12,15 @@ public class PrayRequest: Codable, Hashable {
     public var title: String
     public var items: [PrayItem]
     public var category: PrayCategory
+    public var isPinned: Bool
     public let uuid: UUID
     
-    public init(date: Date, title: String, items: [PrayItem], category: PrayCategory, uuid: UUID = UUID()) {
+    public init(date: Date, title: String, items: [PrayItem], category: PrayCategory, isPinned: Bool = false, uuid: UUID = UUID()) {
         self.date = date
         self.title = title
         self.items = items
         self.category = category
+        self.isPinned = isPinned
         self.uuid = uuid
     }
     

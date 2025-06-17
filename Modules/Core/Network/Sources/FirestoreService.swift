@@ -33,6 +33,10 @@ public final class FirestoreService {
         try db.collection(firstCollection).document(firstDocument).collection(secondCollection).document(secondDocument).setData(from: data)
     }
     
+    func updateFieldsInCollection(firstCollection: String, firstDocument: String, secondCollection: String, secondDocument: String, data: [AnyHashable: Any]) async throws {
+        try await db.collection(firstCollection).document(firstDocument).collection(secondCollection).document(secondDocument).updateData(data)
+    }
+    
     func fetchDocumentsInCollection<T: Decodable>(firstCollection: String, document: String, secondCollection: String) async throws -> [T] {
         let docRef = db.collection(firstCollection).document(document).collection(secondCollection)
         let snapshot = try await docRef.getDocuments()
@@ -57,6 +61,7 @@ public protocol PrayRequestRepository {
     func addPrayRequest(userId: String, prayRequest: PrayRequest) async throws
     func fetchPrayRequests(userId: String) async throws -> [PrayRequest]
     func updatePrayRequest(userId: String, prayRequest: PrayRequest) async throws
+    func updatePrayRequestFields(userId: String, itemId: String, data: [AnyHashable: Any]) async throws
     func deletePrayRequest(userId: String, document: String) async throws
 }
 
@@ -79,6 +84,7 @@ public final class UserRepositoryImpl: UserRepository {
 }
 
 public final class PrayRequestRepositoryImpl: PrayRequestRepository {
+    
     private let firestoreService: FirestoreService
 
     public init(firestoreService: FirestoreService) {
@@ -95,6 +101,10 @@ public final class PrayRequestRepositoryImpl: PrayRequestRepository {
     
     public func updatePrayRequest(userId: String, prayRequest: PrayRequest) async throws {
         try await firestoreService.setDocumentInCollection(firstCollection: "Prayers", firstDocument: userId, secondCollection: "Prayers", secondDocument: prayRequest.uuid.uuidString, data: prayRequest)
+    }
+    
+    public func updatePrayRequestFields(userId: String, itemId: String, data: [AnyHashable : Any]) async throws {
+        try await firestoreService.updateFieldsInCollection(firstCollection: "Prayers", firstDocument: userId, secondCollection: "Prayers", secondDocument: itemId, data: data)
     }
     
     public func deletePrayRequest(userId: String, document: String) async throws {
@@ -128,10 +138,12 @@ public protocol PrayRequestUseCase {
     func addPrayRequest(userId: String, prayRequest: PrayRequest) async throws
     func fetchPrayRequests(userId: String) async throws -> [PrayRequest]
     func updatePrayRequest(userId: String, prayRequest: PrayRequest) async throws
+    func updatePrayRequestFields(userId: String, itemId: String, data: [AnyHashable: Any]) async throws
     func deletePrayRequest(userId: String, document: String) async throws
 }
 
 public final class DefaultPrayRequestUseCase: PrayRequestUseCase {
+    
     private let repository: PrayRequestRepository
 
     public init(repository: PrayRequestRepository) {
@@ -150,8 +162,16 @@ public final class DefaultPrayRequestUseCase: PrayRequestUseCase {
         try await repository.updatePrayRequest(userId: userId, prayRequest: prayRequest)
     }
     
+    public func updatePrayRequestFields(userId: String, itemId: String, data: [AnyHashable : Any]) async throws {
+        try await repository.updatePrayRequestFields(userId: userId, itemId: itemId, data: data)
+    }
+    
     public func deletePrayRequest(userId: String, document: String) async throws {
         try await repository.deletePrayRequest(userId: userId, document: document)
+    }
+    
+    public func updatePrayRequestField<T: Encodable>(userId: String, key: String, value: T) async throws {
+        
     }
 }
 

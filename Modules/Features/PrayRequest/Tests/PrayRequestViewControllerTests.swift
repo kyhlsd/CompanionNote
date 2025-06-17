@@ -243,6 +243,7 @@ final class PrayRequestViewControllerTests: XCTestCase {
             }
         }
         func deletePrayRequest(prayRequestId: String) async throws {}
+        func setIsPinned(prayRequestId: String, isPinned: Bool) async throws {}
         func activeFetchStatus() {}
         func updateSearchedResults(with searchText: String) {
             guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {

@@ -200,6 +200,7 @@ final class PrayRequestDetailViewControllerTests: XCTestCase {
         
         func deletePrayRequests(prayRequestIds: [String]) async throws {}
         func deletePrayRequest(prayRequestId: String) async throws {}
+        func setIsPinned(prayRequestId: String, isPinned: Bool) async throws {}
         
         func activeFetchStatus() {
             shouldFetch.toggle()

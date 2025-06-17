@@ -61,6 +61,11 @@ final public class PrayRequestViewModel: PrayRequestViewModelProtocol {
         try await self.prayRequestUseCase.deletePrayRequest(userId: userIdentifier, document: prayRequestId)
     }
     
+    public func setIsPinned(prayRequestId: String, isPinned: Bool) async throws {
+        guard let userIdentifier = userIdentifier else { return }
+        try await self.prayRequestUseCase.updatePrayRequestFields(userId: userIdentifier, itemId: prayRequestId, data: ["isPinned": isPinned])
+    }
+    
     public func activeFetchStatus() {
         shouldFetch.toggle()
     }
@@ -81,7 +86,7 @@ final public class PrayRequestViewModel: PrayRequestViewModelProtocol {
     
     public func updateSearchedResults(with searchText: String) {
         guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            prayRequests = selectedPrayRequests.sorted { $0.date > $1.date }
+            prayRequests = selectedPrayRequests.sorted { sortCondition(firstItem: $0, secondItem: $1) }
                     return
         }
         
@@ -89,7 +94,15 @@ final public class PrayRequestViewModel: PrayRequestViewModelProtocol {
             SearchPrayRequestUtils.matches(target: $0, keyword: searchText)
         }
         
-        prayRequests = filtered.sorted { $0.date > $1.date }
+        prayRequests = filtered.sorted { sortCondition(firstItem: $0, secondItem: $1) }
+    }
+    
+    private func sortCondition(firstItem: PrayRequest, secondItem: PrayRequest) -> Bool {
+        if firstItem.isPinned == secondItem.isPinned {
+            return firstItem.date > secondItem.date
+        } else {
+            return firstItem.isPinned && !secondItem.isPinned
+        }
     }
 }
 
@@ -99,6 +112,7 @@ public protocol PrayRequestViewModelProtocol {
     func updatePrayRequest(prayRequest: PrayRequest) async throws
     func deletePrayRequests(prayRequestIds: [String]) async throws
     func deletePrayRequest(prayRequestId: String) async throws
+    func setIsPinned(prayRequestId: String, isPinned: Bool) async throws
     var prayRequests: [PrayRequest] { get }
     var prayRequestsPublisher: Published<[PrayRequest]>.Publisher { get }
     func activeFetchStatus()

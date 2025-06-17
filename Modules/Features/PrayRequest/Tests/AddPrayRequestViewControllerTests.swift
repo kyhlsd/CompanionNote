@@ -150,6 +150,7 @@ final class AddPrayRequestViewControllerTests: XCTestCase {
         func updatePrayRequest(prayRequest: Core.PrayRequest) async throws {}
         func deletePrayRequests(prayRequestIds: [String]) async throws {}
         func deletePrayRequest(prayRequestId: String) async throws {}
+        func setIsPinned(prayRequestId: String, isPinned: Bool) async throws {}
         func activeFetchStatus() {}
         func updateSearchedResults(with searchText: String) {}
         func updateSelectedResults(with index: Int) {}

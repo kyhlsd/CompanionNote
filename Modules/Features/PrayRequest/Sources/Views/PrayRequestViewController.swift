@@ -248,6 +248,7 @@ public class PrayRequestViewController: UIViewController {
             cell.configure(with: prayRequest)
             cell.setChecked(self.deleteIds.contains(item.uuid.uuidString))
             cell.setDeleteMode(self.isDeleteMode)
+            cell.setPinButton(item.isPinned)
             cell.delegate = self
             return cell
         }
@@ -530,6 +531,7 @@ extension PrayRequestViewController: UICollectionViewDelegate, UICollectionViewD
         
         cell.setChecked(deleteIds.contains(item.uuid.uuidString))
         cell.setDeleteMode(isDeleteMode)
+        cell.setPinButton(item.isPinned)
         cell.delegate = self
     }
     
@@ -616,7 +618,8 @@ extension PrayRequestViewController: UISearchBarDelegate {
     }
 }
 
-extension PrayRequestViewController: DeleteItemDelegate {
+extension PrayRequestViewController: PrayRequestCellDelegate {
+
     func deleteItem(at cell: PrayRequestCollectionViewCell) {
         guard let indexPath = prayRequestCollectionView.indexPath(for: cell),
               let item = dataSource?.itemIdentifier(for: indexPath) else { return }
@@ -633,6 +636,24 @@ extension PrayRequestViewController: DeleteItemDelegate {
                 presentErrorAlert(for: error, title: "삭제 실패")
                 indicatorView.stopAnimating()
             }
+        }
+    }
+    
+    func toggleIsPinned(at cell: PrayRequestCollectionViewCell) {
+        guard let indexPath = prayRequestCollectionView.indexPath(for: cell),
+              let item = dataSource?.itemIdentifier(for: indexPath) else { return }
+        let id = item.uuid.uuidString
+        let toggledIsPinned = !item.isPinned
+        
+        Task {
+            do {
+                indicatorView.startAnimating()
+                try await viewModel.setIsPinned(prayRequestId: id, isPinned: toggledIsPinned)
+                cell.setPinButton(toggledIsPinned)
+            } catch {
+                presentErrorAlert(for: error, title: "고정 실패")
+            }
+            indicatorView.stopAnimating()
         }
     }
 }
