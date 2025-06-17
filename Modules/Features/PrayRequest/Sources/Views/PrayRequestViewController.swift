@@ -650,6 +650,7 @@ extension PrayRequestViewController: PrayRequestCellDelegate {
                 indicatorView.startAnimating()
                 try await viewModel.setIsPinned(prayRequestId: id, isPinned: toggledIsPinned)
                 cell.setPinButton(toggledIsPinned)
+                item.isPinned = toggledIsPinned
             } catch {
                 presentErrorAlert(for: error, title: "고정 실패")
             }
