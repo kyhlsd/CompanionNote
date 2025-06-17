@@ -9,8 +9,9 @@ import UIKit
 import Core
 import Shared
 
-protocol DeleteItemDelegate: AnyObject {
+protocol PrayRequestCellDelegate: AnyObject {
     func deleteItem(at cell: PrayRequestCollectionViewCell)
+    func toggleIsPinned(at cell: PrayRequestCollectionViewCell)
 }
 
 final class PrayRequestCollectionViewCell: UICollectionViewCell {
@@ -21,14 +22,15 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
     let prayItemTableView = UITableView(frame: .zero, style: .plain)
     let dateLabel = UILabel()
     let checkBox = CheckBox()
+    let pinButton = UIButton()
     private let actionView = UIView()
     
     private var isSwiped = false
     private var originalCenter: CGPoint = .zero
     private let maxSwipeTranslation: CGFloat = 60
-    weak var delegate: DeleteItemDelegate?
     
-    var dateLabelTrailingConstraint: NSLayoutConstraint!
+    weak var delegate: PrayRequestCellDelegate?
+    
     var prayItems: [PrayItem] = []
     
     override init(frame: CGRect = .zero) {
@@ -55,6 +57,7 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
         setupTitleLabel()
         setupPrayItemTableView()
         setupDateLabel()
+        setupPinButton()
         setupActionView()
         
         backgroundColor = .clear
@@ -66,6 +69,7 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
         cellContainerView.addSubview(titleLabel)
         cellContainerView.addSubview(dateLabel)
         cellContainerView.addSubview(checkBox)
+        cellContainerView.addSubview(pinButton)
         cellContainerView.addSubview(prayItemTableView)
         
         actionView.translatesAutoresizingMaskIntoConstraints = false
@@ -75,10 +79,9 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
         prayItemTableView.translatesAutoresizingMaskIntoConstraints = false
         dateLabel.translatesAutoresizingMaskIntoConstraints = false
         checkBox.translatesAutoresizingMaskIntoConstraints = false
-        
+        pinButton.translatesAutoresizingMaskIntoConstraints = false
         
         let innerPadding = Constants.innerPadding
-        let scrolledCellBottomPadding = Constants.scrolledCellBottomPadding
         
         NSLayoutConstraint.activate([
             actionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
@@ -98,6 +101,7 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
             titleLabel.leadingAnchor.constraint(equalTo: categoryLabel.trailingAnchor, constant: 8),
             titleLabel.topAnchor.constraint(equalTo: cellContainerView.topAnchor, constant: innerPadding - 4), // Font 여백에 따른 조정
             
+            dateLabel.trailingAnchor.constraint(equalTo: pinButton.leadingAnchor, constant: -4),
             dateLabel.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
             
             checkBox.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -innerPadding + 4), // Font 여백에 따른 조정
@@ -108,10 +112,13 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
             prayItemTableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 6),
             prayItemTableView.leadingAnchor.constraint(equalTo: cellContainerView.leadingAnchor, constant: innerPadding),
             prayItemTableView.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -innerPadding),
-            prayItemTableView.bottomAnchor.constraint(equalTo: cellContainerView.bottomAnchor, constant: -scrolledCellBottomPadding)
+            prayItemTableView.bottomAnchor.constraint(equalTo: cellContainerView.bottomAnchor, constant: -8),
+            
+            pinButton.trailingAnchor.constraint(equalTo: checkBox.trailingAnchor),
+            pinButton.bottomAnchor.constraint(equalTo: checkBox.bottomAnchor),
+            pinButton.widthAnchor.constraint(equalTo: checkBox.widthAnchor),
+            pinButton.heightAnchor.constraint(equalTo: checkBox.heightAnchor)
         ])
-        dateLabelTrailingConstraint = dateLabel.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -innerPadding)
-        dateLabelTrailingConstraint.isActive = true
     }
     
     private func setupCategoryLabel() {
@@ -139,6 +146,14 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
     private func setupDateLabel() {
         dateLabel.font = Shared.AppFonts.detail
         dateLabel.textColor = .gray
+    }
+    
+    private func setupPinButton() {
+        pinButton.setImage(UIImage(systemName: "pin"), for: .normal)
+        pinButton.addAction(UIAction { [weak self] _ in
+            guard let self = self else { return }
+            delegate?.toggleIsPinned(at: self)
+        }, for: .touchUpInside)
     }
     
     private func setupActionView() {
@@ -276,23 +291,13 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
     }
     
     func setDeleteMode(_ enabled: Bool) {
-        enabled ? enableDeleteMode() : disableDeleteMode()
+        checkBox.isHidden = !enabled
+        pinButton.isHidden = enabled
     }
     
-    private func enableDeleteMode() {
-        checkBox.isHidden = false
-        dateLabelTrailingConstraint.isActive = false
-        dateLabelTrailingConstraint = dateLabel.trailingAnchor.constraint(equalTo: checkBox.leadingAnchor, constant: -4)
-        dateLabelTrailingConstraint.isActive = true
-    }
-    
-    private func disableDeleteMode() {
-        checkBox.isHidden = true
-        checkBox.isChecked = false
-        dateLabelTrailingConstraint.isActive = false
-        let innerPadding = Constants.innerPadding
-        dateLabelTrailingConstraint = dateLabel.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -innerPadding)
-        dateLabelTrailingConstraint.isActive = true
+    func setPinButton(_ isPinned: Bool) {
+        let image = UIImage(systemName: isPinned ? "pin.fill" : "pin")
+        pinButton.imageView?.image = image
     }
 }
 

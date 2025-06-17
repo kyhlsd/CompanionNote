@@ -248,6 +248,7 @@ public class PrayRequestViewController: UIViewController {
             cell.configure(with: prayRequest)
             cell.setChecked(self.deleteIds.contains(item.uuid.uuidString))
             cell.setDeleteMode(self.isDeleteMode)
+            cell.setPinButton(item.isPinned)
             cell.delegate = self
             return cell
         }
@@ -335,46 +336,33 @@ public class PrayRequestViewController: UIViewController {
             cell.setDeleteMode(true)
         }
         
-        navigationItem.leftBarButtonItem = cancelBarButtonItem
-        navigationItem.rightBarButtonItems = [
-            completeBarButtonItem
-        ]
-        navigationItem.titleView = editBarLabel
+        UIView.animate(withDuration: 0.2) { [weak self] in
+            guard let self = self else { return }
+            navigationItem.leftBarButtonItem = cancelBarButtonItem
+            navigationItem.rightBarButtonItems = [
+                completeBarButtonItem
+            ]
+            navigationItem.titleView = editBarLabel
+        }
     }
     
     private func completeButtonTapped() {
-        Task { [weak self] in
-            guard let self = self else { return }
-            
-            do {
-                if deleteIds.isEmpty {
-                    isDeleteMode = false
-                    for case let cell as PrayRequestCollectionViewCell in prayRequestCollectionView.visibleCells {
-                        cell.setDeleteMode(false)
-                    }
-                } else {
-                    indicatorView.startAnimating()
-                    try await viewModel.deletePrayRequests(prayRequestIds: deleteIds)
-                    for case let cell as PrayRequestCollectionViewCell in prayRequestCollectionView.visibleCells {
-                        cell.setDeleteMode(false)
-                    }
-                    deleteIds = []
-                    isDeleteMode = false
-                    viewModel.activeFetchStatus()
-                }
-                
+        if deleteIds.isEmpty {
+            isDeleteMode = false
+            for case let cell as PrayRequestCollectionViewCell in prayRequestCollectionView.visibleCells {
+                cell.setDeleteMode(false)
+            }
+            UIView.animate(withDuration: 0.2) { [weak self] in
+                guard let self = self else { return }
                 navigationItem.leftBarButtonItem = titleBarLabelItem
                 navigationItem.rightBarButtonItems = [
                     deleteBarButtonItem,
                     plusBarButtonItem
                 ]
                 navigationItem.titleView = nil
-                
-                
-            } catch {
-                presentErrorAlert(for: error, title: "삭제 실패")
-                indicatorView.stopAnimating()
             }
+        } else {
+            presentDeleteAlert()
         }
     }
     
@@ -389,12 +377,15 @@ public class PrayRequestViewController: UIViewController {
                 cell.setDeleteMode(false)
             }
             
-            navigationItem.leftBarButtonItem = titleBarLabelItem
-            navigationItem.rightBarButtonItems = [
-                deleteBarButtonItem,
-                plusBarButtonItem
-            ]
-            navigationItem.titleView = nil
+            UIView.animate(withDuration: 0.2) { [weak self] in
+                guard let self = self else { return }
+                navigationItem.leftBarButtonItem = titleBarLabelItem
+                navigationItem.rightBarButtonItems = [
+                    deleteBarButtonItem,
+                    plusBarButtonItem
+                ]
+                navigationItem.titleView = nil
+            }
         }
     }
     
@@ -456,6 +447,51 @@ public class PrayRequestViewController: UIViewController {
         dataSource?.apply(snapshot, animatingDifferences: animatingDifferences)
     }
     
+    private func presentDeleteAlert() {
+        let alert = UIAlertController(
+            title: "항목 삭제",
+            message: "삭제 항목은 되돌릴 수 없습니다.\n\(deleteIds.count)개 항목을 삭제하시겠습니까?",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "삭제", style: .destructive) { [weak self] _ in
+            self?.deletePrayRequests()
+        })
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.present(alert, animated: true)
+        }
+    }
+    
+    func deletePrayRequests() {
+        Task { [weak self] in
+            guard let self = self else { return }
+            do {
+                self.indicatorView.startAnimating()
+                try await self.viewModel.deletePrayRequests(prayRequestIds: self.deleteIds)
+                for case let cell as PrayRequestCollectionViewCell in self.prayRequestCollectionView.visibleCells {
+                    cell.setDeleteMode(false)
+                }
+                self.deleteIds.removeAll()
+                self.isDeleteMode = false
+                
+                UIView.animate(withDuration: 0.2) { [weak self] in
+                    guard let self = self else { return }
+                    navigationItem.leftBarButtonItem = titleBarLabelItem
+                    navigationItem.rightBarButtonItems = [
+                        deleteBarButtonItem,
+                        plusBarButtonItem
+                    ]
+                    navigationItem.titleView = nil
+                }
+            }
+            catch {
+                presentErrorAlert(for: error, title: "삭제 실패")
+            }
+            indicatorView.stopAnimating()
+        }
+    }
+    
     // MARK: Error Alert
     func presentErrorAlert(for error: Error, title: String) {
         let message = FirestoreErrorMapper.message(for: error)
@@ -477,8 +513,8 @@ public class PrayRequestViewController: UIViewController {
         alert.setValue(title, forKey: "attributedTitle")
         alert.addAction(UIAlertAction(title: "닫기", style: .default))
         
-        DispatchQueue.main.async {
-            self.present(alert, animated: true)
+        DispatchQueue.main.async { [weak self] in
+            self?.present(alert, animated: true)
         }
     }
 }
@@ -506,6 +542,7 @@ extension PrayRequestViewController: UICollectionViewDelegate, UICollectionViewD
         
         cell.setChecked(deleteIds.contains(item.uuid.uuidString))
         cell.setDeleteMode(isDeleteMode)
+        cell.setPinButton(item.isPinned)
         cell.delegate = self
     }
     
@@ -527,6 +564,7 @@ extension PrayRequestViewController: UICollectionViewDelegate, UICollectionViewD
         } else { // 기본 모드일 때 상세보기
             let selectedPrayRequest = viewModel.prayRequests[indexPath.row]
             let prayRequestDetailViewController = PrayRequestDetailViewController(with: selectedPrayRequest, viewModel: viewModel)
+            prayRequestDetailViewController.delegate = self
             self.navigationController?.pushViewController(prayRequestDetailViewController, animated: true)
         }
     }
@@ -534,7 +572,7 @@ extension PrayRequestViewController: UICollectionViewDelegate, UICollectionViewD
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let frameWidth = collectionView.frame.width
         let width = frameWidth < 600 ? frameWidth - Constants.scrollBarPadding : (frameWidth - Constants.scrollBarPadding - Constants.innerPadding) / 2
-        return CGSize(width: width, height: 106)
+        return CGSize(width: width, height: 110)
     }
     
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
@@ -592,23 +630,52 @@ extension PrayRequestViewController: UISearchBarDelegate {
     }
 }
 
-extension PrayRequestViewController: DeleteItemDelegate {
+extension PrayRequestViewController: PrayRequestCellDelegate {
+
     func deleteItem(at cell: PrayRequestCollectionViewCell) {
         guard let indexPath = prayRequestCollectionView.indexPath(for: cell),
               let item = dataSource?.itemIdentifier(for: indexPath) else { return }
         let id = item.uuid.uuidString
 
-        Task {
+        Task { [weak self] in
+            guard let self = self else { return }
             do {
                 indicatorView.startAnimating()
-                try await viewModel.deletePrayRequest(prayRequestId: id)
+                try await viewModel.deletePrayRequest(prayRequestId: item.uuid)
                 
                 deleteIds.removeAll { $0 == id }
-                viewModel.activeFetchStatus()
             } catch {
                 presentErrorAlert(for: error, title: "삭제 실패")
-                indicatorView.stopAnimating()
             }
+            indicatorView.stopAnimating()
         }
+    }
+    
+    func toggleIsPinned(at cell: PrayRequestCollectionViewCell) {
+        guard let indexPath = prayRequestCollectionView.indexPath(for: cell),
+              let item = dataSource?.itemIdentifier(for: indexPath) else { return }
+        let id = item.uuid.uuidString
+        let toggledIsPinned = !item.isPinned
+        
+        Task { [weak self] in
+            guard let self = self else { return }
+            do {
+                indicatorView.startAnimating()
+                try await viewModel.setIsPinned(prayRequestId: id, isPinned: toggledIsPinned)
+                cell.setPinButton(toggledIsPinned)
+                item.isPinned = toggledIsPinned
+            } catch {
+                presentErrorAlert(for: error, title: "상단 고정 실패")
+            }
+            indicatorView.stopAnimating()
+        }
+    }
+}
+
+extension PrayRequestViewController: SetIsPinnedDelegate {
+    func setIsPinned(prayRequest: PrayRequest) {
+        guard let indexPath = dataSource?.indexPath(for: prayRequest), let cell = prayRequestCollectionView.cellForItem(at: indexPath) as? PrayRequestCollectionViewCell else { return }
+        cell.setPinButton(prayRequest.isPinned)
+
     }
 }

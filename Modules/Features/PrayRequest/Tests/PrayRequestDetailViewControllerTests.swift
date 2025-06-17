@@ -199,19 +199,21 @@ final class PrayRequestDetailViewControllerTests: XCTestCase {
         }
         
         func deletePrayRequests(prayRequestIds: [String]) async throws {}
-        func deletePrayRequest(prayRequestId: String) async throws {}
+        func deletePrayRequest(prayRequestId: UUID) async throws {}
+        func setIsPinned(prayRequestId: String, isPinned: Bool) async throws {}
         
         func activeFetchStatus() {
             shouldFetch.toggle()
         }
         func updateSearchedResults(with searchText: String) {}
         func updateSelectedResults(with index: Int) {}
+        func sortPrayRequests() {}
     }
     
     final class SpyPrayRequestDetailViewController: PrayRequestDetailViewController {
         var errorPresented = false
         
-        override func presentErrorAlert(for error: Error) {
+        override func presentErrorAlert(for error: Error, title: String) {
             errorPresented = true
         }
     }

@@ -54,7 +54,7 @@ final class PrayRequestCollectionViewCellTests: XCTestCase {
         XCTAssertEqual(cell.dateLabel.text, DateFormatUtil.shortWithDayFormatter.string(from: request.date))
     }
 
-    func test_enableDeleteMode_showsCheckboxAndAdjustsLayout() {
+    func test_enableDeleteMode_showsCheckboxAndHidesPinButton() {
         // Given
         cell.setDeleteMode(false) // 처음은 기본 상태
 
@@ -63,22 +63,10 @@ final class PrayRequestCollectionViewCellTests: XCTestCase {
 
         // Then
         XCTAssertFalse(cell.checkBox.isHidden)
-        
-        // dateLabelTrailingConstraint가 checkBox.leadingAnchor와 연결되었는지 확인
-        guard let constraint = cell.dateLabelTrailingConstraint else {
-            XCTFail("dateLabelTrailingConstraint should not be nil")
-            return
-        }
-        
-        // constraint의 firstAnchor가 dateLabel.trailingAnchor인지
-        XCTAssertTrue(constraint.firstAnchor === cell.dateLabel.trailingAnchor)
-        // constraint의 secondAnchor가 checkBox.leadingAnchor인지
-        XCTAssertTrue(constraint.secondAnchor === cell.checkBox.leadingAnchor)
-        // constraint의 constant가 -4인지 (enableDeleteMode 내부 설정)
-        XCTAssertEqual(constraint.constant, -4)
+        XCTAssertTrue(cell.pinButton.isHidden)
     }
 
-    func test_disableDeleteMode_hidesCheckboxAndResetsLayout() {
+    func test_disableDeleteMode_hidesCheckboxAndShowsPinButton() {
         // Given
         cell.setDeleteMode(true)
 
