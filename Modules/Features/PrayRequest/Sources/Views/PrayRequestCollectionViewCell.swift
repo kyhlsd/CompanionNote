@@ -31,7 +31,6 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
     
     weak var delegate: PrayRequestCellDelegate?
     
-    var dateLabelTrailingConstraint: NSLayoutConstraint!
     var prayItems: [PrayItem] = []
     
     override init(frame: CGRect = .zero) {
@@ -103,6 +102,7 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
             titleLabel.leadingAnchor.constraint(equalTo: categoryLabel.trailingAnchor, constant: 8),
             titleLabel.topAnchor.constraint(equalTo: cellContainerView.topAnchor, constant: innerPadding - 4), // Font 여백에 따른 조정
             
+            dateLabel.trailingAnchor.constraint(equalTo: pinButton.leadingAnchor, constant: -4),
             dateLabel.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
             
             checkBox.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -innerPadding + 4), // Font 여백에 따른 조정
@@ -112,17 +112,14 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
             
             prayItemTableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 6),
             prayItemTableView.leadingAnchor.constraint(equalTo: cellContainerView.leadingAnchor, constant: innerPadding),
-//            prayItemTableView.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -innerPadding),
+            prayItemTableView.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -innerPadding),
             prayItemTableView.bottomAnchor.constraint(equalTo: cellContainerView.bottomAnchor, constant: -scrolledCellBottomPadding),
             
-            pinButton.leadingAnchor.constraint(equalTo: prayItemTableView.trailingAnchor, constant: innerPadding),
-            pinButton.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -innerPadding),
-            pinButton.centerYAnchor.constraint(equalTo: prayItemTableView.centerYAnchor),
-            pinButton.widthAnchor.constraint(equalToConstant: 28),
-            pinButton.heightAnchor.constraint(equalToConstant: 28)
+            pinButton.trailingAnchor.constraint(equalTo: checkBox.trailingAnchor),
+            pinButton.bottomAnchor.constraint(equalTo: checkBox.bottomAnchor),
+            pinButton.widthAnchor.constraint(equalTo: checkBox.widthAnchor),
+            pinButton.heightAnchor.constraint(equalTo: checkBox.heightAnchor)
         ])
-        dateLabelTrailingConstraint = dateLabel.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -innerPadding)
-        dateLabelTrailingConstraint.isActive = true
     }
     
     private func setupCategoryLabel() {
@@ -305,18 +302,13 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
     
     private func enableDeleteMode() {
         checkBox.isHidden = false
-        dateLabelTrailingConstraint.isActive = false
-        dateLabelTrailingConstraint = dateLabel.trailingAnchor.constraint(equalTo: checkBox.leadingAnchor, constant: -4)
-        dateLabelTrailingConstraint.isActive = true
+        pinButton.isHidden = true
     }
     
     private func disableDeleteMode() {
         checkBox.isHidden = true
         checkBox.isChecked = false
-        dateLabelTrailingConstraint.isActive = false
-        let innerPadding = Constants.innerPadding
-        dateLabelTrailingConstraint = dateLabel.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -innerPadding)
-        dateLabelTrailingConstraint.isActive = true
+        pinButton.isHidden = false
     }
 }
 
