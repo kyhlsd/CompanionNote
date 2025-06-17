@@ -82,7 +82,6 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
         pinButton.translatesAutoresizingMaskIntoConstraints = false
         
         let innerPadding = Constants.innerPadding
-        let scrolledCellBottomPadding = Constants.scrolledCellBottomPadding
         
         NSLayoutConstraint.activate([
             actionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
@@ -113,7 +112,7 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
             prayItemTableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 6),
             prayItemTableView.leadingAnchor.constraint(equalTo: cellContainerView.leadingAnchor, constant: innerPadding),
             prayItemTableView.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -innerPadding),
-            prayItemTableView.bottomAnchor.constraint(equalTo: cellContainerView.bottomAnchor, constant: -scrolledCellBottomPadding),
+            prayItemTableView.bottomAnchor.constraint(equalTo: cellContainerView.bottomAnchor, constant: -8),
             
             pinButton.trailingAnchor.constraint(equalTo: checkBox.trailingAnchor),
             pinButton.bottomAnchor.constraint(equalTo: checkBox.bottomAnchor),
