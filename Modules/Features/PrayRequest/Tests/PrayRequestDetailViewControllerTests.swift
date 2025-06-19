@@ -95,7 +95,6 @@ final class PrayRequestDetailViewControllerTests: XCTestCase {
         
         // viewModel 동작 확인
         XCTAssertTrue(mockViewModel.didUpdate)
-        XCTAssertTrue(mockViewModel.shouldFetch)
         
         // UI 상태가 편집 모드에서 읽기 모드로 변경됨
         XCTAssertEqual(sut.navigationItem.rightBarButtonItems?.first, sut.editBarButtonItem)
@@ -128,7 +127,7 @@ final class PrayRequestDetailViewControllerTests: XCTestCase {
         
         // viewModel 동작 확인
         XCTAssertFalse(mockViewModel.didUpdate)
-        XCTAssertFalse(mockViewModel.shouldFetch)
+        XCTAssertFalse(mockViewModel.shouldUpdate)
         
         // UI 상태가 편집 모드에서 읽기 모드로 변경되지 않음
         XCTAssertEqual(sut.navigationItem.rightBarButtonItems?.first, sut.completeBarButtonItem)
@@ -178,10 +177,10 @@ final class PrayRequestDetailViewControllerTests: XCTestCase {
     }
     
     final class MockViewModel: PrayRequestViewModelProtocol {
-        @Published var prayRequests = [Core.PrayRequest]()
-        var prayRequestsPublisher: Published<[Core.PrayRequest]>.Publisher { $prayRequests }
-        @Published var shouldFetch = false
-        var shouldFetchPublisher: Published<Bool>.Publisher { $shouldFetch }
+        @Published var filteredPrayRequests = [Core.PrayRequest]()
+        var prayRequestsPublisher: Published<[Core.PrayRequest]>.Publisher { $filteredPrayRequests }
+        @Published var shouldUpdate = false
+        var shouldUpdatePublisher: Published<Bool>.Publisher { $shouldUpdate }
         
         var shouldSucceed = true
         var didUpdate = false
@@ -200,14 +199,15 @@ final class PrayRequestDetailViewControllerTests: XCTestCase {
         
         func deletePrayRequests(prayRequestIds: [String]) async throws {}
         func deletePrayRequest(prayRequestId: UUID) async throws {}
-        func setIsPinned(prayRequestId: String, isPinned: Bool) async throws {}
+        func setIsPinned(prayRequestId: UUID, isPinned: Bool) async throws {}
         
-        func activeFetchStatus() {
-            shouldFetch.toggle()
+        func activeUpdateStatus() {
+            shouldUpdate.toggle()
         }
         func updateSearchedResults(with searchText: String) {}
         func updateSelectedResults(with index: Int) {}
         func sortPrayRequests() {}
+        func updatePrayRequests() {}
     }
     
     final class SpyPrayRequestDetailViewController: PrayRequestDetailViewController {

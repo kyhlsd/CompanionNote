@@ -158,10 +158,10 @@ final class PrayRequestViewControllerTests: XCTestCase {
         RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.4))
 
         // Then
-        XCTAssertFalse(mockViewModel.prayRequests.contains { item in
+        XCTAssertFalse(mockViewModel.filteredPrayRequests.contains { item in
             item.uuid == firstItem.uuid
         })
-        XCTAssertTrue(mockViewModel.prayRequests.contains { item in
+        XCTAssertTrue(mockViewModel.filteredPrayRequests.contains { item in
             item.uuid == secondItem.uuid
         })
     }
@@ -169,10 +169,10 @@ final class PrayRequestViewControllerTests: XCTestCase {
     final class MockViewModel: PrayRequestViewModelProtocol {
         var totalPrayRequests = [Core.PrayRequest]()
         var selectedPrayRequests = [Core.PrayRequest]()
-        @Published var prayRequests = [Core.PrayRequest]()
-        var prayRequestsPublisher: Published<[Core.PrayRequest]>.Publisher { $prayRequests }
-        @Published var shouldFetch = true
-        var shouldFetchPublisher: Published<Bool>.Publisher { $shouldFetch }
+        @Published var filteredPrayRequests = [Core.PrayRequest]()
+        var prayRequestsPublisher: Published<[Core.PrayRequest]>.Publisher { $filteredPrayRequests }
+        @Published var shouldUpdate = true
+        var shouldUpdatePublisher: Published<Bool>.Publisher { $shouldUpdate }
         
         var shouldSucceed = true
         
@@ -180,7 +180,7 @@ final class PrayRequestViewControllerTests: XCTestCase {
         
         func fetchPrayRequests() async throws {
             if shouldSucceed {
-                prayRequests = [Core.PrayRequest.dummyDatas[0]]
+                filteredPrayRequests = [Core.PrayRequest.dummyDatas[0]]
             } else {
                 throw NSError(domain: "TestError", code: 999, userInfo: nil)
             }
@@ -198,11 +198,11 @@ final class PrayRequestViewControllerTests: XCTestCase {
             }
         }
         func deletePrayRequest(prayRequestId: UUID) async throws {}
-        func setIsPinned(prayRequestId: String, isPinned: Bool) async throws {}
-        func activeFetchStatus() {}
+        func setIsPinned(prayRequestId: UUID, isPinned: Bool) async throws {}
+        func activeUpdateStatus() {}
         func updateSearchedResults(with searchText: String) {
             guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-                prayRequests = totalPrayRequests.sorted { $0.date > $1.date }
+                filteredPrayRequests = totalPrayRequests.sorted { $0.date > $1.date }
                         return
             }
             
@@ -210,7 +210,7 @@ final class PrayRequestViewControllerTests: XCTestCase {
                 SearchPrayRequestUtils.matches(target: $0, keyword: searchText)
             }
             
-            prayRequests = filtered.sorted { $0.date > $1.date }
+            filteredPrayRequests = filtered.sorted { $0.date > $1.date }
         }
         func updateSelectedResults(with index: Int) {
             let categories = ["전체"] + PrayCategory.allCases.map { $0.rawValue }
@@ -226,6 +226,7 @@ final class PrayRequestViewControllerTests: XCTestCase {
             selectedPrayRequests = selected
         }
         func sortPrayRequests() {}
+        func updatePrayRequests() {}
     }
     
     final class SpyPrayRequestViewController: PrayRequestViewController {

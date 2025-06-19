@@ -64,6 +64,7 @@ class AddPrayRequestViewController: UIViewController {
                 self.indicatorView.startAnimating()
                 do {
                     try await self.viewModel.addPrayRequest(prayRequest: prayRequest)
+                    self.viewModel.activeUpdateStatus()
                     self.navigationController?.popViewController(animated: true)
                 } catch {
                     self.presentErrorAlert(for: error)
