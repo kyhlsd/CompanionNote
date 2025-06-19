@@ -373,8 +373,15 @@ class PrayRequestDetailViewController: UIViewController {
     }
     
     private func shareButtonTapped() {
-        // TODO: 공유 기능
-        print("share")
+        let titleString = prayRequest.title
+        let dateString = DateFormatUtil.shortWithDayFormatter.string(from: prayRequest.date)
+        let itemString = PrayItemUtils.convertFromPrayItem(with: prayRequest.items)
+        let shareString = titleString + "\n" + dateString + "\n\n" + itemString
+        
+        let activityViewController = UIActivityViewController(activityItems: [shareString], applicationActivities: nil)
+        DispatchQueue.main.async { [weak self] in
+            self?.present(activityViewController, animated: true)
+        }
     }
     
     private func updateUI() {
