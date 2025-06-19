@@ -131,10 +131,10 @@ final class AddPrayRequestViewControllerTests: XCTestCase {
 
     
     final class MockViewModel: PrayRequestViewModelProtocol {
-        @Published var prayRequests = [Core.PrayRequest]()
-        var prayRequestsPublisher: Published<[Core.PrayRequest]>.Publisher { $prayRequests }
-        @Published var shouldFetch = true
-        var shouldFetchPublisher: Published<Bool>.Publisher { $shouldFetch }
+        @Published var filteredPrayRequests = [Core.PrayRequest]()
+        var prayRequestsPublisher: Published<[Core.PrayRequest]>.Publisher { $filteredPrayRequests }
+        @Published var shouldUpdate = true
+        var shouldUpdatePublisher: Published<Bool>.Publisher { $shouldUpdate }
         
         var shouldSucceed = true
         var addPrayRequestCalled = false
@@ -150,11 +150,12 @@ final class AddPrayRequestViewControllerTests: XCTestCase {
         func updatePrayRequest(prayRequest: Core.PrayRequest) async throws {}
         func deletePrayRequests(prayRequestIds: [String]) async throws {}
         func deletePrayRequest(prayRequestId: UUID) async throws {}
-        func setIsPinned(prayRequestId: String, isPinned: Bool) async throws {}
-        func activeFetchStatus() {}
+        func setIsPinned(prayRequestId: UUID, isPinned: Bool) async throws {}
+        func activeUpdateStatus() {}
         func updateSearchedResults(with searchText: String) {}
         func updateSelectedResults(with index: Int) {}
         func sortPrayRequests() {}
+        func updatePrayRequests() {}
         
     }
     

@@ -15,10 +15,11 @@ final public class PrayRequestViewModel: PrayRequestViewModelProtocol {
     
     private var totalPrayRequests = [PrayRequest]()
     private var selectedPrayRequests = [PrayRequest]()
-    @Published public var prayRequests = [PrayRequest]()
-    public var prayRequestsPublisher: Published<[PrayRequest]>.Publisher { $prayRequests }
-    @Published public var shouldFetch = true
-    public var shouldFetchPublisher: Published<Bool>.Publisher { $shouldFetch }
+    private var searchedPrayRequests = [PrayRequest]()
+    @Published public var filteredPrayRequests = [PrayRequest]()
+    public var prayRequestsPublisher: Published<[PrayRequest]>.Publisher { $filteredPrayRequests }
+    @Published public var shouldUpdate = true
+    public var shouldUpdatePublisher: Published<Bool>.Publisher { $shouldUpdate }
     
     public init() {
         self.userIdentifier = UserDefaults.standard.string(forKey: "userId")
@@ -30,7 +31,7 @@ final public class PrayRequestViewModel: PrayRequestViewModelProtocol {
     public func addPrayRequest(prayRequest: PrayRequest) async throws {
         guard let userIdentifier = userIdentifier else { return }
         try await prayRequestUseCase.addPrayRequest(userId: userIdentifier, prayRequest: prayRequest)
-        prayRequests.insert(prayRequest, at: 0)
+        totalPrayRequests.append(prayRequest)
     }
     
     public func fetchPrayRequests() async throws {
@@ -42,6 +43,12 @@ final public class PrayRequestViewModel: PrayRequestViewModelProtocol {
     public func updatePrayRequest(prayRequest: PrayRequest) async throws {
         guard let userIdentifier = userIdentifier else { return }
         try await prayRequestUseCase.updatePrayRequest(userId: userIdentifier, prayRequest: prayRequest)
+        if let index = totalPrayRequests.firstIndex(where: { $0 == prayRequest}) {
+            totalPrayRequests[index] = prayRequest
+        }
+        if let index = filteredPrayRequests.firstIndex(where: { $0 == prayRequest }) {
+            filteredPrayRequests[index] = prayRequest
+        }
     }
     
     public func deletePrayRequests(prayRequestIds: [String]) async throws {
@@ -54,22 +61,28 @@ final public class PrayRequestViewModel: PrayRequestViewModelProtocol {
             }
             try await group.waitForAll()
         }
-        prayRequests.removeAll { prayRequestIds.contains($0.uuid.uuidString) }
+        totalPrayRequests.removeAll { prayRequestIds.contains($0.uuid.uuidString) }
     }
     
     public func deletePrayRequest(prayRequestId: UUID) async throws {
         guard let userIdentifier = userIdentifier else { return }
         try await self.prayRequestUseCase.deletePrayRequest(userId: userIdentifier, document: prayRequestId.uuidString)
-        prayRequests.removeAll { $0.uuid == prayRequestId }
+        totalPrayRequests.removeAll { $0.uuid == prayRequestId }
     }
     
-    public func setIsPinned(prayRequestId: String, isPinned: Bool) async throws {
+    public func setIsPinned(prayRequestId: UUID, isPinned: Bool) async throws {
         guard let userIdentifier = userIdentifier else { return }
-        try await self.prayRequestUseCase.updatePrayRequestFields(userId: userIdentifier, itemId: prayRequestId, data: ["isPinned": isPinned])
+        try await self.prayRequestUseCase.updatePrayRequestFields(userId: userIdentifier, itemId: prayRequestId.uuidString, data: ["isPinned": isPinned])
+        if let index = totalPrayRequests.firstIndex(where: { $0.uuid == prayRequestId}) {
+            totalPrayRequests[index].isPinned = isPinned
+        }
+        if let index = filteredPrayRequests.firstIndex(where: { $0.uuid == prayRequestId}) {
+            filteredPrayRequests[index].isPinned = isPinned
+        }
     }
     
-    public func activeFetchStatus() {
-        shouldFetch.toggle()
+    public func activeUpdateStatus() {
+        shouldUpdate.toggle()
     }
     
     public func updateSelectedResults(with index: Int) {
@@ -82,25 +95,22 @@ final public class PrayRequestViewModel: PrayRequestViewModelProtocol {
         }
         
         let categoryRawValue = categories[index]
-        let selected = totalPrayRequests.filter { $0.category.rawValue == categoryRawValue }
-        selectedPrayRequests = selected
+        selectedPrayRequests = totalPrayRequests.filter { $0.category.rawValue == categoryRawValue }
     }
     
     public func updateSearchedResults(with searchText: String) {
         guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            prayRequests = selectedPrayRequests.sorted { sortCondition(firstItem: $0, secondItem: $1) }
+            searchedPrayRequests = totalPrayRequests
                     return
         }
         
-        let filtered = selectedPrayRequests.filter {
+        searchedPrayRequests = totalPrayRequests.filter {
             SearchPrayRequestUtils.matches(target: $0, keyword: searchText)
         }
-        
-        prayRequests = filtered.sorted { sortCondition(firstItem: $0, secondItem: $1) }
     }
     
     public func sortPrayRequests() {
-        prayRequests.sort { sortCondition(firstItem: $0, secondItem: $1) }
+        filteredPrayRequests.sort { sortCondition(firstItem: $0, secondItem: $1) }
     }
     
     private func sortCondition(firstItem: PrayRequest, secondItem: PrayRequest) -> Bool {
@@ -110,6 +120,11 @@ final public class PrayRequestViewModel: PrayRequestViewModelProtocol {
             return firstItem.isPinned && !secondItem.isPinned
         }
     }
+    
+    public func updatePrayRequests() {
+        filteredPrayRequests = searchedPrayRequests.filter { selectedPrayRequests.contains($0) }
+            .sorted { sortCondition(firstItem: $0, secondItem: $1)}
+    }
 }
 
 public protocol PrayRequestViewModelProtocol {
@@ -118,12 +133,13 @@ public protocol PrayRequestViewModelProtocol {
     func updatePrayRequest(prayRequest: PrayRequest) async throws
     func deletePrayRequests(prayRequestIds: [String]) async throws
     func deletePrayRequest(prayRequestId: UUID) async throws
-    func setIsPinned(prayRequestId: String, isPinned: Bool) async throws
-    var prayRequests: [PrayRequest] { get set }
+    func setIsPinned(prayRequestId: UUID, isPinned: Bool) async throws
+    var filteredPrayRequests: [PrayRequest] { get set }
     var prayRequestsPublisher: Published<[PrayRequest]>.Publisher { get }
-    func activeFetchStatus()
-    var shouldFetchPublisher: Published<Bool>.Publisher { get }
+    func activeUpdateStatus()
+    var shouldUpdatePublisher: Published<Bool>.Publisher { get }
     func updateSelectedResults(with index: Int)
     func updateSearchedResults(with searchText: String)
     func sortPrayRequests()
+    func updatePrayRequests()
 }

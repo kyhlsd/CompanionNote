@@ -46,6 +46,8 @@ public class PrayRequestViewController: UIViewController {
         setupDelegate()
         setupTapGesture()
         setupBinding()
+        
+        fetchData()
     }
     
     public init(viewModel: PrayRequestViewModelProtocol) {
@@ -244,7 +246,7 @@ public class PrayRequestViewController: UIViewController {
             guard let self = self else { return UICollectionViewCell() }
                     
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PrayRequestCell", for: indexPath) as! PrayRequestCollectionViewCell
-            let prayRequest = viewModel.prayRequests[indexPath.row]
+            let prayRequest = viewModel.filteredPrayRequests[indexPath.row]
             cell.configure(with: prayRequest)
             cell.setChecked(self.deleteIds.contains(item.uuid.uuidString))
             cell.setDeleteMode(self.isDeleteMode)
@@ -402,14 +404,14 @@ public class PrayRequestViewController: UIViewController {
                 
                 DispatchQueue.main.async {
                     self.applySnapshot()
-                    self.emptyView.isHidden = !self.viewModel.prayRequests.isEmpty
+                    self.emptyView.isHidden = !self.viewModel.filteredPrayRequests.isEmpty
                 }
             }
             .store(in: &cancellables)
         
-        viewModel.shouldFetchPublisher
+        viewModel.shouldUpdatePublisher
             .sink { [weak self] _ in
-                self?.fetchData()
+                self?.updateData()
             }
             .store(in: &cancellables)
     }
@@ -420,8 +422,15 @@ public class PrayRequestViewController: UIViewController {
             .removeDuplicates()
             .sink { [weak self] searchText in
                 self?.viewModel.updateSearchedResults(with: searchText)
+                self?.viewModel.updatePrayRequests()
             }
             .store(in: &cancellables)
+    }
+    
+    private func updateData() {
+        viewModel.updateSelectedResults(with: categorySelectorView.selectedIndex)
+        viewModel.updateSearchedResults(with: praySearchBar.text ?? "")
+        viewModel.updatePrayRequests()
     }
     
     private func fetchData() {
@@ -430,9 +439,7 @@ public class PrayRequestViewController: UIViewController {
             indicatorView.startAnimating()
             do {
                 try await viewModel.fetchPrayRequests()
-                
-                viewModel.updateSelectedResults(with: categorySelectorView.selectedIndex)
-                viewModel.updateSearchedResults(with: praySearchBar.text ?? "")
+                viewModel.activeUpdateStatus()
             } catch {
                 presentErrorAlert(for: error, title: "불러오기 실패")
             }
@@ -443,7 +450,7 @@ public class PrayRequestViewController: UIViewController {
     private func applySnapshot(animatingDifferences: Bool = true) {
         var snapshot = NSDiffableDataSourceSnapshot<Section, PrayRequest>()
         snapshot.appendSections([.main])
-        snapshot.appendItems(viewModel.prayRequests)
+        snapshot.appendItems(viewModel.filteredPrayRequests)
         dataSource?.apply(snapshot, animatingDifferences: animatingDifferences)
     }
     
@@ -472,6 +479,7 @@ public class PrayRequestViewController: UIViewController {
                 for case let cell as PrayRequestCollectionViewCell in self.prayRequestCollectionView.visibleCells {
                     cell.setDeleteMode(false)
                 }
+                self.viewModel.activeUpdateStatus()
                 self.deleteIds.removeAll()
                 self.isDeleteMode = false
                 
@@ -562,7 +570,7 @@ extension PrayRequestViewController: UICollectionViewDelegate, UICollectionViewD
                 cell.setChecked(true)
             }
         } else { // 기본 모드일 때 상세보기
-            let selectedPrayRequest = viewModel.prayRequests[indexPath.row]
+            let selectedPrayRequest = viewModel.filteredPrayRequests[indexPath.row]
             let prayRequestDetailViewController = PrayRequestDetailViewController(with: selectedPrayRequest, viewModel: viewModel)
             prayRequestDetailViewController.delegate = self
             self.navigationController?.pushViewController(prayRequestDetailViewController, animated: true)
@@ -619,7 +627,7 @@ extension PrayRequestViewController: UICollectionViewDelegate, UICollectionViewD
 extension PrayRequestViewController: SelectCategoryDelegate {
     public func didSelectCategory(_ index: Int) {
         viewModel.updateSelectedResults(with: index)
-        viewModel.updateSearchedResults(with: praySearchBar.text ?? "")
+        viewModel.updatePrayRequests()
     }
 }
 
@@ -642,7 +650,7 @@ extension PrayRequestViewController: PrayRequestCellDelegate {
             do {
                 indicatorView.startAnimating()
                 try await viewModel.deletePrayRequest(prayRequestId: item.uuid)
-                
+                viewModel.activeUpdateStatus()
                 deleteIds.removeAll { $0 == id }
             } catch {
                 presentErrorAlert(for: error, title: "삭제 실패")
@@ -654,14 +662,14 @@ extension PrayRequestViewController: PrayRequestCellDelegate {
     func toggleIsPinned(at cell: PrayRequestCollectionViewCell) {
         guard let indexPath = prayRequestCollectionView.indexPath(for: cell),
               let item = dataSource?.itemIdentifier(for: indexPath) else { return }
-        let id = item.uuid.uuidString
+        
         let toggledIsPinned = !item.isPinned
         
         Task { [weak self] in
             guard let self = self else { return }
             do {
                 indicatorView.startAnimating()
-                try await viewModel.setIsPinned(prayRequestId: id, isPinned: toggledIsPinned)
+                try await viewModel.setIsPinned(prayRequestId: item.uuid, isPinned: toggledIsPinned)
                 cell.setPinButton(toggledIsPinned)
                 item.isPinned = toggledIsPinned
             } catch {
@@ -672,10 +680,15 @@ extension PrayRequestViewController: PrayRequestCellDelegate {
     }
 }
 
-extension PrayRequestViewController: SetIsPinnedDelegate {
+extension PrayRequestViewController: PrayCellEditDelegate {
     func setIsPinned(prayRequest: PrayRequest) {
         guard let indexPath = dataSource?.indexPath(for: prayRequest), let cell = prayRequestCollectionView.cellForItem(at: indexPath) as? PrayRequestCollectionViewCell else { return }
         cell.setPinButton(prayRequest.isPinned)
 
+    }
+    
+    func configureEditedCell(prayRequest: PrayRequest) {
+        guard let indexPath = dataSource?.indexPath(for: prayRequest), let cell = prayRequestCollectionView.cellForItem(at: indexPath) as? PrayRequestCollectionViewCell else { return }
+        cell.configure(with: prayRequest)
     }
 }

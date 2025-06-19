@@ -9,8 +9,9 @@ import UIKit
 import Core
 import Shared
 
-protocol SetIsPinnedDelegate: AnyObject {
+protocol PrayCellEditDelegate: AnyObject {
     func setIsPinned(prayRequest: PrayRequest)
+    func configureEditedCell(prayRequest: PrayRequest)
 }
 
 class PrayRequestDetailViewController: UIViewController {
@@ -33,7 +34,7 @@ class PrayRequestDetailViewController: UIViewController {
     let prayEditorView = PrayEditorView()
     private let indicatorView = IndicatorView()
     
-    weak var delegate: SetIsPinnedDelegate?
+    weak var delegate: PrayCellEditDelegate?
     
     init(with prayRequest: PrayRequest, viewModel: PrayRequestViewModelProtocol) {
         self.prayRequest = prayRequest
@@ -313,7 +314,7 @@ class PrayRequestDetailViewController: UIViewController {
                     try await viewModel.updatePrayRequest(prayRequest: updatedPrayRequest)
                     prayRequest.updateData(title: editedPrayRequest.title, items: editedPrayRequest.items, category: editedPrayRequest.category)
                     updateUI()
-                    self.viewModel.activeFetchStatus()
+                    delegate?.configureEditedCell(prayRequest: updatedPrayRequest)
                     
                     navigationItem.rightBarButtonItems = [
                         editBarButtonItem
@@ -356,11 +357,11 @@ class PrayRequestDetailViewController: UIViewController {
             guard let self = self else { return }
             do {
                 indicatorView.startAnimating()
-                try await viewModel.setIsPinned(prayRequestId: prayRequest.uuid.uuidString, isPinned: toggledIsPinned)
+                try await viewModel.setIsPinned(prayRequestId: prayRequest.uuid, isPinned: toggledIsPinned)
                 pinButton.imageView?.image = UIImage(systemName: toggledIsPinned ? "pin.fill" : "pin")
                 prayRequest.isPinned = toggledIsPinned
-                if let index = viewModel.prayRequests.firstIndex(of: prayRequest) {
-                    viewModel.prayRequests[index].isPinned = toggledIsPinned
+                if let index = viewModel.filteredPrayRequests.firstIndex(of: prayRequest) {
+                    viewModel.filteredPrayRequests[index].isPinned = toggledIsPinned
                     viewModel.sortPrayRequests()
                 }
                 delegate?.setIsPinned(prayRequest: prayRequest)
@@ -395,6 +396,7 @@ class PrayRequestDetailViewController: UIViewController {
             do {
                 indicatorView.startAnimating()
                 try await viewModel.deletePrayRequest(prayRequestId: prayRequest.uuid)
+                viewModel.activeUpdateStatus()
                 navigationController?.popViewController(animated: true)
             } catch {
                 presentErrorAlert(for: error, title: "삭제 실패")
