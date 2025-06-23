@@ -29,25 +29,33 @@ public final class FirestoreService {
         try await db.collection(collection).document(document).setData(data)
     }
     
-    func setDocumentInCollection<T: Encodable>(firstCollection: String, firstDocument: String, secondCollection: String, secondDocument: String, data: T) async throws {
-        try db.collection(firstCollection).document(firstDocument).collection(secondCollection).document(secondDocument).setData(from: data)
+    func updateDocument<T: Encodable>(collection: String, document: String, data: T) async throws {
+        let encoded = try JSONEncoder().encode(data)
+        let json = try JSONSerialization.jsonObject(with: encoded)
+        
+        guard let dict = json as? [AnyHashable: Any] else {
+            throw NSError(domain: "EncodeError", code: -1)
+        }
+        
+        try await db.collection(collection).document(document).updateData(dict)
     }
     
-    func updateFieldsInCollection(firstCollection: String, firstDocument: String, secondCollection: String, secondDocument: String, data: [AnyHashable: Any]) async throws {
-        try await db.collection(firstCollection).document(firstDocument).collection(secondCollection).document(secondDocument).updateData(data)
+    func updateDocument(collection: String, document: String, data: [AnyHashable: Any]) async throws {
+        try await db.collection(collection).document(document).updateData(data)
     }
     
-    func fetchDocumentsInCollection<T: Decodable>(firstCollection: String, document: String, secondCollection: String) async throws -> [T] {
-        let docRef = db.collection(firstCollection).document(document).collection(secondCollection)
-        let snapshot = try await docRef.getDocuments()
+    func fetchDocuments<T: Decodable>(collection: String, field: String, readableUsers: [String]) async throws -> [T] {
+        let snapshot = try await db.collection(collection)
+            .whereField(field, in: readableUsers)
+            .getDocuments()
         let datas: [T] = try snapshot.documents.map { document in
             try document.data(as: T.self)
         }
         return datas
     }
     
-    func deleteDocumentInCollection(firstCollection: String, firstDocument: String, secondCollection: String, secondDocument: String) async throws {
-        try await db.collection(firstCollection).document(firstDocument).collection(secondCollection).document(secondDocument).delete()
+    func deleteDocument(collection: String, document: String) async throws {
+        try await db.collection(collection).document(document).delete()
     }
 }
 
@@ -58,11 +66,11 @@ public protocol UserRepository {
 }
 
 public protocol PrayRequestRepository {
-    func addPrayRequest(userId: String, prayRequest: PrayRequest) async throws
+    func addPrayRequest(prayRequest: PrayRequest) async throws
     func fetchPrayRequests(userId: String) async throws -> [PrayRequest]
-    func updatePrayRequest(userId: String, prayRequest: PrayRequest) async throws
-    func updatePrayRequestFields(userId: String, itemId: String, data: [AnyHashable: Any]) async throws
-    func deletePrayRequest(userId: String, document: String) async throws
+    func updatePrayRequest(prayRequest: PrayRequest) async throws
+    func updatePrayRequest(itemId: String, data: [AnyHashable: Any]) async throws
+    func deletePrayRequest(document: String) async throws
 }
 
 // MARK: RepositoryImplements
@@ -91,24 +99,24 @@ public final class PrayRequestRepositoryImpl: PrayRequestRepository {
         self.firestoreService = firestoreService
     }
 
-    public func addPrayRequest(userId: String, prayRequest: PrayRequest) async throws {
-        try await firestoreService.setDocumentInCollection(firstCollection: "Prayers", firstDocument: userId, secondCollection: "Prayers", secondDocument: prayRequest.uuid.uuidString, data: prayRequest)
+    public func addPrayRequest(prayRequest: PrayRequest) async throws {
+        try await firestoreService.setDocument(collection: "Prayers", document: prayRequest.uuid.uuidString, data: prayRequest)
     }
     
     public func fetchPrayRequests(userId: String) async throws -> [PrayRequest] {
-        return try await firestoreService.fetchDocumentsInCollection(firstCollection: "Prayers", document: userId, secondCollection: "Prayers")
+        return try await firestoreService.fetchDocuments(collection: "Prayers", field: "creatorId", readableUsers: [userId])
     }
     
-    public func updatePrayRequest(userId: String, prayRequest: PrayRequest) async throws {
-        try await firestoreService.setDocumentInCollection(firstCollection: "Prayers", firstDocument: userId, secondCollection: "Prayers", secondDocument: prayRequest.uuid.uuidString, data: prayRequest)
+    public func updatePrayRequest(prayRequest: PrayRequest) async throws {
+        try await firestoreService.updateDocument(collection: "Prayers", document: prayRequest.uuid.uuidString, data: prayRequest)
+    }
+        
+    public func updatePrayRequest(itemId: String, data: [AnyHashable : Any]) async throws {
+        try await firestoreService.updateDocument(collection: "Prayers", document: itemId, data: data)
     }
     
-    public func updatePrayRequestFields(userId: String, itemId: String, data: [AnyHashable : Any]) async throws {
-        try await firestoreService.updateFieldsInCollection(firstCollection: "Prayers", firstDocument: userId, secondCollection: "Prayers", secondDocument: itemId, data: data)
-    }
-    
-    public func deletePrayRequest(userId: String, document: String) async throws {
-        try await firestoreService.deleteDocumentInCollection(firstCollection: "Prayers", firstDocument: userId, secondCollection: "Prayers", secondDocument: document)
+    public func deletePrayRequest(document: String) async throws {
+        try await firestoreService.deleteDocument(collection: "Prayers", document: document)
     }
 }
 
@@ -135,11 +143,11 @@ public final class DefaultUserUseCase: UserUseCase {
 }
 
 public protocol PrayRequestUseCase {
-    func addPrayRequest(userId: String, prayRequest: PrayRequest) async throws
+    func addPrayRequest(prayRequest: PrayRequest) async throws
     func fetchPrayRequests(userId: String) async throws -> [PrayRequest]
-    func updatePrayRequest(userId: String, prayRequest: PrayRequest) async throws
-    func updatePrayRequestFields(userId: String, itemId: String, data: [AnyHashable: Any]) async throws
-    func deletePrayRequest(userId: String, document: String) async throws
+    func updatePrayRequest(prayRequest: PrayRequest) async throws
+    func updatePrayRequest(itemId: String, data: [AnyHashable: Any]) async throws
+    func deletePrayRequest(document: String) async throws
 }
 
 public final class DefaultPrayRequestUseCase: PrayRequestUseCase {
@@ -150,28 +158,24 @@ public final class DefaultPrayRequestUseCase: PrayRequestUseCase {
         self.repository = repository
     }
 
-    public func addPrayRequest(userId: String, prayRequest: PrayRequest) async throws {
-        try await repository.addPrayRequest(userId: userId, prayRequest: prayRequest)
+    public func addPrayRequest(prayRequest: PrayRequest) async throws {
+        try await repository.addPrayRequest(prayRequest: prayRequest)
     }
     
     public func fetchPrayRequests(userId: String) async throws -> [PrayRequest] {
         return try await repository.fetchPrayRequests(userId: userId)
     }
     
-    public func updatePrayRequest(userId: String, prayRequest: PrayRequest) async throws {
-        try await repository.updatePrayRequest(userId: userId, prayRequest: prayRequest)
+    public func updatePrayRequest(prayRequest: PrayRequest) async throws {
+        try await repository.updatePrayRequest(prayRequest: prayRequest)
     }
     
-    public func updatePrayRequestFields(userId: String, itemId: String, data: [AnyHashable : Any]) async throws {
-        try await repository.updatePrayRequestFields(userId: userId, itemId: itemId, data: data)
+    public func updatePrayRequest(itemId: String, data: [AnyHashable : Any]) async throws {
+        try await repository.updatePrayRequest(itemId: itemId, data: data)
     }
     
-    public func deletePrayRequest(userId: String, document: String) async throws {
-        try await repository.deletePrayRequest(userId: userId, document: document)
-    }
-    
-    public func updatePrayRequestField<T: Encodable>(userId: String, key: String, value: T) async throws {
-        
+    public func deletePrayRequest(document: String) async throws {
+        try await repository.deletePrayRequest(document: document)
     }
 }
 

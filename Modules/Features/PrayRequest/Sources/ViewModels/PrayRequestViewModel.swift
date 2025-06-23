@@ -30,7 +30,8 @@ final public class PrayRequestViewModel: PrayRequestViewModelProtocol {
     
     public func addPrayRequest(prayRequest: PrayRequest) async throws {
         guard let userIdentifier = userIdentifier else { return }
-        try await prayRequestUseCase.addPrayRequest(userId: userIdentifier, prayRequest: prayRequest)
+        prayRequest.creatorId = userIdentifier
+        try await prayRequestUseCase.addPrayRequest(prayRequest: prayRequest)
         totalPrayRequests.append(prayRequest)
     }
     
@@ -41,8 +42,8 @@ final public class PrayRequestViewModel: PrayRequestViewModelProtocol {
     }
     
     public func updatePrayRequest(prayRequest: PrayRequest) async throws {
-        guard let userIdentifier = userIdentifier else { return }
-        try await prayRequestUseCase.updatePrayRequest(userId: userIdentifier, prayRequest: prayRequest)
+        guard let _ = userIdentifier else { return }
+        try await prayRequestUseCase.updatePrayRequest(prayRequest: prayRequest)
         if let index = totalPrayRequests.firstIndex(where: { $0 == prayRequest}) {
             totalPrayRequests[index] = prayRequest
         }
@@ -52,11 +53,11 @@ final public class PrayRequestViewModel: PrayRequestViewModelProtocol {
     }
     
     public func deletePrayRequests(prayRequestIds: [String]) async throws {
-        guard let userIdentifier = userIdentifier else { return }
+        guard let _ = userIdentifier else { return }
         try await withThrowingTaskGroup(of: Void.self) { group in
             for id in prayRequestIds {
                 group.addTask {
-                    try await self.prayRequestUseCase.deletePrayRequest(userId: userIdentifier, document: id)
+                    try await self.prayRequestUseCase.deletePrayRequest(document: id)
                 }
             }
             try await group.waitForAll()
@@ -65,14 +66,14 @@ final public class PrayRequestViewModel: PrayRequestViewModelProtocol {
     }
     
     public func deletePrayRequest(prayRequestId: UUID) async throws {
-        guard let userIdentifier = userIdentifier else { return }
-        try await self.prayRequestUseCase.deletePrayRequest(userId: userIdentifier, document: prayRequestId.uuidString)
+        guard let _ = userIdentifier else { return }
+        try await self.prayRequestUseCase.deletePrayRequest(document: prayRequestId.uuidString)
         totalPrayRequests.removeAll { $0.uuid == prayRequestId }
     }
     
     public func setIsPinned(prayRequestId: UUID, isPinned: Bool) async throws {
-        guard let userIdentifier = userIdentifier else { return }
-        try await self.prayRequestUseCase.updatePrayRequestFields(userId: userIdentifier, itemId: prayRequestId.uuidString, data: ["isPinned": isPinned])
+        guard let _ = userIdentifier else { return }
+        try await self.prayRequestUseCase.updatePrayRequest(itemId: prayRequestId.uuidString, data: ["isPinned": isPinned])
         if let index = totalPrayRequests.firstIndex(where: { $0.uuid == prayRequestId}) {
             totalPrayRequests[index].isPinned = isPinned
         }
