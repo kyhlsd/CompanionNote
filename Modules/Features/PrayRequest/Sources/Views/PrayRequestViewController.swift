@@ -377,6 +377,7 @@ public class PrayRequestViewController: UIViewController {
             
             for case let cell as PrayRequestCollectionViewCell in prayRequestCollectionView.visibleCells {
                 cell.setDeleteMode(false)
+                cell.setChecked(false)
             }
             
             UIView.animate(withDuration: 0.2) { [weak self] in

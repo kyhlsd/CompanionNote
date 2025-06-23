@@ -14,14 +14,16 @@ public class PrayRequest: Codable, Hashable {
     public var category: PrayCategory
     public var isPinned: Bool
     public let uuid: UUID
+    public var creatorId: String?
     
-    public init(date: Date, title: String, items: [PrayItem], category: PrayCategory, isPinned: Bool = false, uuid: UUID = UUID()) {
+    public init(date: Date, title: String, items: [PrayItem], category: PrayCategory, isPinned: Bool = false, uuid: UUID = UUID(), creatorId: String? = nil) {
         self.date = date
         self.title = title
         self.items = items
         self.category = category
         self.isPinned = isPinned
         self.uuid = uuid
+        self.creatorId = creatorId
     }
     
     public func updateData(title: String, items: [PrayItem], category: PrayCategory) {
