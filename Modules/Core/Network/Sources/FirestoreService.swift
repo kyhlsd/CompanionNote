@@ -30,13 +30,8 @@ public final class FirestoreService {
     }
     
     func updateDocument<T: Encodable>(collection: String, document: String, data: T) async throws {
-        let encoded = try JSONEncoder().encode(data)
-        let json = try JSONSerialization.jsonObject(with: encoded)
-        
-        guard let dict = json as? [AnyHashable: Any] else {
-            throw NSError(domain: "EncodeError", code: -1)
-        }
-        
+        let encoder = Firestore.Encoder()
+        let dict = try encoder.encode(data)
         try await db.collection(collection).document(document).updateData(dict)
     }
     
