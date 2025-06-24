@@ -15,7 +15,7 @@ public enum PlaceholderStrings {
 
     위 형식으로 입력하면 자동으로 이름과 내용을 분리합니다.
 
-    물론 자유롭게 입력하는 것도 가능합니다.
+    자유롭게 입력하는 것도 가능합니다.
     """
     
     public static let prayTitleInputPlaceholder: String = "ex) 조 모임"

@@ -146,14 +146,16 @@ class PrayRequestDetailViewController: UIViewController {
             prayContainerView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -sidePadding),
             
             categoryLabel.leadingAnchor.constraint(equalTo: prayContainerView.leadingAnchor, constant: innerPadding),
+            categoryLabel.widthAnchor.constraint(equalToConstant: 44),
             categoryLabel.topAnchor.constraint(equalTo: titleLabel.topAnchor),
-            categoryLabel.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
+            categoryLabel.heightAnchor.constraint(equalToConstant: 26),
             
             titleLabel.leadingAnchor.constraint(equalTo: categoryLabel.trailingAnchor, constant: 8),
+            titleLabel.trailingAnchor.constraint(equalTo: pinButton.leadingAnchor, constant: -8),
             titleLabel.topAnchor.constraint(equalTo: prayContainerView.topAnchor, constant: innerPadding),
             
             pinButton.trailingAnchor.constraint(equalTo: deleteButton.leadingAnchor, constant: -4),
-            pinButton.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
+            pinButton.topAnchor.constraint(equalTo: titleLabel.topAnchor),
             pinButton.widthAnchor.constraint(equalToConstant: 28),
             pinButton.heightAnchor.constraint(equalToConstant: 28),
             
@@ -220,6 +222,9 @@ class PrayRequestDetailViewController: UIViewController {
             string: prayRequest.title,
             attributes: Shared.FontTextAttributes.titleTextAttributes
         )
+        titleLabel.numberOfLines = 0
+        titleLabel.lineBreakMode = .byTruncatingTail
+        titleLabel.lineBreakStrategy = .pushOut
     }
     
     private func setupPrayDetailTableView() {

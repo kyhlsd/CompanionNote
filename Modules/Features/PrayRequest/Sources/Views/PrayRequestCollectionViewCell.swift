@@ -95,13 +95,16 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
             cellContainerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
             
             categoryLabel.leadingAnchor.constraint(equalTo: cellContainerView.leadingAnchor, constant: innerPadding),
+            categoryLabel.widthAnchor.constraint(equalToConstant: 40.333333333333336),
             categoryLabel.topAnchor.constraint(equalTo: titleLabel.topAnchor),
             categoryLabel.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
             
             titleLabel.leadingAnchor.constraint(equalTo: categoryLabel.trailingAnchor, constant: 8),
+            titleLabel.trailingAnchor.constraint(equalTo: dateLabel.leadingAnchor, constant: -4),
             titleLabel.topAnchor.constraint(equalTo: cellContainerView.topAnchor, constant: innerPadding - 4), // Font 여백에 따른 조정
             
             dateLabel.trailingAnchor.constraint(equalTo: pinButton.leadingAnchor, constant: -4),
+            dateLabel.widthAnchor.constraint(equalToConstant: 77),
             dateLabel.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
             
             checkBox.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor, constant: -innerPadding + 4), // Font 여백에 따른 조정
@@ -131,6 +134,9 @@ final class PrayRequestCollectionViewCell: UICollectionViewCell {
     
     private func setupTitleLabel() {
         titleLabel.font = Shared.AppFonts.body
+        titleLabel.numberOfLines = 1
+        titleLabel.lineBreakMode = .byTruncatingTail
+        titleLabel.lineBreakStrategy = .pushOut
     }
     
     private func setupPrayItemTableView() {
