@@ -89,14 +89,14 @@ final class PrayEditorViewTests: XCTestCase, RightBarButtonStateDelegate {
     func test_textFieldMaxLengthLimit() {
         let textField = sut.titleTextField
         
-        // 기존 텍스트 10자
-        textField.text = "1234567890"
-        // 11번째 문자 입력 불가
-        XCTAssertFalse(sut.textField(textField, shouldChangeCharactersIn: NSRange(location: 10, length: 0), replacementString: "a"))
+        // 기존 텍스트 18자
+        textField.text = "123456789012345678"
+        // 19번째 문자 입력 불가
+        XCTAssertFalse(sut.textField(textField, shouldChangeCharactersIn: NSRange(location: 18, length: 0), replacementString: "a"))
         
         // 9자 + 1자 입력 가능
-        textField.text = "123456789"
-        XCTAssertTrue(sut.textField(textField, shouldChangeCharactersIn: NSRange(location: 9, length: 0), replacementString: "a"))
+        textField.text = "12345678901234567"
+        XCTAssertTrue(sut.textField(textField, shouldChangeCharactersIn: NSRange(location: 17, length: 0), replacementString: "a"))
     }
     
     func test_titleTextFieldDidChange_callsValidationAndDelegate() {
