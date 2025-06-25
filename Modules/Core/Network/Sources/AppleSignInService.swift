@@ -8,6 +8,7 @@
 import Foundation
 import AuthenticationServices
 import CryptoKit
+import FirebaseAuth
 
 public final class AppleSignInService: NSObject {
     
@@ -68,20 +69,37 @@ public final class AppleSignInService: NSObject {
 // MARK: Extensions
 extension AppleSignInService: ASAuthorizationControllerDelegate {
     public func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
-        guard self.currentNonce != nil else {
-            continuation?.resume(throwing: NSError(domain: "AppleLogin", code: -1, userInfo: [NSLocalizedDescriptionKey: "Missing nonce"]))
+        guard let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential else {
+            continuation?.resume(throwing: NSError(domain: "AppleLogin", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid credential"]))
+            return
+        }
+        guard let nonce = currentNonce else {
+            continuation?.resume(throwing: NSError(domain: "AppleLogin", code: -2, userInfo: [NSLocalizedDescriptionKey: "Missing nonce"]))
             return
         }
         
-        guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential else {
-            continuation?.resume(throwing: NSError(domain: "AppleLogin", code: -2, userInfo: [NSLocalizedDescriptionKey: "Invalid credential"]))
+        guard let appleIDToken = appleIDCredential.identityToken, let idTokenString = String(data: appleIDToken, encoding: .utf8) else {
+            continuation?.resume(throwing: NSError(domain: "AppleLogin", code: -3, userInfo: [NSLocalizedDescriptionKey: "Invalid token"]))
             return
         }
         
-        let userIdentifier = credential.user
+        let credential = OAuthProvider.appleCredential(withIDToken: idTokenString, rawNonce: nonce, fullName: appleIDCredential.fullName)
         
-        continuation?.resume(returning: userIdentifier)
-        cleanup()
+        Auth.auth().signIn(with: credential) { [weak self] (authResult, error) in
+            guard let self = self else {
+                return
+            }
+            if let error {
+                continuation?.resume(throwing: error)
+                return
+            }
+            guard let userIdentifier = authResult?.user.uid else {
+                continuation?.resume(throwing: NSError(domain: "AppleLogin", code: -4, userInfo: [NSLocalizedDescriptionKey: "Missing uid"]))
+                return
+            }
+            continuation?.resume(returning: userIdentifier)
+            cleanup()
+        }
     }
     
     public func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
