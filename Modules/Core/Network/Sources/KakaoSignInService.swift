@@ -8,28 +8,27 @@
 import Foundation
 import KakaoSDKUser
 import KakaoSDKAuth
+import FirebaseFunctions
+import FirebaseAuth
 
 public final class KakaoSignInService {
     
     public init() {}
     
     public func signInAndGetUserId() async throws -> String {
+        let token: OAuthToken
         if UserApi.isKakaoTalkLoginAvailable() {
-            let _ = try await loginWithKakaoTalk()
+            token = try await loginWithKakaoTalk()
         } else {
-            let _ = try await loginWithKakaoAccount()
+            token = try await loginWithKakaoAccount()
         }
         
-        guard AuthApi.hasToken() else {
-            throw NSError(domain: "KakaoLogin", code: 0, userInfo: [NSLocalizedDescriptionKey: "카카오 로그인 토큰이 존재하지 않음"])
-        }
+        let kakaoAccessToken = token.accessToken
         
-        let user = try await fetchKakaoUser()
-        guard let userIdentifier = user.id else {
-            throw NSError(domain: "KakaoLogin", code: 1, userInfo: [NSLocalizedDescriptionKey: "User ID가 존재하지 않음"])
-        }
+        let firebaseCustomToken = try await getFirebaseCustomToken(kakaoAccessToken: kakaoAccessToken)
+        let user = try await signInWithFirebaseCustomToken(firebaseCustomToken)
         
-        return String(userIdentifier)
+        return user.uid
     }
     
     // 카카오톡 로그인
@@ -66,18 +65,30 @@ public final class KakaoSignInService {
         }
     }
     
-    // 사용자 정보 가져오기
-    private func fetchKakaoUser() async throws -> User {
+    private func getFirebaseCustomToken(kakaoAccessToken: String) async throws -> String {
         try await withCheckedThrowingContinuation { continuation in
-            DispatchQueue.main.async {
-                UserApi.shared.me { user, error in
-                    if let error = error {
-                        continuation.resume(throwing: error)
-                    } else if let user = user {
-                        continuation.resume(returning: user)
-                    } else {
-                        continuation.resume(throwing: NSError(domain: "UserFetchError", code: -1))
-                    }
+            let functions = Functions.functions()
+            functions.httpsCallable("kakaoSignIn").call(["token": kakaoAccessToken]) { result, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else if let token = (result?.data as? [String: Any])?["token"] as? String {
+                    continuation.resume(returning: token)
+                } else {
+                    continuation.resume(throwing: NSError(domain: "FirebaseTokenError", code: -1, userInfo: [NSLocalizedDescriptionKey: "커스텀 토큰을 받지 못했습니다."]))
+                }
+            }
+        }
+    }
+    
+    private func signInWithFirebaseCustomToken(_ token: String) async throws -> FirebaseAuth.User {
+        try await withCheckedThrowingContinuation { continuation in
+            Auth.auth().signIn(withCustomToken: token) { authResult, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else if let user = authResult?.user {
+                    continuation.resume(returning: user)
+                } else {
+                    continuation.resume(throwing: NSError(domain: "FirebaseAuthError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Firebase 인증 실패"]))
                 }
             }
         }

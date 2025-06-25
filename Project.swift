@@ -95,6 +95,7 @@ let project = Project(
                     .package(product: "FirebaseCore"),
                     .package(product: "FirebaseFirestore"),
                     .package(product: "FirebaseAuth"),
+                    .package(product: "FirebaseFunctions"),
                     .package(product: "KakaoSDKCommon"),
                     .package(product: "KakaoSDKAuth"),
                     .package(product: "KakaoSDKUser")

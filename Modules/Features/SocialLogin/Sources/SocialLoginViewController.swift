@@ -130,7 +130,7 @@ public class SocialLoginViewController: UIViewController {
             
             do {
                 let userIdentifier = try await kakaoSignInUseCase.execute()
-                
+                print("success")
                 // 서버에 UserIdentifier가 저장되어 있는 경우에만 UserDefaults에 저장, 로그인 처리
                 let userExists = try await userUseCase.userExists(userId: userIdentifier)
                 if !userExists {
@@ -139,6 +139,7 @@ public class SocialLoginViewController: UIViewController {
                 userDefaults.set(userIdentifier, forKey: "userId")
                 presentTabBarController()
             } catch {
+                print(error)
                 presentLoginFailAlert()
             }
         }
