@@ -12,11 +12,11 @@ import FirebaseAuth
 
 public final class AppleSignInService: NSObject {
     
-    private var continuation: CheckedContinuation<String, Error>?
+    private var continuation: CheckedContinuation<Void, Error>?
     private var currentNonce: String?
     private var presentationAnchor: ASPresentationAnchor?
     
-    public func signInAndGetUserId(presentationAnchor: ASPresentationAnchor?) async throws -> String {
+    public func signIn(presentationAnchor: ASPresentationAnchor?) async throws {
         let nonce = randomNonceString()
         currentNonce = nonce
         
@@ -93,11 +93,11 @@ extension AppleSignInService: ASAuthorizationControllerDelegate {
                 continuation?.resume(throwing: error)
                 return
             }
-            guard let userIdentifier = authResult?.user.uid else {
+            guard let _ = authResult?.user.uid else {
                 continuation?.resume(throwing: NSError(domain: "AppleLogin", code: -4, userInfo: [NSLocalizedDescriptionKey: "Missing uid"]))
                 return
             }
-            continuation?.resume(returning: userIdentifier)
+            continuation?.resume(returning: ())
             cleanup()
         }
     }
@@ -124,11 +124,11 @@ extension AppleSignInService: AppleSignInServiceProtocol {}
 
 // MARK: Protocols
 public protocol AppleSignInServiceProtocol {
-    func signInAndGetUserId(presentationAnchor: ASPresentationAnchor?) async throws -> String
+    func signIn(presentationAnchor: ASPresentationAnchor?) async throws
 }
 
 public protocol AppleSignInUseCase {
-    func execute(presentationAnchor: ASPresentationAnchor?) async throws -> String
+    func execute(presentationAnchor: ASPresentationAnchor?) async throws
 }
 
 // MARK: UseCase
@@ -139,7 +139,7 @@ public final class DefaultAppleSignInUseCase: AppleSignInUseCase {
         self.signInService = signInService
     }
     
-    public func execute(presentationAnchor: ASPresentationAnchor?) async throws -> String {
-        return try await signInService.signInAndGetUserId(presentationAnchor: presentationAnchor)
+    public func execute(presentationAnchor: ASPresentationAnchor?) async throws {
+        return try await signInService.signIn(presentationAnchor: presentationAnchor)
     }
 }

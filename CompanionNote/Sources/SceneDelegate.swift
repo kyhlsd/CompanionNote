@@ -26,7 +26,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.windowScene = windowScene
     
         // LogIn 확인
-        if UserDefaults.standard.string(forKey: "userId") != nil {
+        if UserUtils.isLogin() {
             let firstViewController = UINavigationController(rootViewController: PrayRequestViewController(viewModel: PrayRequestViewModel()))
             let secondViewController = UIViewController()
             firstViewController.tabBarItem = UITabBarItem(title: "신앙 일기", image: UIImage(systemName: "map"), tag: 0)

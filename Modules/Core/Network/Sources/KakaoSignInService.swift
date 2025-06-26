@@ -15,7 +15,7 @@ public final class KakaoSignInService {
     
     public init() {}
     
-    public func signInAndGetUserId() async throws -> String {
+    public func signIn() async throws {
         let token: OAuthToken
         if UserApi.isKakaoTalkLoginAvailable() {
             token = try await loginWithKakaoTalk()
@@ -26,9 +26,7 @@ public final class KakaoSignInService {
         let kakaoAccessToken = token.accessToken
         
         let firebaseCustomToken = try await getFirebaseCustomToken(kakaoAccessToken: kakaoAccessToken)
-        let user = try await signInWithFirebaseCustomToken(firebaseCustomToken)
-        
-        return user.uid
+        try await Auth.auth().signIn(withCustomToken: firebaseCustomToken)
     }
     
     // 카카오톡 로그인
@@ -79,31 +77,17 @@ public final class KakaoSignInService {
             }
         }
     }
-    
-    private func signInWithFirebaseCustomToken(_ token: String) async throws -> FirebaseAuth.User {
-        try await withCheckedThrowingContinuation { continuation in
-            Auth.auth().signIn(withCustomToken: token) { authResult, error in
-                if let error = error {
-                    continuation.resume(throwing: error)
-                } else if let user = authResult?.user {
-                    continuation.resume(returning: user)
-                } else {
-                    continuation.resume(throwing: NSError(domain: "FirebaseAuthError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Firebase 인증 실패"]))
-                }
-            }
-        }
-    }
 }
 
 extension KakaoSignInService: KakaoSignInServiceProtocol {}
 
 // MARK: Protocols
 public protocol KakaoSignInServiceProtocol {
-    func signInAndGetUserId() async throws -> String
+    func signIn() async throws
 }
 
 public protocol KakaoSignInUseCase {
-    func execute() async throws -> String
+    func execute() async throws
 }
 
 // MARK: UseCase
@@ -114,7 +98,7 @@ public final class DefaultKakaoSignInUseCase: KakaoSignInUseCase {
         self.signInService = signInService
     }
     
-    public func execute() async throws -> String {
-        return try await signInService.signInAndGetUserId()
+    public func execute() async throws {
+        return try await signInService.signIn()
     }
 }

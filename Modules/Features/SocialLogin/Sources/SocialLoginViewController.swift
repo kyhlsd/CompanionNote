@@ -15,18 +15,15 @@ public class SocialLoginViewController: UIViewController {
     private let appleSignInUseCase: AppleSignInUseCase
     private let kakaoSignInUseCase: KakaoSignInUseCase
     private let userUseCase: UserUseCase
-    private let userDefaults: UserDefaults
     
     public init(
         appleSignInUseCase: AppleSignInUseCase,
         kakaoSignInUseCase: KakaoSignInUseCase,
-        userUseCase: UserUseCase,
-        userDefaults: UserDefaults = .standard
+        userUseCase: UserUseCase
     ) {
         self.appleSignInUseCase = appleSignInUseCase
         self.kakaoSignInUseCase = kakaoSignInUseCase
         self.userUseCase = userUseCase
-        self.userDefaults = userDefaults
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -109,14 +106,15 @@ public class SocialLoginViewController: UIViewController {
             
             do {
                 guard let anchor = self.view.window else { return }
-                let userIdentifier = try await appleSignInUseCase.execute(presentationAnchor: anchor)
+                try await appleSignInUseCase.execute(presentationAnchor: anchor)
+                guard let userIdentifier = UserUtils.getUserIdentifier() else { return }
                 
-                // 서버에 UserIdentifier가 저장되어 있는 경우에만 UserDefaults에 저장, 로그인 처리
+                // 서버 User Collection에 추가
                 let userExists = try await userUseCase.userExists(userId: userIdentifier)
                 if !userExists {
                     try await userUseCase.createUser(userId: userIdentifier)
                 }
-                userDefaults.set(userIdentifier, forKey: "userId")
+                
                 presentTabBarController()
             } catch {
                 presentLoginFailAlert()
@@ -129,17 +127,17 @@ public class SocialLoginViewController: UIViewController {
             guard let self = self else { return }
             
             do {
-                let userIdentifier = try await kakaoSignInUseCase.execute()
-                print("success")
-                // 서버에 UserIdentifier가 저장되어 있는 경우에만 UserDefaults에 저장, 로그인 처리
+                try await kakaoSignInUseCase.execute()
+                guard let userIdentifier = UserUtils.getUserIdentifier() else { return }
+                
+                // 서버 User Collection에 추가
                 let userExists = try await userUseCase.userExists(userId: userIdentifier)
                 if !userExists {
                     try await userUseCase.createUser(userId: userIdentifier)
                 }
-                userDefaults.set(userIdentifier, forKey: "userId")
+                
                 presentTabBarController()
             } catch {
-                print(error)
                 presentLoginFailAlert()
             }
         }
