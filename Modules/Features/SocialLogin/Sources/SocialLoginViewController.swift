@@ -111,11 +111,11 @@ public class SocialLoginViewController: UIViewController {
         Task { [weak self] in
             guard let self = self else { return }
             
+            indicatorView.startAnimating()
             do {
                 guard let anchor = self.view.window else { return }
                 try await appleSignInUseCase.execute(presentationAnchor: anchor)
                 
-                indicatorView.startAnimating()
                 guard let userIdentifier = UserUtils.getUserIdentifier() else { return }
                 
                 // 서버 User Collection에 추가
@@ -136,10 +136,10 @@ public class SocialLoginViewController: UIViewController {
         Task { [weak self] in
             guard let self = self else { return }
             
+            indicatorView.startAnimating()
             do {
                 try await kakaoSignInUseCase.execute()
                 
-                indicatorView.startAnimating()
                 guard let userIdentifier = UserUtils.getUserIdentifier() else { return }
                 
                 // 서버 User Collection에 추가
