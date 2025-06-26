@@ -11,6 +11,7 @@ let project = Project(
     packages: [
         .package(url: "https://github.com/kakao/kakao-ios-sdk.git", from: "2.24.3"),
         .package(url: "https://github.com/firebase/firebase-ios-sdk.git", from: "11.13.0"),
+        .package(url: "https://github.com/WenchaoD/FSCalendar.git", from: "2.8.3")
     ],
     targets: [
         .target(
@@ -156,7 +157,9 @@ let project = Project(
                 infoPlist: .default,
                 sources: ["Modules/Shared/**"],
                 resources: ["Modules/Shared/**/*.xcassets"],
-                dependencies: []
+                dependencies: [
+                    .package(product: "FSCalendar")
+                ]
             ),
     ]
 )
