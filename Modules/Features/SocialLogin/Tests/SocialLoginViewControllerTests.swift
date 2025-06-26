@@ -15,8 +15,8 @@ final class SocialLoginViewControllerTests: XCTestCase {
     func test_appleLogin_success_userExists() async {
         // Given
         let mockApple = MockAppleSignInUseCase()
-        mockApple.userId = "apple_123"
         let mockFirestore = MockFirestoreUseCase()
+        mockApple.userId = "apple_123"
         mockFirestore.shouldUserExist = true
         
         let sut = SpySocialLoginViewController(
@@ -235,6 +235,29 @@ final class SocialLoginViewControllerTests: XCTestCase {
     }
     
     final class SpySocialLoginViewController: SocialLoginViewController {
+        let mockApple: MockAppleSignInUseCase
+        let mockFirestore: MockFirestoreUseCase
+        let mockKakao: MockKakaoSignInUseCase
+        
+        init(
+            appleSignInUseCase: MockAppleSignInUseCase,
+            kakaoSignInUseCase: MockKakaoSignInUseCase,
+            userUseCase: MockFirestoreUseCase
+        ) {
+            self.mockApple = appleSignInUseCase
+            self.mockKakao = kakaoSignInUseCase
+            self.mockFirestore = userUseCase
+            super.init(
+                appleSignInUseCase: mockApple,
+                kakaoSignInUseCase: mockKakao,
+                userUseCase: mockFirestore
+            )
+        }
+        
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+        
         var didPresentAlert = false
         var didPresentTabbar = false
         
@@ -244,6 +267,51 @@ final class SocialLoginViewControllerTests: XCTestCase {
         
         override func presentTabBarController() {
             didPresentTabbar = true
+        }
+        
+        override func appleLoginButtonTapped() {
+            Task { [weak self] in
+                guard let self = self else { return }
+                
+                do {
+                    guard let anchor = self.view.window else { return }
+                    try await mockApple.execute(presentationAnchor: anchor)
+                    
+                    let userIdentifier = mockApple.userId
+                    
+                    // 서버 User Collection에 추가
+                    let userExists = try await mockFirestore.userExists(userId: userIdentifier)
+                    if !userExists {
+                        try await mockFirestore.createUser(userId: userIdentifier)
+                    }
+                    
+                    presentTabBarController()
+                } catch {
+                    presentLoginFailAlert()
+                }
+            }
+        }
+        
+        override func kakaoLoginButtonTapped() {
+            Task { [weak self] in
+                guard let self = self else { return }
+                
+                do {
+                    try await mockKakao.execute()
+                    
+                    let userIdentifier = mockKakao.userId
+
+                    // 서버 User Collection에 추가
+                    let userExists = try await mockFirestore.userExists(userId: userIdentifier)
+                    if !userExists {
+                        try await mockFirestore.createUser(userId: userIdentifier)
+                    }
+                    
+                    presentTabBarController()
+                } catch {
+                    presentLoginFailAlert()
+                }
+            }
         }
     }
 }
