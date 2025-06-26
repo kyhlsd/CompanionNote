@@ -26,23 +26,26 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.windowScene = windowScene
     
         // LogIn 확인
-        if UserUtils.isLogin() {
-            let firstViewController = UINavigationController(rootViewController: PrayRequestViewController(viewModel: PrayRequestViewModel()))
-            let secondViewController = UIViewController()
-            firstViewController.tabBarItem = UITabBarItem(title: "신앙 일기", image: UIImage(systemName: "map"), tag: 0)
-            secondViewController.tabBarItem = UITabBarItem(title: "기도 제목", image: UIImage(systemName: "map"), tag: 1)
-            setupTabBarController(with: [firstViewController, secondViewController])
-        } else {
-            let appleSignInService = AppleSignInService()
-            let appleSignInUseCase = DefaultAppleSignInUseCase(signInService: appleSignInService)
-            let kakaoSignInService = KakaoSignInService()
-            let kakaoSignInUseCase = DefaultKakaoSignInUseCase(signInService: kakaoSignInService)
-            let firestoreService = FirestoreService()
-            let userRepository = UserRepositoryImpl(firestoreService: firestoreService)
-            let userUseCase = DefaultUserUseCase(userRepository: userRepository)
-            
-            window?.rootViewController = SocialLoginViewController(appleSignInUseCase: appleSignInUseCase, kakaoSignInUseCase: kakaoSignInUseCase, userUseCase: userUseCase)
-            window?.makeKeyAndVisible()
+        Task {
+            let isLoggedIn = await UserUtils.isLogin()
+            if isLoggedIn {
+                let firstViewController = UINavigationController(rootViewController: PrayRequestViewController(viewModel: PrayRequestViewModel()))
+                let secondViewController = UIViewController()
+                firstViewController.tabBarItem = UITabBarItem(title: "신앙 일기", image: UIImage(systemName: "map"), tag: 0)
+                secondViewController.tabBarItem = UITabBarItem(title: "기도 제목", image: UIImage(systemName: "map"), tag: 1)
+                setupTabBarController(with: [firstViewController, secondViewController])
+            } else {
+                let appleSignInService = AppleSignInService()
+                let appleSignInUseCase = DefaultAppleSignInUseCase(signInService: appleSignInService)
+                let kakaoSignInService = KakaoSignInService()
+                let kakaoSignInUseCase = DefaultKakaoSignInUseCase(signInService: kakaoSignInService)
+                let firestoreService = FirestoreService()
+                let userRepository = UserRepositoryImpl(firestoreService: firestoreService)
+                let userUseCase = DefaultUserUseCase(userRepository: userRepository)
+                
+                window?.rootViewController = SocialLoginViewController(appleSignInUseCase: appleSignInUseCase, kakaoSignInUseCase: kakaoSignInUseCase, userUseCase: userUseCase)
+                window?.makeKeyAndVisible()
+            }
         }
     }
     

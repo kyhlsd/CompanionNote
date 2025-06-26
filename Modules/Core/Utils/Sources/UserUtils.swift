@@ -8,20 +8,25 @@
 import FirebaseAuth
 
 public enum UserUtils {
-    public static func isLogin() -> Bool {
-        var result = false
-        if let user = Auth.auth().currentUser {
-            user.getIDToken { token, error in
-                if let _ = error {
-                    try? Auth.auth().signOut()
-                } else {
-                    result = true
-                }
-            }
+    public static func isLogin() async -> Bool {
+        guard let user = Auth.auth().currentUser else {
+            return false
         }
-        return result
+
+        do {
+            _ = try await user.getIDToken()
+            return true
+        } catch {
+            try? Auth.auth().signOut()
+            return false
+        }
     }
+    
     public static func getUserIdentifier() -> String? {
         return Auth.auth().currentUser?.uid
+    }
+    
+    public static func logout() {
+        try? Auth.auth().signOut()
     }
 }
