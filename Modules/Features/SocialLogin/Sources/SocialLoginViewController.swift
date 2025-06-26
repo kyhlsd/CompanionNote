@@ -37,6 +37,8 @@ public class SocialLoginViewController: UIViewController {
     
     private let kakaoLoginButton = UIButton()
     
+    private let indicatorView = IndicatorView()
+    
     public override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -53,10 +55,12 @@ public class SocialLoginViewController: UIViewController {
         view.addSubview(logoImageView)
         view.addSubview(appleLoginButton)
         view.addSubview(kakaoLoginButton)
+        view.addSubview(indicatorView)
         
         logoImageView.translatesAutoresizingMaskIntoConstraints = false
         appleLoginButton.translatesAutoresizingMaskIntoConstraints = false
         kakaoLoginButton.translatesAutoresizingMaskIntoConstraints = false
+        indicatorView.translatesAutoresizingMaskIntoConstraints = false
         
         let safeArea = view.safeAreaLayoutGuide
         let socialLoginButtonsHeight: CGFloat = 48
@@ -76,7 +80,10 @@ public class SocialLoginViewController: UIViewController {
             kakaoLoginButton.topAnchor.constraint(equalTo: appleLoginButton.bottomAnchor, constant: 20),
             kakaoLoginButton.heightAnchor.constraint(equalToConstant: socialLoginButtonsHeight),
             kakaoLoginButton.widthAnchor.constraint(equalToConstant: socialLoginButtonsWidth),
-            kakaoLoginButton.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor)
+            kakaoLoginButton.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
+            
+            indicatorView.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
+            indicatorView.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor)
         ])
     }
     
@@ -107,6 +114,8 @@ public class SocialLoginViewController: UIViewController {
             do {
                 guard let anchor = self.view.window else { return }
                 try await appleSignInUseCase.execute(presentationAnchor: anchor)
+                
+                indicatorView.startAnimating()
                 guard let userIdentifier = UserUtils.getUserIdentifier() else { return }
                 
                 // 서버 User Collection에 추가
@@ -119,6 +128,7 @@ public class SocialLoginViewController: UIViewController {
             } catch {
                 presentLoginFailAlert()
             }
+            indicatorView.stopAnimating()
         }
     }
     
@@ -128,6 +138,8 @@ public class SocialLoginViewController: UIViewController {
             
             do {
                 try await kakaoSignInUseCase.execute()
+                
+                indicatorView.startAnimating()
                 guard let userIdentifier = UserUtils.getUserIdentifier() else { return }
                 
                 // 서버 User Collection에 추가
@@ -140,6 +152,7 @@ public class SocialLoginViewController: UIViewController {
             } catch {
                 presentLoginFailAlert()
             }
+            indicatorView.stopAnimating()
         }
     }
     
