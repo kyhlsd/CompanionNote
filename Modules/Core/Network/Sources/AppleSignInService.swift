@@ -8,14 +8,15 @@
 import Foundation
 import AuthenticationServices
 import CryptoKit
+import FirebaseAuth
 
 public final class AppleSignInService: NSObject {
     
-    private var continuation: CheckedContinuation<String, Error>?
+    private var continuation: CheckedContinuation<Void, Error>?
     private var currentNonce: String?
     private var presentationAnchor: ASPresentationAnchor?
     
-    public func signInAndGetUserId(presentationAnchor: ASPresentationAnchor?) async throws -> String {
+    public func signIn(presentationAnchor: ASPresentationAnchor?) async throws {
         let nonce = randomNonceString()
         currentNonce = nonce
         
@@ -68,20 +69,37 @@ public final class AppleSignInService: NSObject {
 // MARK: Extensions
 extension AppleSignInService: ASAuthorizationControllerDelegate {
     public func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
-        guard self.currentNonce != nil else {
-            continuation?.resume(throwing: NSError(domain: "AppleLogin", code: -1, userInfo: [NSLocalizedDescriptionKey: "Missing nonce"]))
+        guard let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential else {
+            continuation?.resume(throwing: NSError(domain: "AppleLogin", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid credential"]))
+            return
+        }
+        guard let nonce = currentNonce else {
+            continuation?.resume(throwing: NSError(domain: "AppleLogin", code: -2, userInfo: [NSLocalizedDescriptionKey: "Missing nonce"]))
             return
         }
         
-        guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential else {
-            continuation?.resume(throwing: NSError(domain: "AppleLogin", code: -2, userInfo: [NSLocalizedDescriptionKey: "Invalid credential"]))
+        guard let appleIDToken = appleIDCredential.identityToken, let idTokenString = String(data: appleIDToken, encoding: .utf8) else {
+            continuation?.resume(throwing: NSError(domain: "AppleLogin", code: -3, userInfo: [NSLocalizedDescriptionKey: "Invalid token"]))
             return
         }
         
-        let userIdentifier = credential.user
+        let credential = OAuthProvider.appleCredential(withIDToken: idTokenString, rawNonce: nonce, fullName: appleIDCredential.fullName)
         
-        continuation?.resume(returning: userIdentifier)
-        cleanup()
+        Auth.auth().signIn(with: credential) { [weak self] (authResult, error) in
+            guard let self = self else {
+                return
+            }
+            if let error {
+                continuation?.resume(throwing: error)
+                return
+            }
+            guard let _ = authResult?.user.uid else {
+                continuation?.resume(throwing: NSError(domain: "AppleLogin", code: -4, userInfo: [NSLocalizedDescriptionKey: "Missing uid"]))
+                return
+            }
+            continuation?.resume(returning: ())
+            cleanup()
+        }
     }
     
     public func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
@@ -106,11 +124,11 @@ extension AppleSignInService: AppleSignInServiceProtocol {}
 
 // MARK: Protocols
 public protocol AppleSignInServiceProtocol {
-    func signInAndGetUserId(presentationAnchor: ASPresentationAnchor?) async throws -> String
+    func signIn(presentationAnchor: ASPresentationAnchor?) async throws
 }
 
 public protocol AppleSignInUseCase {
-    func execute(presentationAnchor: ASPresentationAnchor?) async throws -> String
+    func execute(presentationAnchor: ASPresentationAnchor?) async throws
 }
 
 // MARK: UseCase
@@ -121,7 +139,7 @@ public final class DefaultAppleSignInUseCase: AppleSignInUseCase {
         self.signInService = signInService
     }
     
-    public func execute(presentationAnchor: ASPresentationAnchor?) async throws -> String {
-        return try await signInService.signInAndGetUserId(presentationAnchor: presentationAnchor)
+    public func execute(presentationAnchor: ASPresentationAnchor?) async throws {
+        return try await signInService.signIn(presentationAnchor: presentationAnchor)
     }
 }

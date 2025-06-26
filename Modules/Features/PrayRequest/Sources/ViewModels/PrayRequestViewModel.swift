@@ -22,7 +22,7 @@ final public class PrayRequestViewModel: PrayRequestViewModelProtocol {
     public var shouldUpdatePublisher: Published<Bool>.Publisher { $shouldUpdate }
     
     public init() {
-        self.userIdentifier = UserDefaults.standard.string(forKey: "userId")
+        self.userIdentifier = UserUtils.getUserIdentifier()
         let firestoreService = FirestoreService()
         let prayRequestRepository = PrayRequestRepositoryImpl(firestoreService: firestoreService)
         self.prayRequestUseCase = DefaultPrayRequestUseCase(repository: prayRequestRepository)

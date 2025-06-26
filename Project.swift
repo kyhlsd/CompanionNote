@@ -10,6 +10,7 @@ let project = Project(
     ),
     packages: [
         .package(url: "https://github.com/kakao/kakao-ios-sdk.git", from: "2.24.3"),
+        .package(url: "https://github.com/firebase/firebase-ios-sdk.git", from: "11.13.0"),
     ],
     targets: [
         .target(
@@ -91,8 +92,10 @@ let project = Project(
                 ],
                 dependencies: [
                     .target(name: "Shared"),
-                    .external(name: "FirebaseCore"),
-                    .external(name: "FirebaseFirestore"),
+                    .package(product: "FirebaseCore"),
+                    .package(product: "FirebaseFirestore"),
+                    .package(product: "FirebaseAuth"),
+                    .package(product: "FirebaseFunctions"),
                     .package(product: "KakaoSDKCommon"),
                     .package(product: "KakaoSDKAuth"),
                     .package(product: "KakaoSDKUser")

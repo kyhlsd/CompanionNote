@@ -7,26 +7,18 @@ on:
 
 jobs:
   tuist-test:
-    runs-on: macos-latest
+    runs-on: macos-14
 
     steps:
       - uses: actions/checkout@v4
       - uses: jdx/mise-action@v2
 
+      - name: Select Xcode 16.2
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app
+
       - name: Install Tuist
         run: |
           curl -Ls https://get.tuist.io | bash
-          
-      - name: Cache Tuist build artifacts
-        uses: actions/cache@v3
-        with:
-          path: |
-            .tuist/Cache
-            .build
-            DerivedData
-          key: tuist-${{ runner.os }}-${{ hashFiles('**/Project.swift', '**/Workspace.swift', '**/Tuist/Dependencies.swift') }}
-          restore-keys: |
-            tuist-${{ runner.os }}-
           
       - name: Generate Secret.xcconfig
         env:

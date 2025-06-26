@@ -15,18 +15,15 @@ public class SocialLoginViewController: UIViewController {
     private let appleSignInUseCase: AppleSignInUseCase
     private let kakaoSignInUseCase: KakaoSignInUseCase
     private let userUseCase: UserUseCase
-    private let userDefaults: UserDefaults
     
     public init(
         appleSignInUseCase: AppleSignInUseCase,
         kakaoSignInUseCase: KakaoSignInUseCase,
-        userUseCase: UserUseCase,
-        userDefaults: UserDefaults = .standard
+        userUseCase: UserUseCase
     ) {
         self.appleSignInUseCase = appleSignInUseCase
         self.kakaoSignInUseCase = kakaoSignInUseCase
         self.userUseCase = userUseCase
-        self.userDefaults = userDefaults
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -39,6 +36,8 @@ public class SocialLoginViewController: UIViewController {
     private let appleLoginButton = ASAuthorizationAppleIDButton(authorizationButtonType: .signIn, authorizationButtonStyle: .black)
     
     private let kakaoLoginButton = UIButton()
+    
+    private let indicatorView = IndicatorView()
     
     public override func viewDidLoad() {
         super.viewDidLoad()
@@ -56,10 +55,12 @@ public class SocialLoginViewController: UIViewController {
         view.addSubview(logoImageView)
         view.addSubview(appleLoginButton)
         view.addSubview(kakaoLoginButton)
+        view.addSubview(indicatorView)
         
         logoImageView.translatesAutoresizingMaskIntoConstraints = false
         appleLoginButton.translatesAutoresizingMaskIntoConstraints = false
         kakaoLoginButton.translatesAutoresizingMaskIntoConstraints = false
+        indicatorView.translatesAutoresizingMaskIntoConstraints = false
         
         let safeArea = view.safeAreaLayoutGuide
         let socialLoginButtonsHeight: CGFloat = 48
@@ -79,7 +80,10 @@ public class SocialLoginViewController: UIViewController {
             kakaoLoginButton.topAnchor.constraint(equalTo: appleLoginButton.bottomAnchor, constant: 20),
             kakaoLoginButton.heightAnchor.constraint(equalToConstant: socialLoginButtonsHeight),
             kakaoLoginButton.widthAnchor.constraint(equalToConstant: socialLoginButtonsWidth),
-            kakaoLoginButton.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor)
+            kakaoLoginButton.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
+            
+            indicatorView.centerXAnchor.constraint(equalTo: safeArea.centerXAnchor),
+            indicatorView.centerYAnchor.constraint(equalTo: safeArea.centerYAnchor)
         ])
     }
     
@@ -109,18 +113,22 @@ public class SocialLoginViewController: UIViewController {
             
             do {
                 guard let anchor = self.view.window else { return }
-                let userIdentifier = try await appleSignInUseCase.execute(presentationAnchor: anchor)
+                try await appleSignInUseCase.execute(presentationAnchor: anchor)
                 
-                // 서버에 UserIdentifier가 저장되어 있는 경우에만 UserDefaults에 저장, 로그인 처리
+                indicatorView.startAnimating()
+                guard let userIdentifier = UserUtils.getUserIdentifier() else { return }
+                
+                // 서버 User Collection에 추가
                 let userExists = try await userUseCase.userExists(userId: userIdentifier)
                 if !userExists {
                     try await userUseCase.createUser(userId: userIdentifier)
                 }
-                userDefaults.set(userIdentifier, forKey: "userId")
+                
                 presentTabBarController()
             } catch {
                 presentLoginFailAlert()
             }
+            indicatorView.stopAnimating()
         }
     }
     
@@ -129,18 +137,22 @@ public class SocialLoginViewController: UIViewController {
             guard let self = self else { return }
             
             do {
-                let userIdentifier = try await kakaoSignInUseCase.execute()
+                try await kakaoSignInUseCase.execute()
                 
-                // 서버에 UserIdentifier가 저장되어 있는 경우에만 UserDefaults에 저장, 로그인 처리
+                indicatorView.startAnimating()
+                guard let userIdentifier = UserUtils.getUserIdentifier() else { return }
+                
+                // 서버 User Collection에 추가
                 let userExists = try await userUseCase.userExists(userId: userIdentifier)
                 if !userExists {
                     try await userUseCase.createUser(userId: userIdentifier)
                 }
-                userDefaults.set(userIdentifier, forKey: "userId")
+                
                 presentTabBarController()
             } catch {
                 presentLoginFailAlert()
             }
+            indicatorView.stopAnimating()
         }
     }
     

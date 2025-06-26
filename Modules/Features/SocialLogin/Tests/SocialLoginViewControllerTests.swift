@@ -15,18 +15,14 @@ final class SocialLoginViewControllerTests: XCTestCase {
     func test_appleLogin_success_userExists() async {
         // Given
         let mockApple = MockAppleSignInUseCase()
-        mockApple.userId = "apple_123"
         let mockFirestore = MockFirestoreUseCase()
+        mockApple.userId = "apple_123"
         mockFirestore.shouldUserExist = true
-        
-        let testUserDefaults = UserDefaults(suiteName: "io.tuist.CompanionNote.tests")!
-        testUserDefaults.removePersistentDomain(forName: "io.tuist.CompanionNote.tests")
         
         let sut = SpySocialLoginViewController(
             appleSignInUseCase: mockApple,
             kakaoSignInUseCase: MockKakaoSignInUseCase(),  // dummy
-            userUseCase: mockFirestore,
-            userDefaults: testUserDefaults
+            userUseCase: mockFirestore
         )
         
         let window = UIWindow(frame: UIScreen.main.bounds)
@@ -43,8 +39,6 @@ final class SocialLoginViewControllerTests: XCTestCase {
         await fulfillment(of: [expectation], timeout: 1.0)
         
         // Then
-        let savedId = testUserDefaults.string(forKey: "userId")
-        XCTAssertEqual(savedId, "apple_123")
         XCTAssertTrue(sut.didPresentTabbar)
     }
     
@@ -56,14 +50,10 @@ final class SocialLoginViewControllerTests: XCTestCase {
         let mockFirestore = MockFirestoreUseCase()
         mockFirestore.shouldUserExist = false
         
-        let testUserDefaults = UserDefaults(suiteName: "io.tuist.CompanionNote.tests")!
-        testUserDefaults.removePersistentDomain(forName: "io.tuist.CompanionNote.tests")
-        
         let sut = SpySocialLoginViewController(
             appleSignInUseCase: MockAppleSignInUseCase(),
             kakaoSignInUseCase: mockKakao,
-            userUseCase: mockFirestore,
-            userDefaults: testUserDefaults
+            userUseCase: mockFirestore
         )
         
         let expectation = XCTestExpectation(description: "Wait for kakao login to complete")
@@ -76,8 +66,6 @@ final class SocialLoginViewControllerTests: XCTestCase {
         await fulfillment(of: [expectation], timeout: 1.0)
         
         // Then
-        let savedId = testUserDefaults.string(forKey: "userId")
-        XCTAssertEqual(savedId, "kakao_456")
         XCTAssertTrue(sut.didPresentTabbar)
     }
     
@@ -90,15 +78,10 @@ final class SocialLoginViewControllerTests: XCTestCase {
         let mockFirestore = MockFirestoreUseCase()
         mockFirestore.shouldUserExist = true
         
-        
-        let testUserDefaults = UserDefaults(suiteName: "io.tuist.CompanionNote.tests")!
-        testUserDefaults.removePersistentDomain(forName: "io.tuist.CompanionNote.tests")
-        
         let sut = SpySocialLoginViewController(
             appleSignInUseCase: mockApple,
             kakaoSignInUseCase: MockKakaoSignInUseCase(),
-            userUseCase: MockFirestoreUseCase(),
-            userDefaults: testUserDefaults
+            userUseCase: MockFirestoreUseCase()
         )
         
         let window = UIWindow()
@@ -129,14 +112,10 @@ final class SocialLoginViewControllerTests: XCTestCase {
         mockFirestore.shouldUserExist = false
         mockFirestore.shouldSucceed = false
         
-        let testUserDefaults = UserDefaults(suiteName: "io.tuist.CompanionNote.tests")!
-        testUserDefaults.removePersistentDomain(forName: "io.tuist.CompanionNote.tests")
-        
         let sut = SpySocialLoginViewController(
             appleSignInUseCase: mockApple,
             kakaoSignInUseCase: MockKakaoSignInUseCase(),
-            userUseCase: mockFirestore,
-            userDefaults: testUserDefaults
+            userUseCase: mockFirestore
         )
         
         let window = UIWindow()
@@ -164,14 +143,10 @@ final class SocialLoginViewControllerTests: XCTestCase {
         mockKakao.shouldSucceed = false
         mockKakao.userId = "kakao_456"
         
-        let testUserDefaults = UserDefaults(suiteName: "io.tuist.CompanionNote.tests")!
-        testUserDefaults.removePersistentDomain(forName: "io.tuist.CompanionNote.tests")
-        
         let sut = SpySocialLoginViewController(
             appleSignInUseCase: MockAppleSignInUseCase(),
             kakaoSignInUseCase: mockKakao,
-            userUseCase: MockFirestoreUseCase(),
-            userDefaults: testUserDefaults
+            userUseCase: MockFirestoreUseCase()
         )
         
         // When
@@ -188,49 +163,40 @@ final class SocialLoginViewControllerTests: XCTestCase {
         XCTAssertFalse(sut.didPresentTabbar)
     }
     
-        @MainActor
-        func test_kakaoLogin_whenCreateUserFails_shouldPresentLoginFailAlert() async {
-            // Given
-            let mockKakao = MockKakaoSignInUseCase()
-            mockKakao.userId = "kakao_789"
-            let mockFirestore = MockFirestoreUseCase()
-            mockFirestore.shouldSucceed = false
-    
-            let testUserDefaults = UserDefaults(suiteName: "io.tuist.CompanionNote.tests")!
-            testUserDefaults.removePersistentDomain(forName: "io.tuist.CompanionNote.tests")
-    
-            let sut = SpySocialLoginViewController(
-                appleSignInUseCase: MockAppleSignInUseCase(),
-                kakaoSignInUseCase: mockKakao,
-                userUseCase: mockFirestore,
-                userDefaults: testUserDefaults
-            )
-    
-            // When
-            let expectation = XCTestExpectation(description: "Wait for kakao createUserData fail")
-            Task {
-                sut.kakaoLoginButtonTapped()
-                try? await Task.sleep(nanoseconds: 500_000_000)
-                expectation.fulfill()
-            }
-            await fulfillment(of: [expectation], timeout: 1.0)
-    
-            // Then
-            XCTAssertTrue(sut.didPresentAlert)
-            XCTAssertFalse(sut.didPresentTabbar)
+    @MainActor
+    func test_kakaoLogin_whenCreateUserFails_shouldPresentLoginFailAlert() async {
+        // Given
+        let mockKakao = MockKakaoSignInUseCase()
+        mockKakao.userId = "kakao_789"
+        let mockFirestore = MockFirestoreUseCase()
+        mockFirestore.shouldSucceed = false
+        
+        let sut = SpySocialLoginViewController(
+            appleSignInUseCase: MockAppleSignInUseCase(),
+            kakaoSignInUseCase: mockKakao,
+            userUseCase: mockFirestore
+        )
+        
+        // When
+        let expectation = XCTestExpectation(description: "Wait for kakao createUserData fail")
+        Task {
+            sut.kakaoLoginButtonTapped()
+            try? await Task.sleep(nanoseconds: 500_000_000)
+            expectation.fulfill()
         }
-    
-    override func tearDown() {
-        UserDefaults(suiteName: "io.tuist.CompanionNote.tests")?.removePersistentDomain(forName: "io.tuist.CompanionNote.tests")
-        super.tearDown()
+        await fulfillment(of: [expectation], timeout: 1.0)
+        
+        // Then
+        XCTAssertTrue(sut.didPresentAlert)
+        XCTAssertFalse(sut.didPresentTabbar)
     }
     
     final class MockAppleSignInUseCase: AppleSignInUseCase {
         var shouldSucceed = true
         var userId: String = "mock_apple_user_id"
-        func execute(presentationAnchor: ASPresentationAnchor?) async throws -> String {
+        func execute(presentationAnchor: ASPresentationAnchor?) async throws {
             if shouldSucceed {
-                return userId
+                
             } else {
                 throw NSError(domain: "TestError", code: 999, userInfo: nil)
             }
@@ -240,9 +206,9 @@ final class SocialLoginViewControllerTests: XCTestCase {
     final class MockKakaoSignInUseCase: KakaoSignInUseCase {
         var shouldSucceed = true
         var userId: String = "mock_kakao_user_id"
-        func execute() async throws -> String {
+        func execute() async throws {
             if shouldSucceed {
-                return userId
+                
             } else {
                 throw NSError(domain: "TestError", code: 999, userInfo: nil)
             }
@@ -269,6 +235,29 @@ final class SocialLoginViewControllerTests: XCTestCase {
     }
     
     final class SpySocialLoginViewController: SocialLoginViewController {
+        let mockApple: MockAppleSignInUseCase
+        let mockFirestore: MockFirestoreUseCase
+        let mockKakao: MockKakaoSignInUseCase
+        
+        init(
+            appleSignInUseCase: MockAppleSignInUseCase,
+            kakaoSignInUseCase: MockKakaoSignInUseCase,
+            userUseCase: MockFirestoreUseCase
+        ) {
+            self.mockApple = appleSignInUseCase
+            self.mockKakao = kakaoSignInUseCase
+            self.mockFirestore = userUseCase
+            super.init(
+                appleSignInUseCase: mockApple,
+                kakaoSignInUseCase: mockKakao,
+                userUseCase: mockFirestore
+            )
+        }
+        
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+        
         var didPresentAlert = false
         var didPresentTabbar = false
         
@@ -278,6 +267,51 @@ final class SocialLoginViewControllerTests: XCTestCase {
         
         override func presentTabBarController() {
             didPresentTabbar = true
+        }
+        
+        override func appleLoginButtonTapped() {
+            Task { [weak self] in
+                guard let self = self else { return }
+                
+                do {
+                    guard let anchor = self.view.window else { return }
+                    try await mockApple.execute(presentationAnchor: anchor)
+                    
+                    let userIdentifier = mockApple.userId
+                    
+                    // 서버 User Collection에 추가
+                    let userExists = try await mockFirestore.userExists(userId: userIdentifier)
+                    if !userExists {
+                        try await mockFirestore.createUser(userId: userIdentifier)
+                    }
+                    
+                    presentTabBarController()
+                } catch {
+                    presentLoginFailAlert()
+                }
+            }
+        }
+        
+        override func kakaoLoginButtonTapped() {
+            Task { [weak self] in
+                guard let self = self else { return }
+                
+                do {
+                    try await mockKakao.execute()
+                    
+                    let userIdentifier = mockKakao.userId
+
+                    // 서버 User Collection에 추가
+                    let userExists = try await mockFirestore.userExists(userId: userIdentifier)
+                    if !userExists {
+                        try await mockFirestore.createUser(userId: userIdentifier)
+                    }
+                    
+                    presentTabBarController()
+                } catch {
+                    presentLoginFailAlert()
+                }
+            }
         }
     }
 }

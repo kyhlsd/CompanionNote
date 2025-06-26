@@ -71,6 +71,8 @@ Tuist/.build
 
 ### Firebase file ###
 CompanionNote/Resources/GoogleService-Info.plist
+functions/node_modules/
+firebase-debug.log
 
 ### Secret.xcconfig ###
 Tuist/Configurations/Secret.xcconfig
