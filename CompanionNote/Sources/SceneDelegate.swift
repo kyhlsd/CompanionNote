@@ -29,8 +29,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         Task {
             let isLoggedIn = await UserUtils.isLogin()
             if isLoggedIn {
-                let firstViewController = UINavigationController(rootViewController: PrayRequestViewController(viewModel: PrayRequestViewModel()))
-                let secondViewController = UIViewController()
+                let firstViewController = UINavigationController(rootViewController: DailyNoteViewController())
+                let secondViewController = UINavigationController(rootViewController: PrayRequestViewController(viewModel: PrayRequestViewModel()))
                 firstViewController.tabBarItem = UITabBarItem(title: "신앙 일기", image: UIImage(systemName: "map"), tag: 0)
                 secondViewController.tabBarItem = UITabBarItem(title: "기도 제목", image: UIImage(systemName: "map"), tag: 1)
                 setupTabBarController(with: [firstViewController, secondViewController])
